@@ -1,3 +1,3 @@
-git add package.json package-lock.json
-git commit -m "fix: add next dependency"
+# Fais un commit vide pour forcer un redeploy
+git commit --allow-empty -m "fix: force redeploy"
 git push
