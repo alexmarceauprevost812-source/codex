@@ -1,39 +1,38 @@
 /);
-  if (match) {
-    return { lang: match[1] || 'txt', code: match[2].trim() };
-  }
+  if (match) return { lang: match[1] || 'txt', code: match[2].trim() };
   return null;
 }
 
-// ── Afficher le code dans le studio ──────────────────
+// ── Afficher le code dans le studio ───────────────────
 function displayCode(lang, code) {
   codeContent.textContent = code;
-  langBadge.textContent = '💻 ' + lang.toUpperCase();
+  langBadge.textContent   = '🌐 ' + lang.toUpperCase();
   const lines = code.split('\n').length;
-  lineCount.textContent = `📄 ${lines} ligne${lines > 1 ? 's' : ''}`;
-  if (typeof Prism !== 'undefined') {
-    codeContent.className = `language-${lang}`;
-    Prism.highlightElement(codeContent);
-  }
+  lineCount.textContent   = `📄 ${lines} ligne${lines > 1 ? 's' : ''}`;
   addStudioTab(lang);
 }
 
 // ── Onglets du studio ─────────────────────────────────
 function addStudioTab(lang) {
   const tab = document.createElement('button');
-  tab.className = 'studio-tab active';
-  tab.textContent = `✨ ${lang.toUpperCase()}`;
-  studioTabs.querySelectorAll('.studio-tab').forEach(t => t.classList.remove('active'));
+  tab.className = 'tab active';
+  tab.textContent = `📄 ${lang.toUpperCase()}`;
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  };
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   studioTabs.appendChild(tab);
 }
 
-// ── Historique des sessions ───────────────────────────
+// ── Ajouter à l'historique ────────────────────────────
 function addToHistory(label) {
   const item = document.createElement('li');
   item.className = 'history-item';
   item.textContent = `💬 ${label}`;
-  item.onclick = () => alert('🗂️ Reprendre cette session bientôt!');
+  item.onclick = () => showToast('🗂️ Reprise de session — bientôt disponible!');
   historyList.prepend(item);
+  allSessions.unshift({ label, time: new Date() });
 }
 
 // ── Envoyer un message ────────────────────────────────
@@ -41,10 +40,15 @@ async function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
 
+  const btn   = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳';
+
   addMessage(text, 'user');
   userInput.value = '';
   autoResize(userInput);
 
+  // Indicateur "en train d'écrire"
   const thinking = document.createElement('div');
   thinking.className = 'message bot thinking';
   thinking.innerHTML = `
@@ -52,14 +56,18 @@ async function sendMessage() {
     <div class="bubble bot-bubble">
       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>`;
-  messages.appendChild(thinking);
-  messages.scrollTop = messages.scrollHeight;
+  messagesEl.appendChild(thinking);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 
   try {
-    const res = await fetch('/api/chat', {
+    const res  = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, session: sessionCount })
+      body: JSON.stringify({
+        message: text,
+        session: sessionCount,
+        lang: langSelect ? langSelect.value : 'auto'
+      })
     });
     const data = await res.json();
     thinking.remove();
@@ -70,53 +78,233 @@ async function sendMessage() {
     const extracted = extractCode(reply);
     if (extracted) displayCode(extracted.lang, extracted.code);
 
-    if (sessionCount === 1) addToHistory(`💡 Session ${sessionCount} — ${text.slice(0, 20)}...`);
+    if (sessionCount === 1) addToHistory(`Session ${sessionCount} — ${text.slice(0, 22)}...`);
     sessionCount++;
 
   } catch (err) {
     thinking.remove();
-    addMessage('❌ Erreur de connexion au serveur. Réessaie dans un instant!', 'bot');
-    console.error('Erreur:', err);
+    addMessage('❌ Erreur de connexion. Vérifie que le serveur tourne!', 'bot');
+    console.error('Erreur sendMessage:', err);
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = '🚀';
   }
 }
 
-// ── Copier le code ────────────────────────────────────
+// ══════════════════════════════════════════
+// 🟠 BOUTONS STUDIO
+// ══════════════════════════════════════════
+
+// ── 📋 Copier le code ─────────────────────
 function copyCode() {
   const code = codeContent.textContent;
-  navigator.clipboard.writeText(code).then(() => {
-    showToast('✅ Code copié dans le presse-papier!');
-  });
+  if (!code || code.startsWith('// ✏️')) {
+    showToast('⚠️ Pas encore de code à copier!');
+    return;
+  }
+  navigator.clipboard.writeText(code)
+    .then(() => showToast('✅ Code copié dans le presse-papier!'))
+    .catch(() => showToast('❌ Impossible de copier — vérifie les permissions du navigateur.'));
 }
 
-// ── Télécharger le code ───────────────────────────────
+// ── ⬇️ Télécharger le code ────────────────
 function downloadCode() {
   const code = codeContent.textContent;
-  const lang = langBadge.textContent.replace('💻 ', '').toLowerCase();
+  if (!code || code.startsWith('// ✏️')) {
+    showToast('⚠️ Pas encore de code à télécharger!');
+    return;
+  }
+  const lang = langBadge.textContent.replace('🌐 ', '').toLowerCase();
+  const ext  = langToExt(lang);
   const blob = new Blob([code], { type: 'text/plain' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `code-tilexal.${lang}`;
+  a.download = `codex-${Date.now()}.${ext}`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('📥 Fichier téléchargé!');
+  showToast(`📥 Fichier codex.${ext} téléchargé!`);
 }
 
-// ── Toast notification ────────────────────────────────
+// ── Extension selon le langage ────────────
+function langToExt(lang) {
+  const map = {
+    js: 'js', javascript: 'js', py: 'py', python: 'py',
+    html: 'html', css: 'css', ts: 'ts', typescript: 'ts',
+    sql: 'sql', php: 'php', java: 'java', cs: 'cs',
+    go: 'go', rs: 'rs', txt: 'txt', auto: 'txt'
+  };
+  return map[lang] || 'txt';
+}
+
+// ══════════════════════════════════════════
+// 🟠 BOUTONS HEADER
+// ══════════════════════════════════════════
+
+// ── 📋 Copier toute la conversation ───────
+function copyAll() {
+  const msgs = document.querySelectorAll('.bubble p');
+  if (!msgs.length) { showToast('⚠️ Aucun message à copier!'); return; }
+  const text = [...msgs].map(p => p.textContent).join('\n\n');
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('✅ Conversation copiée!'))
+    .catch(() => showToast('❌ Erreur de copie.'));
+}
+
+// ── 💾 Exporter la conversation (JSON) ────
+function exportChat() {
+  const msgs = document.querySelectorAll('.message');
+  if (!msgs.length) { showToast('⚠️ Rien à exporter!'); return; }
+
+  const data = [...msgs].map(m => ({
+    role: m.classList.contains('user') ? 'user' : 'bot',
+    text: m.querySelector('p')?.textContent || '',
+    time: m.querySelector('.bubble-time')?.textContent || ''
+  }));
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `codex-chat-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('💾 Conversation exportée en JSON!');
+}
+
+// ── 🗑️ Effacer la conversation ────────────
+function clearChat() {
+  if (!confirm('🗑️ Effacer toute la conversation? Cette action est irréversible!')) return;
+  messagesEl.innerHTML = '';
+  addMessage('🍁 Conversation effacée! Comment puis-je t\'aider?', 'bot');
+  showToast('🗑️ Conversation effacée!');
+}
+
+// ══════════════════════════════════════════
+// 🟠 BOUTONS SIDEBAR
+// ══════════════════════════════════════════
+
+// ── ＋ Nouvelle conversation ───────────────
+function newChat() {
+  if (messagesEl.children.length > 1) {
+    addToHistory(`Session ${sessionCount} — ${new Date().toLocaleTimeString('fr-CA')}`);
+  }
+  messagesEl.innerHTML = '';
+  codeContent.textContent = '// ✏️ Ton code apparaîtra ici automatiquement...\n// 🚀 Envoie un message pour commencer!';
+  lineCount.textContent   = '📄 0 lignes';
+  langBadge.textContent   = '🌐 AUTO';
+  sessionCount++;
+  addMessage('🍁 Nouvelle conversation démarrée! Qu\'est-ce qu\'on bâtit aujourd\'hui?', 'bot');
+  showToast('✨ Nouvelle conversation!');
+}
+
+// ── ⚙️ Paramètres ─────────────────────────
+function openSettings() {
+  showModal('⚙️ Paramètres', `
+    <p>🔧 <strong>Version :</strong> CODEX 1.0</p>
+    <p>🤖 <strong>Modèle IA :</strong> Claude (Anthropic)</p>
+    <p>🌐 <strong>Langue :</strong> Français (Québec)</p>
+    <p>💾 <strong>Sessions sauvegardées :</strong> ${allSessions.length}</p>
+    <hr style="border-color:var(--border);margin:12px 0"/>
+    <p style="font-size:0.85rem;color:var(--subtext)">TI-LEX-AL — Plateforme IA québécoise 🍁</p>
+  `);
+}
+
+// ── 🎨 Basculer thème clair / sombre ──────
+function toggleTheme() {
+  darkMode = !darkMode;
+  const root = document.documentElement;
+  if (darkMode) {
+    root.style.setProperty('--bg',         '#0f1117');
+    root.style.setProperty('--panel',      '#1a1d27');
+    root.style.setProperty('--panel-dark', '#12141e');
+    root.style.setProperty('--border',     '#2a2d3a');
+    root.style.setProperty('--text',       '#e8eaf0');
+    root.style.setProperty('--subtext',    '#8b8fa8');
+    showToast('🌙 Mode sombre activé!');
+  } else {
+    root.style.setProperty('--bg',         '#c8c8c8');
+    root.style.setProperty('--panel',      '#b8b8b8');
+    root.style.setProperty('--panel-dark', '#a8a8a8');
+    root.style.setProperty('--border',     '#909090');
+    root.style.setProperty('--text',       '#111111');
+    root.style.setProperty('--subtext',    '#444444');
+    showToast('☀️ Mode clair activé!');
+  }
+}
+
+// ── 🐙 Push GitHub ────────────────────────
+function pushToGithub() {
+  const code = codeContent.textContent;
+  if (!code || code.startsWith('// ✏️')) {
+    showToast('⚠️ Génère du code avant de pusher!');
+    return;
+  }
+  showModal('🐙 Push GitHub', `
+    <p>✅ Code prêt à envoyer sur GitHub!</p>
+    <hr style="border-color:var(--border);margin:12px 0"/>
+    <p style="font-size:0.88rem">Pour pusher depuis ton terminal :</p>
+    <pre style="background:var(--panel-dark);padding:10px;border-radius:10px;margin-top:8px;font-size:0.8rem">git add .
+git commit -m "✨ Code généré par CODEX"
+git push origin main</pre>
+    <p style="font-size:0.78rem;color:var(--subtext);margin-top:10px">💡 Si Vercel est connecté, le déploiement est automatique après le push!</p>
+  `);
+}
+
+// ── 📎 Joindre un fichier ─────────────────
+function attachFile() {
+  const input = document.createElement('input');
+  input.type  = 'file';
+  input.accept = '.js,.py,.html,.css,.ts,.sql,.php,.txt,.json,.md';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const ext  = file.name.split('.').pop();
+    displayCode(ext, text);
+    addMessage(`📎 Fichier <strong>${file.name}</strong> chargé dans le studio! (${text.split('\n').length} lignes)`, 'bot');
+    showToast(`📎 ${file.name} chargé!`);
+  };
+  input.click();
+}
+
+// ══════════════════════════════════════════
+// 🛠️ UTILITAIRES
+// ══════════════════════════════════════════
+
+// ── Toast notification ────────────────────
 function showToast(msg) {
+  // Enlever les toasts existants
+  document.querySelectorAll('.toast').forEach(t => t.remove());
   const toast = document.createElement('div');
-  toast.className = 'toast';
+  toast.className   = 'toast';
   toast.textContent = msg;
   document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s';
+    setTimeout(() => toast.remove(), 350);
+  }, 2800);
 }
 
-// ── Nouvelle conversation ─────────────────────────────
-function newChat() {
-  messages.innerHTML = '';
-  addMessage('🍁 Nouvelle conversation démarrée! Comment puis-je t\'aider?', 'bot');
-  sessionCount++;
+// ── Modal générique ───────────────────────
+function showModal(title, bodyHTML) {
+  // Enlever les modals existants
+  document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">${title}</span>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+      </div>
+      <div class="modal-body">${bodyHTML}</div>
+    </div>`;
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
 }
 
-// ── Init ──────────────────────────────────────────────
-addMessage('👋 Salut! Chu TI-LEX-AL, ton agent IA québécois. Pose-moi n\'importe quelle question!', 'bot');
+// ── Init ──────────────────────────────────
+addMessage('👋 Salut! Chu <strong>CODEX</strong>, ton agent IA québécois spécialisé en code. Tous les boutons sont actifs — essaie-les! 🍁', 'bot');
