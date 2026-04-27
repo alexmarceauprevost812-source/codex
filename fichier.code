@@ -1,5 +1,7 @@
-ton-projet/
-├── package.json
-├── vercel.json (si t'en as un)
-├── src/
-└── ...
+mon-projet/          ← Root Directory = "/"
+├── package.json     ← next doit être ici
+├── next.config.js
+├── public/
+├── app/             (Next.js 13+)
+│   └── page.js
+└── node_modules/
