@@ -1,7 +1,4 @@
-mon-projet/          ← Root Directory = "/"
-├── package.json     ← next doit être ici
-├── next.config.js
-├── public/
-├── app/             (Next.js 13+)
-│   └── page.js
-└── node_modules/
+1. Delete le projet sur Vercel
+2. Reimporte depuis GitHub
+3. Configure ben le Root Directory
+4. Redéploie!
