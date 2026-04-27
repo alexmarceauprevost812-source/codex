@@ -2,221 +2,103 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Menus Gauche & Droite</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f0f0f;
-      color: #f0f0f0;
-      min-height: 100vh;
-    }
-
-    /* === TOPBAR === */
-    .topbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 54px;
-      background: #1a1a2e;
-      border-bottom: 2px solid #e94560;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
-      z-index: 1000;
-    }
-
-    .logo {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #e94560;
-      letter-spacing: 2px;
-    }
-
-    .btn-toggle {
-      background: #e94560;
-      border: none;
-      color: #fff;
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-toggle:hover { background: #c73652; }
-    .btn-toggle.right  { background: #5c7cfa; }
-    .btn-toggle.right:hover { background: #3a5bd9; }
-
-    /* === OVERLAY === */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 900;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .overlay.visible { opacity: 1; pointer-events: all; }
-
-    /* === SIDEBAR GAUCHE === */
-    .sidebar-left {
-      position: fixed;
-      top: 0; left: 0;
-      width: 240px;
-      height: 100%;
-      background: #16213e;
-      border-right: 2px solid #e94560;
-      z-index: 1100;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar-left.open { transform: translateX(0); }
-
-    /* === SIDEBAR DROITE === */
-    .sidebar-right {
-      position: fixed;
-      top: 0; right: 0;
-      width: 240px;
-      height: 100%;
-      background: #1a1a2e;
-      border-left: 2px solid #5c7cfa;
-      z-index: 1100;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar-right.open { transform: translateX(0); }
-
-    /* === SIDEBAR HEADER === */
-    .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .sidebar-header h2 { font-size: 0.95rem; color: #e94560; text-transform: uppercase; letter-spacing: 1px; }
-    .sidebar-right .sidebar-header h2 { color: #5c7cfa; }
-
-    /* === BOUTON FERMER === */
-    .btn-close {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
-    }
-    .btn-close:hover { background: #e94560; border-color: #e94560; transform: rotate(90deg); }
-    .sidebar-right .btn-close:hover { background: #5c7cfa; border-color: #5c7cfa; }
-
-    /* === LIENS NAV === */
-    .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
-    .sidebar-nav li a {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      color: #ccc;
-      text-decoration: none;
-      font-size: 0.92rem;
-      border-left: 3px solid transparent;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-    .sidebar-nav li a:hover {
-      background: rgba(233,69,96,0.1);
-      color: #fff;
-      border-left-color: #e94560;
-    }
-    .sidebar-right .sidebar-nav li a:hover {
-      background: rgba(92,124,250,0.1);
-      border-left: none;
-      border-right: 3px solid #5c7cfa;
-    }
-
-    /* === CONTENU === */
-    .main {
-      margin-top: 54px;
-      padding: 36px 28px;
-    }
-    .main h1 { font-size: 1.6rem; color: #e94560; margin-bottom: 10px; }
-    .main p  { color: #888; line-height: 1.6; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codex Terminal — AL</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="app">
+    <header class="header">
+      <div class="logo">⚡ Codex Terminal</div>
+      <div class="header-right">
+        <div class="model-badge">code-davinci-002</div>
+        <button class="btn-vercel-header" onclick="toggleVercelPanel()">▲ Vercel</button>
+      </div>
+    </header>
 
-  <div class="overlay" id="overlay"></div>
+    <!-- PANNEAU VERCEL -->
+    <div class="vercel-panel" id="vercelPanel" style="display:none">
+      <div class="vercel-panel-inner">
+        <div class="vercel-title">▲ Déploiement Vercel</div>
 
-  <!-- SIDEBAR GAUCHE -->
-  <aside class="sidebar-left" id="sidebarLeft">
-    <div class="sidebar-header">
-      <h2>📂 Menu</h2>
-      <button class="btn-close" id="closeBtnLeft">✕</button>
+        <div class="vercel-section">
+          <label>Token Vercel
+            <div class="input-row">
+              <input type="password" id="vercelToken" placeholder="vercel_token_xxxx" />
+              <button class="btn-sm" onclick="saveToken()">💾 Sauvegarder</button>
+            </div>
+          </label>
+        </div>
+
+        <div class="vercel-section">
+          <label>Nom du projet
+            <input type="text" id="projectName" placeholder="mon-projet-codex" />
+          </label>
+        </div>
+
+        <div class="vercel-section">
+          <label>Fichiers à déployer
+            <div class="file-list" id="fileList">
+              <div class="file-item">
+                <input type="checkbox" id="f-html" checked />
+                <label for="f-html">index.html</label>
+              </div>
+              <div class="file-item">
+                <input type="checkbox" id="f-css" checked />
+                <label for="f-css">style.css</label>
+              </div>
+              <div class="file-item">
+                <input type="checkbox" id="f-js" checked />
+                <label for="f-js">script.js</label>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="vercel-actions">
+          <button class="btn-deploy" onclick="deployToVercel()">🚀 Déployer maintenant</button>
+          <button class="btn-status" onclick="checkDeployStatus()">🔄 Vérifier statut</button>
+          <button class="btn-open" id="btnOpenSite" onclick="openDeployedSite()" style="display:none">🌐 Ouvrir le site</button>
+        </div>
+
+        <div class="deploy-log" id="deployLog"></div>
+      </div>
     </div>
-    <ul class="sidebar-nav">
-      <li><a href="#">🏠 Accueil</a></li>
-      <li><a href="#">📊 Dashboard</a></li>
-      <li><a href="#">📁 Projets</a></li>
-      <li><a href="#">📝 Documents</a></li>
-      <li><a href="#">💬 Messages</a></li>
-      <li><a href="#">⚙️ Paramètres</a></li>
-    </ul>
-  </aside>
 
-  <!-- SIDEBAR DROITE -->
-  <aside class="sidebar-right" id="sidebarRight">
-    <div class="sidebar-header">
-      <button class="btn-close" id="closeBtnRight">✕</button>
-      <h2>🔧 Outils</h2>
+    <div class="chat-container" id="chatContainer">
+      <div class="welcome-msg">
+        <span class="icon">🤖</span>
+        <p>Salut! Envoie ton code ou ta question — je réponds via <strong>OpenAI Codex</strong>.<br/>
+        Clique sur <strong>▲ Vercel</strong> pour déployer direct!</p>
+      </div>
     </div>
-    <ul class="sidebar-nav">
-      <li><a href="#">🔔 Notifications</a></li>
-      <li><a href="#">👤 Profil</a></li>
-      <li><a href="#">🎨 Thèmes</a></li>
-      <li><a href="#">🛡️ Sécurité</a></li>
-      <li><a href="#">💡 Aide</a></li>
-      <li><a href="#">🚪 Déconnexion</a></li>
-    </ul>
-  </aside>
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <button class="btn-toggle" id="openBtnLeft">☰</button>
-    <span class="logo">TI-LEX</span>
-    <button class="btn-toggle right" id="openBtnRight">⚙</button>
-  </header>
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea
+          id="userInput"
+          placeholder="Écris ton code ou ta question ici..."
+          rows="3"
+          onkeydown="handleKeyDown(event)"
+        ></textarea>
+        <div class="input-controls">
+          <div class="options">
+            <label>Tokens max :
+              <input type="number" id="maxTokens" value="512" min="64" max="4096" step="64" />
+            </label>
+            <label>Température :
+              <input type="number" id="temperature" value="0.2" min="0" max="1" step="0.1" />
+            </label>
+          </div>
+          <div class="btn-group">
+            <button class="btn-codex" id="sendBtn" onclick="sendToCodex()">Envoyer ▶</button>
+            <button class="btn-deploy-quick" onclick="quickDeploy()">▲ Deploy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- CONTENU -->
-  <main class="main">
-    <h1>👋 Bienvenue</h1>
-    <p>Clique sur ☰ pour le menu gauche, ou ⚙ pour les outils à droite.</p>
-  </main>
-
-  <script>
-    const sL = document.getElementById('sidebarLeft');
-    const sR = document.getElementById('sidebarRight');
-    const ov = document.getElementById('overlay');
-
-    document.getElementById('openBtnLeft').onclick  = () => { closeR(); sL.classList.add('open'); ov.classList.add('visible'); };
-    document.getElementById('openBtnRight').onclick = () => { closeL(); sR.classList.add('open'); ov.classList.add('visible'); };
-    document.getElementById('closeBtnLeft').onclick  = closeL;
-    document.getElementById('closeBtnRight').onclick = closeR;
-    ov.onclick = () => { closeL(); closeR(); };
-    document.onkeydown = e => { if (e.key === 'Escape') { closeL(); closeR(); } };
-
-    function closeL() { sL.classList.remove('open'); if (!sR.classList.contains('open')) ov.classList.remove('visible'); }
-    function closeR() { sR.classList.remove('open'); if (!sL.classList.contains('open')) ov.classList.remove('visible'); }
-  </script>
-
+  <script src="script.js"></script>
 </body>
 </html>
