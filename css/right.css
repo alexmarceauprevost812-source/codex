@@ -1,0 +1,190 @@
+/* ═══ RIGHT PANEL ═══ */
+
+.rpanel {
+  background: var(--bp);
+  border-left: 1px solid var(--bo);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.rph {
+  padding: 20px 16px 12px;
+  border-bottom: 1px solid var(--bo);
+  position: sticky;
+  top: 0;
+  background: var(--bp);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rph h2 { font-size: 1rem; font-weight: 700; }
+
+/* Section title */
+.rsect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 6px;
+}
+.rsect h3 {
+  font-size: .74rem;
+  font-weight: 700;
+  color: var(--ts);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+.rsect span {
+  font-size: .7rem;
+  color: var(--a);
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.rsect span:hover { opacity: .7; }
+
+/* User card */
+.ucard {
+  margin: 0 10px 10px;
+  padding: 12px;
+  background: var(--bc);
+  border-radius: var(--rg);
+  border: 1px solid var(--bo);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.uav {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ad), var(--a));
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--gw);
+  flex-shrink: 0;
+}
+
+.uinf { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 2px; }
+.unm { font-size: .82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.uhdl { font-size: .7rem; color: var(--ts); }
+
+.ubdg {
+  display: inline-block;
+  font-size: .6rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: rgba(255,107,43,.15);
+  color: var(--a);
+  border: 1px solid rgba(255,107,43,.3);
+}
+
+/* Skills right */
+.rskills {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 10px 8px;
+}
+
+.rsc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bc);
+  border-radius: var(--rg);
+  border: 1px solid var(--bo);
+  transition: all .22s;
+}
+
+.rsc:hover {
+  border-color: rgba(255,107,43,.3);
+  background: rgba(255,107,43,.04);
+  transform: translateX(2px);
+}
+
+.rsci {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--rs);
+  background: var(--bh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--a);
+  flex-shrink: 0;
+  border: 1px solid var(--bo);
+}
+
+.rsci2 { display: flex; flex-direction: column; flex: 1; gap: 4px; }
+.rscn { font-size: .79rem; font-weight: 600; }
+
+.rbar { height: 4px; background: var(--bh); border-radius: 99px; overflow: hidden; }
+.rfill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ad), var(--a));
+  border-radius: 99px;
+  width: 0%;
+  transition: width 1s cubic-bezier(.4,0,.2,1);
+}
+.rpct { font-size: .67rem; color: var(--a); font-weight: 700; }
+
+/* Repos right */
+.rrepos {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0 10px 12px;
+}
+
+.rri {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  background: var(--bc);
+  border-radius: var(--rg);
+  border: 1px solid var(--bo);
+  cursor: pointer;
+  transition: all .18s;
+}
+.rri:hover { border-color: var(--a); background: rgba(255,107,43,.05); box-shadow: var(--gw); }
+.rri > i { color: var(--a); font-size: .8rem; flex-shrink: 0; }
+
+.rrdet { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 1px; }
+.rrn { font-size: .79rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rrb { font-size: .65rem; color: var(--ts); }
+.rrl { font-size: .62rem; font-weight: 700; padding: 1px 6px; border-radius: 99px; background: rgba(255,107,43,.15); color: var(--a); border: 1px solid rgba(255,107,43,.3); }
+
+.rph-empty {
+  font-size: .75rem;
+  color: var(--ts);
+  text-align: center;
+  padding: 12px 8px;
+  border: 1px dashed var(--bo);
+  border-radius: var(--rg);
+  margin: 0 10px;
+}
+
+/* Settings select */
+.msel {
+  width: 100%;
+  background: var(--bc);
+  border: 1px solid var(--bo);
+  border-radius: var(--rg);
+  padding: 9px 12px;
+  color: var(--t);
+  font-size: .81rem;
+  outline: none;
+  font-family: var(--fn);
+  cursor: pointer;
+}
+.msel:focus { border-color: var(--a); }
