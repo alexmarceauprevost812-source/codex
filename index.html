@@ -1,216 +1,182 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Skiller — Plateforme</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Skiller — Codex AI</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+<div class="app-wrapper">
 
-  <div class="app-wrapper">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
+    <span class="logo-text">Skiller</span>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" data-panel="conversations"><i class="fa-solid fa-message"></i><span class="tooltip">Conversations</span></button>
+    <button class="nav-btn" data-panel="skills"><i class="fa-solid fa-star"></i><span class="tooltip">Skills</span></button>
+    <button class="nav-btn" data-panel="cours"><i class="fa-solid fa-book-open"></i><span class="tooltip">Cours</span></button>
+    <button class="nav-btn" data-panel="github"><i class="fa-brands fa-github"></i><span class="tooltip">GitHub</span></button>
+    <button class="nav-btn" data-panel="profil"><i class="fa-solid fa-user"></i><span class="tooltip">Profil</span></button>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="nav-btn" data-panel="settings"><i class="fa-solid fa-gear"></i><span class="tooltip">Parametres</span></button>
+  </div>
+</aside>
 
-    <!-- ===== MINI-MENU GAUCHE ===== -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
-        <span class="logo-text">Skiller</span>
-      </div>
+<!-- PANNEAU GAUCHE DYNAMIQUE -->
+<section class="left-panel">
 
-      <nav class="sidebar-nav">
-        <button class="nav-btn active" title="Conversations">
-          <i class="fa-solid fa-message"></i>
-        </button>
-        <button class="nav-btn" title="Skills">
-          <i class="fa-solid fa-star"></i>
-        </button>
-        <button class="nav-btn" title="Cours">
-          <i class="fa-solid fa-book-open"></i>
-        </button>
-        <button class="nav-btn" title="GitHub">
-          <i class="fa-brands fa-github"></i>
-        </button>
-        <button class="nav-btn" title="Profil">
-          <i class="fa-solid fa-user"></i>
-        </button>
-      </nav>
-
-      <div class="sidebar-bottom">
-        <button class="nav-btn" title="Paramètres">
-          <i class="fa-solid fa-gear"></i>
-        </button>
-      </div>
-    </aside>
-
-    <!-- ===== PANNEAU CONVERSATIONS ===== -->
-    <section class="conversations-panel" id="conversationsPanel">
-      <div class="panel-header">
-        <h2>Conversations</h2>
-        <button class="btn-new-conv" id="btnNewConv">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </div>
-
-      <div class="search-conv">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Rechercher..." id="searchConv" />
-      </div>
-
-      <ul class="conv-list" id="convList">
-        <li class="conv-item active">
-          <div class="conv-avatar">JS</div>
-          <div class="conv-info">
-            <span class="conv-name">Projet JavaScript</span>
-            <span class="conv-preview">Dernier message...</span>
-          </div>
-          <span class="conv-time">14h22</span>
-        </li>
-        <li class="conv-item">
-          <div class="conv-avatar gh"><i class="fa-brands fa-github"></i></div>
-          <div class="conv-info">
-            <span class="conv-name">Repo texte-1</span>
-            <span class="conv-preview">Commits récents</span>
-          </div>
-          <span class="conv-time">12h10</span>
-        </li>
-        <li class="conv-item">
-          <div class="conv-avatar sk">SK</div>
-          <div class="conv-info">
-            <span class="conv-name">Skiller General</span>
-            <span class="conv-preview">Bienvenue !</span>
-          </div>
-          <span class="conv-time">Hier</span>
-        </li>
-      </ul>
-
-      <!-- Connexion GitHub -->
-      <div class="github-connect" id="githubConnect">
-        <button class="btn-github" id="btnGithub">
-          <i class="fa-brands fa-github"></i>
-          Connecter GitHub
-        </button>
-        <span class="github-status" id="githubStatus">Non connecté</span>
-      </div>
-    </section>
-
-    <!-- ===== ZONE CHAT CENTRALE ===== -->
-    <main class="chat-main">
-      <div class="chat-header">
-        <div class="chat-title">
-          <span class="chat-avatar">JS</span>
-          <div>
-            <h3>Projet JavaScript</h3>
-            <span class="chat-subtitle">En ligne</span>
-          </div>
-        </div>
-        <div class="chat-actions">
-          <button class="action-btn" title="Rechercher">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </button>
-          <button class="action-btn" title="Plus">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="chat-messages" id="chatMessages">
-        <div class="msg-date-divider">Aujourd'hui</div>
-
-        <div class="message received">
-          <div class="msg-avatar">SK</div>
-          <div class="msg-content">
-            <span class="msg-sender">Skiller</span>
-            <p>Bienvenue sur la plateforme Skiller ! 🚀</p>
-            <span class="msg-time">14h00</span>
-          </div>
-        </div>
-
-        <div class="message sent">
-          <div class="msg-content">
-            <p>Merci ! On commence le projet texte-1.</p>
-            <span class="msg-time">14h05</span>
-          </div>
-        </div>
-
-        <div class="message received">
-          <div class="msg-avatar">SK</div>
-          <div class="msg-content">
-            <span class="msg-sender">Skiller</span>
-            <p>Parfait ! Connecte ton GitHub pour voir tes repos 🟢</p>
-            <span class="msg-time">14h22</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="chat-input-zone">
-        <button class="input-btn" title="Joindre">
-          <i class="fa-solid fa-paperclip"></i>
-        </button>
-        <input type="text" id="msgInput" placeholder="Écris un message..." />
-        <button class="input-btn" title="Emoji">
-          <i class="fa-regular fa-face-smile"></i>
-        </button>
-        <button class="btn-send" id="btnSend">
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </main>
-
-    <!-- ===== PANNEAU DROITE ===== -->
-    <aside class="right-panel">
-      <div class="panel-header">
-        <h2>Skills</h2>
-      </div>
-
-      <div class="skill-cards">
-        <div class="skill-card">
-          <div class="skill-icon"><i class="fa-brands fa-js"></i></div>
-          <div class="skill-info">
-            <span class="skill-name">JavaScript</span>
-            <div class="skill-bar">
-              <div class="skill-fill" style="width: 75%"></div>
-            </div>
-            <span class="skill-pct">75%</span>
-          </div>
-        </div>
-        <div class="skill-card">
-          <div class="skill-icon"><i class="fa-brands fa-css3-alt"></i></div>
-          <div class="skill-info">
-            <span class="skill-name">CSS</span>
-            <div class="skill-bar">
-              <div class="skill-fill" style="width: 85%"></div>
-            </div>
-            <span class="skill-pct">85%</span>
-          </div>
-        </div>
-        <div class="skill-card">
-          <div class="skill-icon"><i class="fa-brands fa-github"></i></div>
-          <div class="skill-info">
-            <span class="skill-name">GitHub</span>
-            <div class="skill-bar">
-              <div class="skill-fill" style="width: 60%"></div>
-            </div>
-            <span class="skill-pct">60%</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-header" style="margin-top:1.5rem">
-        <h2>Repos GitHub</h2>
-      </div>
-      <div class="repos-list" id="reposList">
-        <div class="repo-item">
-          <i class="fa-solid fa-code-branch"></i>
-          <span>texte-1</span>
-          <span class="repo-lang">JS</span>
-        </div>
-        <div class="repo-placeholder">Connecte GitHub pour voir tes repos</div>
-      </div>
-    </aside>
-
+  <!-- CONVERSATIONS -->
+  <div class="panel-content active" id="panel-conversations">
+    <div class="panel-header"><h2>Conversations</h2><button class="btn-new-conv" id="btnNewConv"><i class="fa-solid fa-plus"></i></button></div>
+    <div class="search-conv"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Rechercher..." id="searchConv"/></div>
+    <ul class="conv-list" id="convList"></ul>
+    <div class="github-connect">
+      <button class="btn-github" id="btnGithub"><i class="fa-brands fa-github"></i> Connecter GitHub</button>
+      <span class="github-status" id="githubStatus">Non connecte</span>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- SKILLS -->
+  <div class="panel-content" id="panel-skills">
+    <div class="panel-header"><h2>Skills</h2></div>
+    <div class="skill-cards" style="padding:12px">
+      <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-js"></i></div><div class="skill-info"><span class="skill-name">JavaScript</span><div class="skill-bar"><div class="skill-fill" style="width:75%"></div></div><span class="skill-pct">75%</span></div></div>
+      <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-css3-alt"></i></div><div class="skill-info"><span class="skill-name">CSS</span><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div><span class="skill-pct">85%</span></div></div>
+      <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-html5"></i></div><div class="skill-info"><span class="skill-name">HTML</span><div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div><span class="skill-pct">90%</span></div></div>
+      <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-python"></i></div><div class="skill-info"><span class="skill-name">Python</span><div class="skill-bar"><div class="skill-fill" style="width:50%"></div></div><span class="skill-pct">50%</span></div></div>
+      <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-node-js"></i></div><div class="skill-info"><span class="skill-name">Node.js</span><div class="skill-bar"><div class="skill-fill" style="width:60%"></div></div><span class="skill-pct">60%</span></div></div>
+      <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-github"></i></div><div class="skill-info"><span class="skill-name">GitHub</span><div class="skill-bar"><div class="skill-fill" style="width:70%"></div></div><span class="skill-pct">70%</span></div></div>
+    </div>
+  </div>
+
+  <!-- COURS -->
+  <div class="panel-content" id="panel-cours">
+    <div class="panel-header"><h2>Cours</h2></div>
+    <div class="cours-list">
+      <div class="cours-item"><div class="cours-icon"><i class="fa-brands fa-js"></i></div><div class="cours-info"><span class="cours-title">JavaScript Avance</span><span class="cours-sub">12 modules • 85%</span><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div></div></div>
+      <div class="cours-item"><div class="cours-icon"><i class="fa-solid fa-robot"></i></div><div class="cours-info"><span class="cours-title">IA et Prompt Engineering</span><span class="cours-sub">8 modules • 40%</span><div class="skill-bar"><div class="skill-fill" style="width:40%"></div></div></div></div>
+      <div class="cours-item"><div class="cours-icon"><i class="fa-brands fa-react"></i></div><div class="cours-info"><span class="cours-title">React Fondamentaux</span><span class="cours-sub">10 modules • 20%</span><div class="skill-bar"><div class="skill-fill" style="width:20%"></div></div></div></div>
+      <div class="cours-item"><div class="cours-icon"><i class="fa-solid fa-database"></i></div><div class="cours-info"><span class="cours-title">Bases de donnees</span><span class="cours-sub">6 modules • 0%</span><div class="skill-bar"><div class="skill-fill" style="width:0%"></div></div></div></div>
+    </div>
+  </div>
+
+  <!-- GITHUB -->
+  <div class="panel-content" id="panel-github">
+    <div class="panel-header"><h2>GitHub</h2></div>
+    <div class="gh-profile" id="ghProfile">
+      <div class="gh-connect-zone">
+        <div class="gh-icon"><i class="fa-brands fa-github"></i></div>
+        <p>Connecte ton compte GitHub pour voir tes repos et commits</p>
+        <button class="btn-github full" id="btnGithub2"><i class="fa-brands fa-github"></i> Connecter GitHub</button>
+        <span class="github-status" id="githubStatus2">Non connecte</span>
+      </div>
+    </div>
+    <div class="repos-list" id="reposList2"></div>
+  </div>
+
+  <!-- PROFIL -->
+  <div class="panel-content" id="panel-profil">
+    <div class="panel-header"><h2>Profil</h2></div>
+    <div class="profil-zone">
+      <div class="profil-avatar-big">AM</div>
+      <div class="profil-name">Alex Marceau Prevost</div>
+      <div class="profil-handle">@alexmarceauprevost812</div>
+      <div class="profil-badge"><i class="fa-solid fa-bolt"></i> Dev Skiller</div>
+      <div class="profil-stats">
+        <div class="stat-item"><span class="stat-val">12</span><span class="stat-label">Projets</span></div>
+        <div class="stat-item"><span class="stat-val">4</span><span class="stat-label">Repos</span></div>
+        <div class="stat-item"><span class="stat-val">87%</span><span class="stat-label">Skills</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="panel-content" id="panel-settings">
+    <div class="panel-header"><h2>Parametres</h2></div>
+    <div class="settings-zone">
+      <div class="settings-section">
+        <div class="settings-title"><i class="fa-solid fa-robot"></i> Cle API Anthropic</div>
+        <p class="settings-desc">Entre ta cle API Claude pour activer le Codex AI. Ta cle est sauvegardee localement.</p>
+        <div class="api-input-zone">
+          <input type="password" id="anthropicKey" placeholder="sk-ant-api..." class="api-input"/>
+          <button class="btn-eye" id="btnEye"><i class="fa-solid fa-eye"></i></button>
+        </div>
+        <div class="api-actions">
+          <button class="btn-save-key" id="btnSaveKey"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
+          <button class="btn-clear-key" id="btnClearKey"><i class="fa-solid fa-trash"></i> Effacer</button>
+        </div>
+        <div class="key-status" id="keyStatus"></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title"><i class="fa-solid fa-sliders"></i> Modele Claude</div>
+        <select class="model-select" id="modelSelect">
+          <option value="claude-opus-4-5">Claude Opus 4.5 (Puissant)</option>
+          <option value="claude-sonnet-4-5" selected>Claude Sonnet 4.5 (Recommande)</option>
+          <option value="claude-haiku-3-5">Claude Haiku 3.5 (Rapide)</option>
+        </select>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title"><i class="fa-solid fa-circle-info"></i> A propos</div>
+        <p class="settings-desc">Skiller Codex AI v1.0<br/>Propulse par Claude d Anthropic<br/>Projet: texte-1 • Branche: Alex</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- CHAT -->
+<main class="chat-main">
+  <div class="chat-header">
+    <div class="chat-title">
+      <span class="chat-avatar" id="chatAvatar">AI</span>
+      <div><h3 id="chatTitle">Codex AI</h3><span class="chat-subtitle" id="chatSubtitle">En ligne</span></div>
+    </div>
+    <div class="chat-actions">
+      <span class="ai-badge" id="aiBadge">Claude</span>
+      <button class="action-btn" id="btnClearChat" title="Effacer le chat"><i class="fa-solid fa-trash"></i></button>
+      <button class="action-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+    </div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-zone">
+    <button class="input-btn"><i class="fa-solid fa-paperclip"></i></button>
+    <input type="text" id="msgInput" placeholder="Ecris un message a Claude..."/>
+    <button class="input-btn"><i class="fa-regular fa-face-smile"></i></button>
+    <button class="btn-send" id="btnSend"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</main>
+
+<!-- PANNEAU DROITE -->
+<aside class="right-panel">
+  <div class="panel-header"><h2>Profil</h2></div>
+  <div class="user-card">
+    <div class="user-avatar">AM</div>
+    <div class="user-info">
+      <span class="user-name">Alex M. Prevost</span>
+      <span class="user-handle">@alexmarceauprevost812</span>
+      <span class="user-badge">Dev</span>
+    </div>
+  </div>
+  <div class="right-section-title"><h2>Skills</h2><span>Voir tout</span></div>
+  <div class="skill-cards">
+    <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-js"></i></div><div class="skill-info"><span class="skill-name">JavaScript</span><div class="skill-bar"><div class="skill-fill" style="width:75%"></div></div><span class="skill-pct">75%</span></div></div>
+    <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-css3-alt"></i></div><div class="skill-info"><span class="skill-name">CSS</span><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div><span class="skill-pct">85%</span></div></div>
+    <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-html5"></i></div><div class="skill-info"><span class="skill-name">HTML</span><div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div><span class="skill-pct">90%</span></div></div>
+    <div class="skill-card"><div class="skill-icon"><i class="fa-brands fa-github"></i></div><div class="skill-info"><span class="skill-name">GitHub</span><div class="skill-bar"><div class="skill-fill" style="width:70%"></div></div><span class="skill-pct">70%</span></div></div>
+  </div>
+  <div class="right-section-title"><h2>Repos GitHub</h2><span id="refreshRepos">Actualiser</span></div>
+  <div class="repos-list" id="reposList">
+    <div class="repo-placeholder">Connecte GitHub pour voir tes repos</div>
+  </div>
+</aside>
+
+</div>
+<script src="script.js"></script>
 </body>
 </html>
