@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skiller — Plateforme</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <div class="app-wrapper">
+
+    <!-- ===== MINI-MENU GAUCHE ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon"><i class="fa-solid fa-bolt"></i></span>
+        <span class="logo-text">Skiller</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" title="Conversations">
+          <i class="fa-solid fa-message"></i>
+        </button>
+        <button class="nav-btn" title="Skills">
+          <i class="fa-solid fa-star"></i>
+        </button>
+        <button class="nav-btn" title="Cours">
+          <i class="fa-solid fa-book-open"></i>
+        </button>
+        <button class="nav-btn" title="GitHub">
+          <i class="fa-brands fa-github"></i>
+        </button>
+        <button class="nav-btn" title="Profil">
+          <i class="fa-solid fa-user"></i>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="nav-btn" title="Paramètres">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== PANNEAU CONVERSATIONS ===== -->
+    <section class="conversations-panel" id="conversationsPanel">
+      <div class="panel-header">
+        <h2>Conversations</h2>
+        <button class="btn-new-conv" id="btnNewConv">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+
+      <div class="search-conv">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Rechercher..." id="searchConv" />
+      </div>
+
+      <ul class="conv-list" id="convList">
+        <li class="conv-item active">
+          <div class="conv-avatar">JS</div>
+          <div class="conv-info">
+            <span class="conv-name">Projet JavaScript</span>
+            <span class="conv-preview">Dernier message...</span>
+          </div>
+          <span class="conv-time">14h22</span>
+        </li>
+        <li class="conv-item">
+          <div class="conv-avatar gh"><i class="fa-brands fa-github"></i></div>
+          <div class="conv-info">
+            <span class="conv-name">Repo texte-1</span>
+            <span class="conv-preview">Commits récents</span>
+          </div>
+          <span class="conv-time">12h10</span>
+        </li>
+        <li class="conv-item">
+          <div class="conv-avatar sk">SK</div>
+          <div class="conv-info">
+            <span class="conv-name">Skiller General</span>
+            <span class="conv-preview">Bienvenue !</span>
+          </div>
+          <span class="conv-time">Hier</span>
+        </li>
+      </ul>
+
+      <!-- Connexion GitHub -->
+      <div class="github-connect" id="githubConnect">
+        <button class="btn-github" id="btnGithub">
+          <i class="fa-brands fa-github"></i>
+          Connecter GitHub
+        </button>
+        <span class="github-status" id="githubStatus">Non connecté</span>
+      </div>
+    </section>
+
+    <!-- ===== ZONE CHAT CENTRALE ===== -->
+    <main class="chat-main">
+      <div class="chat-header">
+        <div class="chat-title">
+          <span class="chat-avatar">JS</span>
+          <div>
+            <h3>Projet JavaScript</h3>
+            <span class="chat-subtitle">En ligne</span>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button class="action-btn" title="Rechercher">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+          <button class="action-btn" title="Plus">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg-date-divider">Aujourd'hui</div>
+
+        <div class="message received">
+          <div class="msg-avatar">SK</div>
+          <div class="msg-content">
+            <span class="msg-sender">Skiller</span>
+            <p>Bienvenue sur la plateforme Skiller ! 🚀</p>
+            <span class="msg-time">14h00</span>
+          </div>
+        </div>
+
+        <div class="message sent">
+          <div class="msg-content">
+            <p>Merci ! On commence le projet texte-1.</p>
+            <span class="msg-time">14h05</span>
+          </div>
+        </div>
+
+        <div class="message received">
+          <div class="msg-avatar">SK</div>
+          <div class="msg-content">
+            <span class="msg-sender">Skiller</span>
+            <p>Parfait ! Connecte ton GitHub pour voir tes repos 🟢</p>
+            <span class="msg-time">14h22</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-zone">
+        <button class="input-btn" title="Joindre">
+          <i class="fa-solid fa-paperclip"></i>
+        </button>
+        <input type="text" id="msgInput" placeholder="Écris un message..." />
+        <button class="input-btn" title="Emoji">
+          <i class="fa-regular fa-face-smile"></i>
+        </button>
+        <button class="btn-send" id="btnSend">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </main>
+
+    <!-- ===== PANNEAU DROITE ===== -->
+    <aside class="right-panel">
+      <div class="panel-header">
+        <h2>Skills</h2>
+      </div>
+
+      <div class="skill-cards">
+        <div class="skill-card">
+          <div class="skill-icon"><i class="fa-brands fa-js"></i></div>
+          <div class="skill-info">
+            <span class="skill-name">JavaScript</span>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 75%"></div>
+            </div>
+            <span class="skill-pct">75%</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon"><i class="fa-brands fa-css3-alt"></i></div>
+          <div class="skill-info">
+            <span class="skill-name">CSS</span>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 85%"></div>
+            </div>
+            <span class="skill-pct">85%</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon"><i class="fa-brands fa-github"></i></div>
+          <div class="skill-info">
+            <span class="skill-name">GitHub</span>
+            <div class="skill-bar">
+              <div class="skill-fill" style="width: 60%"></div>
+            </div>
+            <span class="skill-pct">60%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-header" style="margin-top:1.5rem">
+        <h2>Repos GitHub</h2>
+      </div>
+      <div class="repos-list" id="reposList">
+        <div class="repo-item">
+          <i class="fa-solid fa-code-branch"></i>
+          <span>texte-1</span>
+          <span class="repo-lang">JS</span>
+        </div>
+        <div class="repo-placeholder">Connecte GitHub pour voir tes repos</div>
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
