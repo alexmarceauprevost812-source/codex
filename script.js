@@ -1,180 +1,350 @@
-const state={githubConnected:false,githubUser:null,activeConv:0,conversations:[{id:0,name:'Projet JavaScript',avatar:'JS',avatarClass:'',preview:'Dernier message...',time:'14h22',messages:[{type:'received',sender:'Skiller',text:'Bienvenue sur Skiller ! 🚀',time:'14h00'},{type:'sent',text:'Merci! On commence texte-1.',time:'14h05'},{type:'received',sender:'Skiller',text:'Parfait! Connecte ton GitHub pour voir tes repos 🟢',time:'14h22'}]},{id:1,name:'Repo texte-1',avatar:'GH',avatarClass:'gh',preview:'Commits recents',time:'12h10',messages:[{type:'received',sender:'GitHub',text:'Connecte ton GitHub pour voir tes repos 📂',time:'12h10'}]},{id:2,name:'Skiller General',avatar:'SK',avatarClass:'sk',preview:'Bienvenue!',time:'Hier',messages:[{type:'received',sender:'Skiller',text:'Bienvenue dans Skiller General! 👋',time:'Hier'},{type:'received',sender:'Skiller',text:'Partage tes skills et avance dans tes projets 💪',time:'Hier'}]}]};
+// ============================================================
+//  CODEX VIVANT — script.js
+// ============================================================
 
-const $=id=>document.getElementById(id);
-const convList=$('convList'),chatMessages=$('chatMessages'),msgInput=$('msgInput'),btnSend=$('btnSend'),btnNewConv=$('btnNewConv'),searchConv=$('searchConv'),btnGithub=$('btnGithub'),githubStatus=$('githubStatus'),reposList=$('reposList'),chatAvatarEl=$('chatAvatar'),chatTitleEl=$('chatTitle');
+const App = {
 
-function now(){const n=new Date();return n.getHours()+'h'+String(n.getMinutes()).padStart(2,'0');}
+  // ---------- STATE ----------
+  users: JSON.parse(localStorage.getItem('codex_users') || '[]'),
+  currentUser: JSON.parse(localStorage.getItem('codex_current') || 'null'),
+  chatHistory: [],
+  currentCode: '',
 
-function renderConvList(f=''){
-  convList.innerHTML='';
-  state.conversations.filter(c=>c.name.toLowerCase().includes(f.toLowerCase())).forEach(c=>{
-    const li=document.createElement('li');
-    li.className='conv-item'+(c.id===state.activeConv?' active':'');
-    const av=c.avatarClass==='gh'?'<i class="fa-brands fa-github"></i>':c.avatar;
-    li.innerHTML=`<div class="conv-avatar ${c.avatarClass}">${av}</div><div class="conv-info"><span class="conv-name">${c.name}</span><span class="conv-preview">${c.preview}</span></div><span class="conv-time">${c.time}</span>`;
-    li.onclick=()=>selectConv(c.id);
-    convList.appendChild(li);
-  });
-}
+  // ---------- INIT ----------
+  init() {
+    this.buildDOM();
+    this.startMatrix();
+    setTimeout(() => this.showAuth(), 3200);
+  },
 
-function selectConv(id){
-  state.activeConv=id;
-  renderConvList(searchConv.value);
-  renderMessages(id);
-  const c=state.conversations.find(x=>x.id===id);
-  chatTitleEl.textContent=c.name;
-  if(c.avatarClass==='gh'){
-    chatAvatarEl.innerHTML='<i class="fa-brands fa-github"></i>';
-    chatAvatarEl.style.background='linear-gradient(135deg,#222,#444)';
-    chatAvatarEl.style.color='#fff';
-    chatAvatarEl.style.boxShadow='none';
-  } else if(c.avatarClass==='sk'){
-    chatAvatarEl.innerHTML=c.avatar;
-    chatAvatarEl.style.background='linear-gradient(135deg,var(--orange-dark),var(--orange))';
-    chatAvatarEl.style.color='#fff';
-    chatAvatarEl.style.boxShadow='var(--glow-orange)';
-  } else {
-    chatAvatarEl.innerHTML=c.avatar;
-    chatAvatarEl.style.background='linear-gradient(135deg,var(--lime-dark),var(--lime))';
-    chatAvatarEl.style.color='#000';
-    chatAvatarEl.style.boxShadow='var(--glow-lime)';
+  // ---------- DOM BUILDER ----------
+  buildDOM() {
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      <div id="auth-screen">
+        <div class="auth-title">✦ CODEX VIVANT ✦</div>
+        <div class="auth-subtitle">— système de connaissance —</div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Connexion</button>
+          <button class="auth-tab" data-tab="register">Inscription</button>
+        </div>
+        <form class="auth-form active" id="form-login">
+          <input class="auth-input" id="login-user" type="text" placeholder="Nom d'utilisateur" autocomplete="off" />
+          <input class="auth-input" id="login-pass" type="password" placeholder="Mot de passe" />
+          <div class="auth-msg" id="login-msg"></div>
+          <button class="auth-btn" type="submit">⚡ ENTRER</button>
+        </form>
+        <form class="auth-form" id="form-register">
+          <input class="auth-input" id="reg-user" type="text" placeholder="Nom d'utilisateur" autocomplete="off" />
+          <input class="auth-input" id="reg-pass" type="password" placeholder="Mot de passe" />
+          <input class="auth-input" id="reg-pass2" type="password" placeholder="Confirmer mot de passe" />
+          <div class="auth-msg" id="reg-msg"></div>
+          <button class="auth-btn" type="submit">✏️ CRÉER MON COMPTE</button>
+        </form>
+      </div>
+
+      <div id="codex-screen">
+        <div class="codex-topbar">
+          <span class="codex-topbar-title">✦ CODEX VIVANT</span>
+          <span class="topbar-user" id="topbar-username"></span>
+          <button class="topbar-logout" id="btn-logout">Déconnexion</button>
+        </div>
+        <div class="panel-left">
+          <div class="panel-title">📚 Navigation</div>
+          <div class="menu-section">Général</div>
+          <div class="menu-item active" data-section="accueil">🏠 Accueil</div>
+          <div class="menu-item" data-section="notes">📝 Mes notes</div>
+          <div class="menu-item" data-section="projets">🚀 Projets</div>
+          <div class="menu-section">Codex</div>
+          <div class="menu-item" data-section="entries">📖 Entrées</div>
+          <div class="menu-item" data-section="tags">🏷️ Tags</div>
+          <div class="menu-item" data-section="archive">📦 Archives</div>
+          <div class="menu-section">Outils</div>
+          <div class="menu-item" data-section="settings">⚙️ Paramètres</div>
+          <div class="menu-item" data-section="about">ℹ️ À propos</div>
+        </div>
+        <div class="panel-center">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg bot">Bienvenue dans le Codex Vivant ! Je suis AL, ton assistant. Écris-moi du code ou pose-moi une question !</div>
+          </div>
+          <div class="chat-input-bar">
+            <input class="chat-input" id="chat-input" type="text" placeholder="Écris ton message ou du code..." autocomplete="off" />
+            <button class="chat-send" id="chat-send">Envoyer ▶</button>
+          </div>
+        </div>
+        <div class="panel-right">
+          <div class="panel-title">💻 Code en direct</div>
+          <div class="code-area" id="code-area"><span class="cmt">// Le code apparaît ici...</span></div>
+          <button class="code-deploy-btn" id="deploy-btn">🚀 Déployer</button>
+        </div>
+      </div>
+
+      <div id="deploy-overlay">
+        <div class="deploy-title">🚀 DÉPLOIEMENT EN COURS...</div>
+        <div class="deploy-log" id="deploy-log"></div>
+        <div class="deploy-bar-wrap">
+          <div class="deploy-bar" id="deploy-bar"></div>
+        </div>
+        <div class="deploy-done" id="deploy-done">✅ DÉPLOIEMENT COMPLÉTÉ !</div>
+      </div>
+    `;
+    this.bindEvents();
+  },
+
+  // ---------- MATRIX ----------
+  startMatrix() {
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const chars = 'アイウエオカキクケコABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const fontSize = 16;
+    const cols = Math.floor(canvas.width / fontSize);
+    const drops = Array(cols).fill(1);
+    const draw = () => {
+      ctx.fillStyle = 'rgba(0,0,0,0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = fontSize + 'px monospace';
+      drops.forEach((y, i) => {
+        ctx.fillStyle = Math.random() > 0.7 ? '#ff6a00' : '#0f0';
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(char, i * fontSize, y * fontSize);
+        if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      });
+    };
+    this._matrixInterval = setInterval(draw, 40);
+    setTimeout(() => {
+      clearInterval(this._matrixInterval);
+      canvas.classList.add('fade-out');
+    }, 3000);
+  },
+
+  // ---------- SHOW AUTH ----------
+  showAuth() {
+    const auth = document.getElementById('auth-screen');
+    auth.classList.add('visible');
+    if (this.currentUser) {
+      setTimeout(() => this.showCodex(), 600);
+    }
+  },
+
+  // ---------- BIND EVENTS ----------
+  bindEvents() {
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('form-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+    document.getElementById('form-login').addEventListener('submit', e => {
+      e.preventDefault();
+      this.login();
+    });
+    document.getElementById('form-register').addEventListener('submit', e => {
+      e.preventDefault();
+      this.register();
+    });
+    document.getElementById('btn-logout').addEventListener('click', () => this.logout());
+    document.getElementById('chat-send').addEventListener('click', () => this.sendChat());
+    document.getElementById('chat-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') this.sendChat();
+    });
+    document.getElementById('deploy-btn').addEventListener('click', () => this.deployCode());
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  },
+
+  // ---------- AUTH LOGIC ----------
+  login() {
+    const username = document.getElementById('login-user').value.trim();
+    const password = document.getElementById('login-pass').value;
+    const msg = document.getElementById('login-msg');
+    if (!username || !password) { msg.textContent = 'Remplis tous les champs !'; return; }
+    const user = this.users.find(u => u.username === username && u.password === password);
+    if (!user) { msg.textContent = 'Mauvais identifiants !'; return; }
+    this.currentUser = user;
+    localStorage.setItem('codex_current', JSON.stringify(user));
+    msg.textContent = '';
+    this.showCodex();
+  },
+
+  register() {
+    const username = document.getElementById('reg-user').value.trim();
+    const password = document.getElementById('reg-pass').value;
+    const password2 = document.getElementById('reg-pass2').value;
+    const msg = document.getElementById('reg-msg');
+    if (!username || !password) { msg.textContent = 'Remplis tous les champs !'; return; }
+    if (password !== password2) { msg.textContent = 'Les mots de passe ne matchent pas !'; return; }
+    if (this.users.find(u => u.username === username)) { msg.textContent = 'Ce nom est déjà pris !'; return; }
+    const newUser = { username, password, id: Date.now() };
+    this.users.push(newUser);
+    localStorage.setItem('codex_users', JSON.stringify(this.users));
+    this.currentUser = newUser;
+    localStorage.setItem('codex_current', JSON.stringify(newUser));
+    msg.style.color = '#0f0';
+    msg.textContent = 'Compte créé !';
+    setTimeout(() => this.showCodex(), 800);
+  },
+
+  logout() {
+    this.currentUser = null;
+    localStorage.removeItem('codex_current');
+    const codex = document.getElementById('codex-screen');
+    codex.classList.remove('visible');
+    codex.style.display = 'none';
+    const auth = document.getElementById('auth-screen');
+    auth.style.display = 'flex';
+    auth.style.opacity = '1';
+  },
+
+  // ---------- SHOW CODEX ----------
+  showCodex() {
+    const auth = document.getElementById('auth-screen');
+    const codex = document.getElementById('codex-screen');
+    auth.style.opacity = '0';
+    setTimeout(() => {
+      auth.style.display = 'none';
+      codex.classList.add('visible');
+      document.getElementById('topbar-username').textContent = '👤 ' + this.currentUser.username;
+    }, 500);
+  },
+
+  // ---------- CHAT ----------
+  sendChat() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    this.addChatMsg(text, 'user');
+    setTimeout(() => this.botReply(text), 600);
+  },
+
+  addChatMsg(text, type) {
+    const messages = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + type;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  },
+
+  botReply(text) {
+    const lower = text.toLowerCase();
+    let reply = '';
+    let code = '';
+
+    if (lower.includes('function') || lower.includes('const') || lower.includes('var') || lower.includes('let') || lower.includes('def ') || lower.includes('class ') || lower.includes('</') || lower.includes('{')) {
+      code = text;
+      reply = 'J\'ai reçu ton code ! Je l\'ai mis dans le panneau de droite. Clique sur 🚀 Déployer quand t\'es prêt !';
+      this.setCode(code);
+    } else if (lower.includes('bonjour') || lower.includes('salut') || lower.includes('allo')) {
+      reply = 'Salut ! Prêt à coder quelque chose de sick aujourd\'hui ?';
+    } else if (lower.includes('aide') || lower.includes('help')) {
+      reply = 'Envoie-moi du code et je vais le mettre dans le panneau de droite. Quand c\'est prêt, clique Déployer !';
+    } else if (lower.includes('déployer') || lower.includes('deploy')) {
+      reply = 'Clique sur le bouton 🚀 Déployer dans le panneau de droite !';
+    } else {
+      const replies = [
+        'Intéressant ! T\'as du code à me soumettre ?',
+        'Bonne idée ! Envoie le code pis je m\'en occupe.',
+        'Roger ça ! C\'est noté dans le Codex.',
+        'Ah ouin ? Dis-moi en plus !',
+        'Parfait, on continue à construire le Codex !'
+      ];
+      reply = replies[Math.floor(Math.random() * replies.length)];
+    }
+
+    this.addChatMsg(reply, 'bot');
+  },
+
+  // ---------- CODE PANEL ----------
+  setCode(code) {
+    this.currentCode = code;
+    const area = document.getElementById('code-area');
+    area.innerHTML = this.highlightCode(code);
+
+    // Auto-deploy après 2 secondes
+    clearTimeout(this._autoDeployTimer);
+    this._autoDeployTimer = setTimeout(() => {
+      this.deployCode();
+    }, 2000);
+  },
+
+  highlightCode(code) {
+    const keywords = ['function', 'const', 'let', 'var', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'export', 'default', 'new', 'this', 'true', 'false', 'null', 'undefined', 'def', 'print', 'from'];
+    let escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    // Strings
+    escaped = escaped.replace(/("[^"]*"|'[^']*'|`[^`]*`)/g, '<span class="str">$1</span>');
+    // Comments
+    escaped = escaped.replace(/(//.*)/g, '<span class="cmt">$1</span>');
+    // Numbers
+    escaped = escaped.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+    // Keywords
+    keywords.forEach(kw => {
+      const re = new RegExp('\\b(' + kw + ')\\b', 'g');
+      escaped = escaped.replace(re, '<span class="kw">$1</span>');
+    });
+    return escaped;
+  },
+
+  // ---------- DEPLOY ----------
+  deployCode() {
+    if (!this.currentCode) {
+      this.addChatMsg('Pas de code à déployer ! Envoie-moi du code d\'abord.', 'bot');
+      return;
+    }
+    const overlay = document.getElementById('deploy-overlay');
+    const log = document.getElementById('deploy-log');
+    const bar = document.getElementById('deploy-bar');
+    const done = document.getElementById('deploy-done');
+    overlay.classList.add('active');
+    log.innerHTML = '';
+    bar.style.width = '0%';
+    done.style.display = 'none';
+
+    const steps = [
+      { msg: '> Initialisation du déploiement...', pct: 10 },
+      { msg: '> Analyse du code...', pct: 25 },
+      { msg: '> Compilation des modules...', pct: 40 },
+      { msg: '> Optimisation des assets...', pct: 55 },
+      { msg: '> Tests unitaires...', pct: 70 },
+      { msg: '> Build production...', pct: 82 },
+      { msg: '> Upload vers le serveur...', pct: 93 },
+      { msg: '> Vérification finale...', pct: 100 }
+    ];
+
+    let i = 0;
+    const run = () => {
+      if (i >= steps.length) {
+        done.style.display = 'block';
+        setTimeout(() => {
+          overlay.classList.remove('active');
+          this.addChatMsg('🚀 Déploiement complété avec succès ! Le code est en ligne.', 'bot');
+        }, 1500);
+        return;
+      }
+      const step = steps[i];
+      log.innerHTML += step.msg + '\n';
+      log.scrollTop = log.scrollHeight;
+      bar.style.width = step.pct + '%';
+      i++;
+      setTimeout(run, 400);
+    };
+    run();
   }
-}
+};
 
-function renderMessages(id){
-  chatMessages.innerHTML='';
-  const div=document.createElement('div');
-  div.className='msg-date-divider';
-  div.textContent="Aujourd'hui";
-  chatMessages.appendChild(div);
-  state.conversations.find(c=>c.id===id).messages.forEach(m=>{
-    chatMessages.appendChild(makeMsg(m));
-  });
-  scrollBottom();
-}
-
-function makeMsg(m){
-  const d=document.createElement('div');
-  d.className='message '+m.type;
-  if(m.type==='received'){
-    d.innerHTML=`<div class="msg-avatar">${(m.sender||'SK').substring(0,2).toUpperCase()}</div><div class="msg-content"><span class="msg-sender">${m.sender||'Skiller'}</span><p>${m.text}</p><span class="msg-time">${m.time}</span></div>`;
-  } else {
-    d.innerHTML=`<div class="msg-content"><p>${m.text}</p><span class="msg-time">${m.time} <i class="fa-solid fa-check-double" style="color:var(--lime);font-size:.6rem"></i></span></div>`;
-  }
-  d.style.opacity='0';
-  d.style.transform=m.type==='sent'?'translateX(20px)':'translateX(-20px)';
-  requestAnimationFrame(()=>{
-    d.style.transition='all .25s ease';
-    d.style.opacity='1';
-    d.style.transform='translateX(0)';
-  });
-  return d;
-}
-
-function sendMessage(){
-  const text=msgInput.value.trim();
-  if(!text)return;
-  const msg={type:'sent',text,time:now()};
-  const conv=state.conversations[state.activeConv];
-  conv.messages.push(msg);
-  conv.preview=text;
-  conv.time=now();
-  chatMessages.appendChild(makeMsg(msg));
-  scrollBottom();
-  msgInput.value='';
-  msgInput.focus();
-  renderConvList(searchConv.value);
-  setTimeout(()=>autoReply(state.activeConv),1200);
-}
-
-function autoReply(id){
-  const replies=['Bonne idee! Continuons 🚀','Super, je note ca 📝','Excellent! Tu avances bien 💪','Parfait, on est sur la bonne track 🟢','Interessant! T as pense a GitHub pour ca? 🐙'];
-  const msg={type:'received',sender:state.conversations[id].name,text:replies[Math.floor(Math.random()*replies.length)],time:now()};
-  const conv=state.conversations[id];
-  conv.messages.push(msg);
-  conv.preview=msg.text;
-  conv.time=now();
-  if(state.activeConv===id){chatMessages.appendChild(makeMsg(msg));scrollBottom();}
-  renderConvList(searchConv.value);
-}
-
-function newConversation(){
-  const name=prompt('Nom de la nouvelle conversation:');
-  if(!name||!name.trim())return;
-  const id=state.conversations.length;
-  state.conversations.unshift({id,name:name.trim(),avatar:name.trim().substring(0,2).toUpperCase(),avatarClass:'',preview:'Nouvelle conversation',time:'maintenant',messages:[{type:'received',sender:'Skiller',text:'Bienvenue dans '+name.trim()+' ! 👋',time:'maintenant'}]});
-  state.conversations.forEach((c,i)=>c.id=i);
-  state.activeConv=0;
-  renderConvList();
-  renderMessages(0);
-}
-
-function connectGitHub(){
-  if(state.githubConnected){disconnectGitHub();return;}
-  btnGithub.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
-  btnGithub.disabled=true;
-  setTimeout(()=>{
-    state.githubConnected=true;
-    state.githubUser='Alexmarceauprevost812';
-    btnGithub.innerHTML='<i class="fa-brands fa-github"></i> Connecte ✓';
-    btnGithub.classList.add('connected');
-    btnGithub.disabled=false;
-    githubStatus.textContent='@'+state.githubUser;
-    githubStatus.classList.add('online');
-    loadRepos();
-    const msg={type:'received',sender:'GitHub',text:'Connecte en tant que @'+state.githubUser+' ! 🐙',time:now()};
-    state.conversations[state.activeConv].messages.push(msg);
-    chatMessages.appendChild(makeMsg(msg));
-    scrollBottom();
-  },1500);
-}
-
-function disconnectGitHub(){
-  state.githubConnected=false;
-  state.githubUser=null;
-  btnGithub.innerHTML='<i class="fa-brands fa-github"></i> Connecter GitHub';
-  btnGithub.classList.remove('connected');
-  githubStatus.textContent='Non connecte';
-  githubStatus.classList.remove('online');
-  reposList.innerHTML='<div class="repo-placeholder">Connecte GitHub pour voir tes repos</div>';
-}
-
-function loadRepos(){
-  const repos=[{name:'texte-1',lang:'JS',branch:'Alex',stars:2},{name:'portfolio',lang:'HTML',branch:'main',stars:5},{name:'skiller-app',lang:'JS',branch:'dev',stars:1},{name:'api-rest',lang:'Node',branch:'main',stars:3}];
-  reposList.innerHTML='';
-  repos.forEach(r=>{
-    const d=document.createElement('div');
-    d.className='repo-item';
-    d.innerHTML=`<i class="fa-solid fa-code-branch"></i><div class="repo-details"><span class="repo-name">${r.name}</span><span class="repo-branch"><i class="fa-solid fa-code-branch" style="font-size:.6rem"></i> ${r.branch}</span></div><div class="repo-meta"><span class="repo-lang">${r.lang}</span><span class="repo-stars"><i class="fa-solid fa-star" style="color:var(--orange);font-size:.6rem"></i> ${r.stars}</span></div>`;
-    d.onclick=()=>window.open('https://github.com/Alexmarceauprevost812/'+r.name,'_blank');
-    reposList.appendChild(d);
-  });
-}
-
-function animateSkillBars(){
-  document.querySelectorAll('.skill-fill').forEach(b=>{
-    const w=b.style.width;
-    b.style.width='0%';
-    setTimeout(()=>{b.style.transition='width 1s cubic-bezier(.4,0,.2,1)';b.style.width=w;},400);
-  });
-}
-
-function scrollBottom(){
-  requestAnimationFrame(()=>{chatMessages.scrollTop=chatMessages.scrollHeight;});
-}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  renderConvList();
-  renderMessages(0);
-  animateSkillBars();
-  btnSend.onclick=sendMessage;
-  msgInput.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}};
-  btnNewConv.onclick=newConversation;
-  searchConv.oninput=e=>renderConvList(e.target.value);
-  btnGithub.onclick=connectGitHub;
-  document.querySelectorAll('.nav-btn').forEach(b=>{
-    b.onclick=()=>{document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');};
-  });
-  const ref=document.getElementById('refreshRepos');
-  if(ref)ref.onclick=()=>{if(state.githubConnected)loadRepos();};
-});
+// ============================================================
+// DÉMARRAGE
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => App.init());
