@@ -1,4 +1,11 @@
-codex/
-├── index.html
-├── style.css
-└── codex.js
+📁 codex/
+├── index.html        ← Page accueil + login/inscription
+├── codex.html        ← App principale (après connexion)
+├── css/
+│   ├── accueil.css
+│   └── codex.css
+├── js/
+│   ├── accueil.js
+│   └── codex.js
+└── data/
+    └── snippets.js
