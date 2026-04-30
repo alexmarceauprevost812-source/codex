@@ -5,173 +5,286 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Skiller — Codex AI</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<link rel="stylesheet" href="style.css"/>
+<link rel="stylesheet" href="css/layout.css"/>
+<link rel="stylesheet" href="css/sidebar.css"/>
+<link rel="stylesheet" href="css/panels.css"/>
+<link rel="stylesheet" href="css/chat.css"/>
+<link rel="stylesheet" href="css/right.css"/>
 </head>
 <body>
 <div class="app">
 
-<aside class="sidebar">
-  <div class="logo"><span class="logo-i"><i class="fa-solid fa-bolt"></i></span><span class="logo-t">Skiller</span></div>
-  <nav class="snav">
-    <button class="nb on" data-p="chat"><i class="fa-solid fa-message"></i><span class="tip">Chat</span></button>
-    <button class="nb" data-p="skills"><i class="fa-solid fa-star"></i><span class="tip">Skills</span></button>
-    <button class="nb" data-p="cours"><i class="fa-solid fa-book-open"></i><span class="tip">Cours</span></button>
-    <button class="nb" data-p="github"><i class="fa-brands fa-github"></i><span class="tip">GitHub</span></button>
-    <button class="nb" data-p="profil"><i class="fa-solid fa-user"></i><span class="tip">Profil</span></button>
-  </nav>
-  <div class="sbot">
-    <button class="nb" data-p="settings"><i class="fa-solid fa-gear"></i><span class="tip">Parametres</span></button>
-  </div>
-</aside>
-
-<section class="lpanel">
-
-  <!-- CHAT -->
-  <div class="pview on" id="p-chat">
-    <div class="ph"><h2>Conversations</h2><button class="bnew" id="btnNew"><i class="fa-solid fa-plus"></i></button></div>
-    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchInp" placeholder="Rechercher..."/></div>
-    <ul class="clist" id="clist"></ul>
-    <div class="ghbot">
-      <button class="bgh" id="btnGH"><i class="fa-brands fa-github"></i> Connecter GitHub</button>
-      <span class="ghst" id="ghst">Non connecte</span>
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-i"><i class="fa-solid fa-bolt"></i></span>
+      <span class="logo-t">Skiller</span>
     </div>
-  </div>
-
-  <!-- SKILLS -->
-  <div class="pview" id="p-skills">
-    <div class="ph"><h2>Skills</h2></div>
-    <div class="skzone">
-      <div class="skcard"><div class="skico"><i class="fa-brands fa-js"></i></div><div class="skinf"><span class="sknm">JavaScript</span><div class="skbar"><div class="skfill" style="width:75%"></div></div><span class="skpct">75%</span></div></div>
-      <div class="skcard"><div class="skico"><i class="fa-brands fa-css3-alt"></i></div><div class="skinf"><span class="sknm">CSS</span><div class="skbar"><div class="skfill" style="width:85%"></div></div><span class="skpct">85%</span></div></div>
-      <div class="skcard"><div class="skico"><i class="fa-brands fa-html5"></i></div><div class="skinf"><span class="sknm">HTML</span><div class="skbar"><div class="skfill" style="width:90%"></div></div><span class="skpct">90%</span></div></div>
-      <div class="skcard"><div class="skico"><i class="fa-brands fa-python"></i></div><div class="skinf"><span class="sknm">Python</span><div class="skbar"><div class="skfill" style="width:50%"></div></div><span class="skpct">50%</span></div></div>
-      <div class="skcard"><div class="skico"><i class="fa-brands fa-node-js"></i></div><div class="skinf"><span class="sknm">Node.js</span><div class="skbar"><div class="skfill" style="width:60%"></div></div><span class="skpct">60%</span></div></div>
+    <nav class="snav">
+      <button class="nb on" data-p="chat">
+        <i class="fa-solid fa-message"></i>
+        <span class="tip">Chat</span>
+      </button>
+      <button class="nb" data-p="skills">
+        <i class="fa-solid fa-star"></i>
+        <span class="tip">Skills</span>
+      </button>
+      <button class="nb" data-p="cours">
+        <i class="fa-solid fa-book-open"></i>
+        <span class="tip">Cours</span>
+      </button>
+      <button class="nb" data-p="github">
+        <i class="fa-brands fa-github"></i>
+        <span class="tip">GitHub</span>
+      </button>
+      <button class="nb" data-p="profil">
+        <i class="fa-solid fa-user"></i>
+        <span class="tip">Profil</span>
+      </button>
+    </nav>
+    <div class="sbot">
+      <button class="nb" data-p="settings">
+        <i class="fa-solid fa-gear"></i>
+        <span class="tip">Parametres</span>
+      </button>
     </div>
-  </div>
+  </aside>
 
-  <!-- COURS -->
-  <div class="pview" id="p-cours">
-    <div class="ph"><h2>Cours</h2></div>
-    <div class="cozone">
-      <div class="coitem"><div class="coico"><i class="fa-brands fa-js"></i></div><div class="coinf"><span class="cotit">JavaScript Avance</span><span class="cosub">12 modules • 85%</span></div></div>
-      <div class="coitem"><div class="coico"><i class="fa-solid fa-robot"></i></div><div class="coinf"><span class="cotit">IA et Prompt Engineering</span><span class="cosub">8 modules • 40%</span></div></div>
-      <div class="coitem"><div class="coico"><i class="fa-brands fa-react"></i></div><div class="coinf"><span class="cotit">React Fondamentaux</span><span class="cosub">10 modules • 20%</span></div></div>
-      <div class="coitem"><div class="coico"><i class="fa-solid fa-database"></i></div><div class="coinf"><span class="cotit">Bases de donnees</span><span class="cosub">6 modules • 0%</span></div></div>
-    </div>
-  </div>
+  <!-- ═══ LEFT PANEL ═══ -->
+  <section class="lpanel">
 
-  <!-- GITHUB -->
-  <div class="pview" id="p-github">
-    <div class="ph"><h2>GitHub</h2></div>
-    <div class="ghzone">
-      <div class="ghbig"><i class="fa-brands fa-github"></i></div>
-      <p>Connecte ton compte GitHub pour voir tes repos et commits en temps reel</p>
-      <button class="bgh" id="btnGH2"><i class="fa-brands fa-github"></i> Connecter GitHub</button>
-      <span class="ghst" id="ghst2">Non connecte</span>
-    </div>
-    <div class="rlist" id="rlist2"></div>
-  </div>
-
-  <!-- PROFIL -->
-  <div class="pview" id="p-profil">
-    <div class="ph"><h2>Profil</h2></div>
-    <div class="przone">
-      <div class="pravbig" id="pravbig">AM</div>
-      <div class="prname" id="prname">Alex Marceau Prevost</div>
-      <div class="prhandle" id="prhandle">@alexmarceauprevost812</div>
-      <div class="prbadge"><i class="fa-solid fa-bolt"></i> Dev Skiller</div>
-      <div class="prstats">
-        <div class="stitem"><span class="stval">12</span><span class="stlbl">Projets</span></div>
-        <div class="stitem"><span class="stval" id="repoCount">4</span><span class="stlbl">Repos</span></div>
-        <div class="stitem"><span class="stval">87%</span><span class="stlbl">Skills</span></div>
+    <!-- CHAT CONVERSATIONS -->
+    <div class="pview on" id="p-chat">
+      <div class="ph">
+        <h2>Conversations</h2>
+        <button class="bnew" id="btnNew"><i class="fa-solid fa-plus"></i></button>
+      </div>
+      <div class="srch">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="srchInp" placeholder="Rechercher..."/>
+      </div>
+      <ul class="clist" id="clist"></ul>
+      <div class="ghbot">
+        <button class="bgh" id="btnGH">
+          <i class="fa-brands fa-github"></i> Connecter GitHub
+        </button>
+        <span class="ghst" id="ghst">Non connecte</span>
       </div>
     </div>
-  </div>
 
-  <!-- SETTINGS -->
-  <div class="pview" id="p-settings">
-    <div class="ph"><h2>Parametres</h2></div>
-    <div class="szone">
-      <div class="ssec">
-        <div class="stit"><i class="fa-solid fa-robot"></i> Cle API Anthropic</div>
-        <p class="sdesc">Entre ta cle API Claude pour activer le Codex AI. Sauvegardee localement.</p>
-        <div class="aiz">
-          <input type="password" class="ainp" id="apiKey" placeholder="sk-ant-api..."/>
-          <button class="beye" id="btnEye"><i class="fa-solid fa-eye"></i></button>
+    <!-- SKILLS -->
+    <div class="pview" id="p-skills">
+      <div class="ph"><h2>Skills</h2></div>
+      <div class="skzone">
+        <div class="skcard">
+          <div class="skico"><i class="fa-brands fa-js"></i></div>
+          <div class="skinf"><span class="sknm">JavaScript</span><div class="skbar"><div class="skfill" style="width:75%"></div></div><span class="skpct">75%</span></div>
         </div>
-        <div class="aact">
-          <button class="bsave" id="btnSave"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
-          <button class="bclr" id="btnClr"><i class="fa-solid fa-trash"></i> Effacer</button>
+        <div class="skcard">
+          <div class="skico"><i class="fa-brands fa-css3-alt"></i></div>
+          <div class="skinf"><span class="sknm">CSS</span><div class="skbar"><div class="skfill" style="width:85%"></div></div><span class="skpct">85%</span></div>
         </div>
-        <div class="kst" id="kst"></div>
-      </div>
-      <div class="ssec">
-        <div class="stit"><i class="fa-solid fa-sliders"></i> Modele Claude</div>
-        <select class="msel" id="msel">
-          <option value="claude-opus-4-5">Claude Opus 4.5 (Puissant)</option>
-          <option value="claude-sonnet-4-5" selected>Claude Sonnet 4.5 (Recommande)</option>
-          <option value="claude-haiku-3-5">Claude Haiku 3.5 (Rapide)</option>
-        </select>
-      </div>
-      <div class="ssec">
-        <div class="stit"><i class="fa-brands fa-github"></i> Compte GitHub</div>
-        <p class="sdesc">Connecte ton GitHub pour voir tes repos dans le chat.</p>
-        <button class="bgh" id="btnGH3"><i class="fa-brands fa-github"></i> Connecter GitHub</button>
-        <span class="ghst" id="ghst3" style="display:block;margin-top:6px;text-align:center">Non connecte</span>
-      </div>
-      <div class="ssec">
-        <div class="stit"><i class="fa-solid fa-circle-info"></i> A propos</div>
-        <p class="sdesc">Skiller Codex AI v1.0<br/>Propulse par Claude d Anthropic<br/>Projet: texte-1 | Branche: Alex</p>
+        <div class="skcard">
+          <div class="skico"><i class="fa-brands fa-html5"></i></div>
+          <div class="skinf"><span class="sknm">HTML</span><div class="skbar"><div class="skfill" style="width:90%"></div></div><span class="skpct">90%</span></div>
+        </div>
+        <div class="skcard">
+          <div class="skico"><i class="fa-brands fa-python"></i></div>
+          <div class="skinf"><span class="sknm">Python</span><div class="skbar"><div class="skfill" style="width:50%"></div></div><span class="skpct">50%</span></div>
+        </div>
+        <div class="skcard">
+          <div class="skico"><i class="fa-brands fa-node-js"></i></div>
+          <div class="skinf"><span class="sknm">Node.js</span><div class="skbar"><div class="skfill" style="width:60%"></div></div><span class="skpct">60%</span></div>
+        </div>
+        <div class="skcard">
+          <div class="skico"><i class="fa-brands fa-react"></i></div>
+          <div class="skinf"><span class="sknm">React</span><div class="skbar"><div class="skfill" style="width:45%"></div></div><span class="skpct">45%</span></div>
+        </div>
       </div>
     </div>
-  </div>
 
-</section>
+    <!-- COURS -->
+    <div class="pview" id="p-cours">
+      <div class="ph"><h2>Cours</h2></div>
+      <div class="cozone">
+        <div class="coitem">
+          <div class="coico"><i class="fa-brands fa-js"></i></div>
+          <div class="coinf"><span class="cotit">JavaScript Avance</span><span class="cosub">12 modules • 85%</span></div>
+        </div>
+        <div class="coitem">
+          <div class="coico"><i class="fa-solid fa-robot"></i></div>
+          <div class="coinf"><span class="cotit">IA et Prompt Engineering</span><span class="cosub">8 modules • 40%</span></div>
+        </div>
+        <div class="coitem">
+          <div class="coico"><i class="fa-brands fa-react"></i></div>
+          <div class="coinf"><span class="cotit">React Fondamentaux</span><span class="cosub">10 modules • 20%</span></div>
+        </div>
+        <div class="coitem">
+          <div class="coico"><i class="fa-solid fa-database"></i></div>
+          <div class="coinf"><span class="cotit">Bases de donnees</span><span class="cosub">6 modules • 0%</span></div>
+        </div>
+        <div class="coitem">
+          <div class="coico"><i class="fa-brands fa-github"></i></div>
+          <div class="coinf"><span class="cotit">Git et GitHub</span><span class="cosub">5 modules • 70%</span></div>
+        </div>
+      </div>
+    </div>
 
-<!-- CHAT MAIN -->
-<main class="cmain">
-  <div class="chdr">
-    <div class="chtit">
-      <span class="chav">AI</span>
-      <div><h3>Codex AI</h3><span class="chsub">Claude actif</span></div>
+    <!-- GITHUB -->
+    <div class="pview" id="p-github">
+      <div class="ph"><h2>GitHub</h2></div>
+      <div class="ghzone">
+        <div class="ghbig"><i class="fa-brands fa-github"></i></div>
+        <p>Connecte ton compte GitHub pour voir tes repos et commits en temps reel</p>
+        <button class="bgh" id="btnGH2">
+          <i class="fa-brands fa-github"></i> Connecter GitHub
+        </button>
+        <span class="ghst" id="ghst2">Non connecte</span>
+      </div>
+      <div class="rlist" id="rlist2"></div>
     </div>
-    <div class="chact">
-      <span class="aibadge" id="aibadge">Claude</span>
-      <button class="abt" id="btnClrChat" title="Effacer"><i class="fa-solid fa-trash"></i></button>
-      <button class="abt"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-    </div>
-  </div>
-  <div class="msgs" id="msgs"></div>
-  <div class="inpzone">
-    <button class="ibtn"><i class="fa-solid fa-paperclip"></i></button>
-    <input type="text" id="inp" placeholder="Ecris un message a Claude..."/>
-    <button class="ibtn"><i class="fa-regular fa-face-smile"></i></button>
-    <button class="bsend" id="btnSend"><i class="fa-solid fa-paper-plane"></i></button>
-  </div>
-</main>
 
-<!-- RIGHT PANEL -->
-<aside class="rpanel">
-  <div class="rph"><h2>Dashboard</h2></div>
-  <div class="ucard">
-    <div class="uav" id="uav">AM</div>
-    <div class="uinf">
-      <span class="unm" id="unm">Alex M. Prevost</span>
-      <span class="uhdl" id="uhdl">@alexmarceauprevost812</span>
-      <span class="ubdg">Dev</span>
+    <!-- PROFIL -->
+    <div class="pview" id="p-profil">
+      <div class="ph"><h2>Profil</h2></div>
+      <div class="przone">
+        <div class="pravbig" id="pravbig">AM</div>
+        <div class="prname" id="prname">Alex Marceau Prevost</div>
+        <div class="prhandle" id="prhandle">@alexmarceauprevost812</div>
+        <div class="prbadge"><i class="fa-solid fa-bolt"></i> Dev Skiller</div>
+        <div class="prstats">
+          <div class="stitem"><span class="stval">12</span><span class="stlbl">Projets</span></div>
+          <div class="stitem"><span class="stval" id="repoCount">4</span><span class="stlbl">Repos</span></div>
+          <div class="stitem"><span class="stval">87%</span><span class="stlbl">Skills</span></div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="rsect"><h3>Skills</h3><span>Voir tout</span></div>
-  <div class="rskills">
-    <div class="rsc"><div class="rsci"><i class="fa-brands fa-js"></i></div><div class="rsci2"><span class="rscn">JavaScript</span><div class="rbar"><div class="rfill" style="width:75%"></div></div><span class="rpct">75%</span></div></div>
-    <div class="rsc"><div class="rsci"><i class="fa-brands fa-css3-alt"></i></div><div class="rsci2"><span class="rscn">CSS</span><div class="rbar"><div class="rfill" style="width:85%"></div></div><span class="rpct">85%</span></div></div>
-    <div class="rsc"><div class="rsci"><i class="fa-brands fa-html5"></i></div><div class="rsci2"><span class="rscn">HTML</span><div class="rbar"><div class="rfill" style="width:90%"></div></div><span class="rpct">90%</span></div></div>
-  </div>
-  <div class="rsect"><h3>Repos GitHub</h3><span id="btnRefresh">Actualiser</span></div>
-  <div class="rrepos" id="rrepos"><div class="rph">Connecte GitHub pour voir tes repos</div></div>
-</aside>
+
+    <!-- SETTINGS -->
+    <div class="pview" id="p-settings">
+      <div class="ph"><h2>Parametres</h2></div>
+      <div class="szone">
+
+        <div class="ssec">
+          <div class="stit"><i class="fa-solid fa-robot"></i> Cle API Anthropic</div>
+          <p class="sdesc">Entre ta cle API Claude pour activer le Codex AI. Sauvegardee localement dans ton navigateur.</p>
+          <div class="aiz">
+            <input type="password" class="ainp" id="apiKey" placeholder="sk-ant-api..."/>
+            <button class="beye" id="btnEye"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="aact">
+            <button class="bsave" id="btnSave"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder</button>
+            <button class="bclr" id="btnClr"><i class="fa-solid fa-trash"></i> Effacer</button>
+          </div>
+          <div class="kst" id="kst"></div>
+        </div>
+
+        <div class="ssec">
+          <div class="stit"><i class="fa-solid fa-sliders"></i> Modele Claude</div>
+          <select class="msel" id="msel">
+            <option value="claude-opus-4-5">Claude Opus 4.5 (Puissant)</option>
+            <option value="claude-sonnet-4-5" selected>Claude Sonnet 4.5 (Recommande)</option>
+            <option value="claude-haiku-3-5">Claude Haiku 3.5 (Rapide)</option>
+          </select>
+        </div>
+
+        <div class="ssec">
+          <div class="stit"><i class="fa-brands fa-github"></i> Compte GitHub</div>
+          <p class="sdesc">Connecte ton GitHub pour voir tes repos dans le panneau lateral.</p>
+          <button class="bgh" id="btnGH3"><i class="fa-brands fa-github"></i> Connecter GitHub</button>
+          <span class="ghst" id="ghst3" style="display:block;margin-top:8px;text-align:center">Non connecte</span>
+        </div>
+
+        <div class="ssec">
+          <div class="stit"><i class="fa-solid fa-circle-info"></i> A propos</div>
+          <p class="sdesc">
+            Skiller Codex AI v1.0<br/>
+            Propulse par Claude d Anthropic<br/>
+            Projet: texte-1 &bull; Branche: Alex<br/>
+            Repo: Alexmarceauprevost812
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═══ CHAT MAIN ═══ -->
+  <main class="cmain">
+    <div class="chdr">
+      <div class="chtit">
+        <span class="chav" id="chav">AI</span>
+        <div>
+          <h3 id="chtitle">Codex AI</h3>
+          <span class="chsub" id="chsub">Claude actif</span>
+        </div>
+      </div>
+      <div class="chact">
+        <span class="aibadge" id="aibadge">Claude</span>
+        <button class="abt" id="btnClrChat" title="Effacer le chat">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+        <button class="abt" title="Plus">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+      </div>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <div class="inpzone">
+      <button class="ibtn" title="Joindre">
+        <i class="fa-solid fa-paperclip"></i>
+      </button>
+      <input type="text" id="inp" placeholder="Ecris un message a Claude..."/>
+      <button class="ibtn" title="Emoji">
+        <i class="fa-regular fa-face-smile"></i>
+      </button>
+      <button class="bsend" id="btnSend">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+  </main>
+
+  <!-- ═══ RIGHT PANEL ═══ -->
+  <aside class="rpanel">
+    <div class="rph">
+      <h2>Dashboard</h2>
+    </div>
+
+    <div class="ucard">
+      <div class="uav" id="uav">AM</div>
+      <div class="uinf">
+        <span class="unm" id="unm">Alex M. Prevost</span>
+        <span class="uhdl" id="uhdl">@alexmarceauprevost812</span>
+        <span class="ubdg">Dev</span>
+      </div>
+    </div>
+
+    <div class="rsect">
+      <h3>Skills</h3>
+      <span onclick="document.querySelector('.nb[data-p=skills]').click()">Voir tout</span>
+    </div>
+    <div class="rskills">
+      <div class="rsc"><div class="rsci"><i class="fa-brands fa-js"></i></div><div class="rsci2"><span class="rscn">JavaScript</span><div class="rbar"><div class="rfill" style="width:75%"></div></div><span class="rpct">75%</span></div></div>
+      <div class="rsc"><div class="rsci"><i class="fa-brands fa-css3-alt"></i></div><div class="rsci2"><span class="rscn">CSS</span><div class="rbar"><div class="rfill" style="width:85%"></div></div><span class="rpct">85%</span></div></div>
+      <div class="rsc"><div class="rsci"><i class="fa-brands fa-html5"></i></div><div class="rsci2"><span class="rscn">HTML</span><div class="rbar"><div class="rfill" style="width:90%"></div></div><span class="rpct">90%</span></div></div>
+    </div>
+
+    <div class="rsect">
+      <h3>Repos GitHub</h3>
+      <span id="btnRefresh">Actualiser</span>
+    </div>
+    <div class="rrepos" id="rrepos">
+      <div class="rph">Connecte GitHub pour voir tes repos</div>
+    </div>
+  </aside>
 
 </div>
-<script src="script.js"></script>
+
+<script src="js/ui.js"></script>
+<script src="js/github.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
