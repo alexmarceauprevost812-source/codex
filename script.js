@@ -1,180 +1,326 @@
-const state={githubConnected:false,githubUser:null,activeConv:0,conversations:[{id:0,name:'Projet JavaScript',avatar:'JS',avatarClass:'',preview:'Dernier message...',time:'14h22',messages:[{type:'received',sender:'Skiller',text:'Bienvenue sur Skiller ! 🚀',time:'14h00'},{type:'sent',text:'Merci! On commence texte-1.',time:'14h05'},{type:'received',sender:'Skiller',text:'Parfait! Connecte ton GitHub pour voir tes repos 🟢',time:'14h22'}]},{id:1,name:'Repo texte-1',avatar:'GH',avatarClass:'gh',preview:'Commits recents',time:'12h10',messages:[{type:'received',sender:'GitHub',text:'Connecte ton GitHub pour voir tes repos 📂',time:'12h10'}]},{id:2,name:'Skiller General',avatar:'SK',avatarClass:'sk',preview:'Bienvenue!',time:'Hier',messages:[{type:'received',sender:'Skiller',text:'Bienvenue dans Skiller General! 👋',time:'Hier'},{type:'received',sender:'Skiller',text:'Partage tes skills et avance dans tes projets 💪',time:'Hier'}]}]};
+// ===== SKILLER CODEX AI — script.js =====
 
-const $=id=>document.getElementById(id);
-const convList=$('convList'),chatMessages=$('chatMessages'),msgInput=$('msgInput'),btnSend=$('btnSend'),btnNewConv=$('btnNewConv'),searchConv=$('searchConv'),btnGithub=$('btnGithub'),githubStatus=$('githubStatus'),reposList=$('reposList'),chatAvatarEl=$('chatAvatar'),chatTitleEl=$('chatTitle');
+const state = {
+  activePanel: 'conversations',
+  githubConnected: false,
+  anthropicKey: localStorage.getItem('sk_anthropic') || '',
+  model: localStorage.getItem('sk_model') || 'claude-sonnet-4-5',
+  messages: [],
+  isLoading: false
+};
 
-function now(){const n=new Date();return n.getHours()+'h'+String(n.getMinutes()).padStart(2,'0');}
+// ─── DOM ───────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
 
-function renderConvList(f=''){
-  convList.innerHTML='';
-  state.conversations.filter(c=>c.name.toLowerCase().includes(f.toLowerCase())).forEach(c=>{
-    const li=document.createElement('li');
-    li.className='conv-item'+(c.id===state.activeConv?' active':'');
-    const av=c.avatarClass==='gh'?'<i class="fa-brands fa-github"></i>':c.avatar;
-    li.innerHTML=`<div class="conv-avatar ${c.avatarClass}">${av}</div><div class="conv-info"><span class="conv-name">${c.name}</span><span class="conv-preview">${c.preview}</span></div><span class="conv-time">${c.time}</span>`;
-    li.onclick=()=>selectConv(c.id);
-    convList.appendChild(li);
-  });
-}
-
-function selectConv(id){
-  state.activeConv=id;
-  renderConvList(searchConv.value);
-  renderMessages(id);
-  const c=state.conversations.find(x=>x.id===id);
-  chatTitleEl.textContent=c.name;
-  if(c.avatarClass==='gh'){
-    chatAvatarEl.innerHTML='<i class="fa-brands fa-github"></i>';
-    chatAvatarEl.style.background='linear-gradient(135deg,#222,#444)';
-    chatAvatarEl.style.color='#fff';
-    chatAvatarEl.style.boxShadow='none';
-  } else if(c.avatarClass==='sk'){
-    chatAvatarEl.innerHTML=c.avatar;
-    chatAvatarEl.style.background='linear-gradient(135deg,var(--orange-dark),var(--orange))';
-    chatAvatarEl.style.color='#fff';
-    chatAvatarEl.style.boxShadow='var(--glow-orange)';
-  } else {
-    chatAvatarEl.innerHTML=c.avatar;
-    chatAvatarEl.style.background='linear-gradient(135deg,var(--lime-dark),var(--lime))';
-    chatAvatarEl.style.color='#000';
-    chatAvatarEl.style.boxShadow='var(--glow-lime)';
-  }
-}
-
-function renderMessages(id){
-  chatMessages.innerHTML='';
-  const div=document.createElement('div');
-  div.className='msg-date-divider';
-  div.textContent="Aujourd'hui";
-  chatMessages.appendChild(div);
-  state.conversations.find(c=>c.id===id).messages.forEach(m=>{
-    chatMessages.appendChild(makeMsg(m));
-  });
-  scrollBottom();
-}
-
-function makeMsg(m){
-  const d=document.createElement('div');
-  d.className='message '+m.type;
-  if(m.type==='received'){
-    d.innerHTML=`<div class="msg-avatar">${(m.sender||'SK').substring(0,2).toUpperCase()}</div><div class="msg-content"><span class="msg-sender">${m.sender||'Skiller'}</span><p>${m.text}</p><span class="msg-time">${m.time}</span></div>`;
-  } else {
-    d.innerHTML=`<div class="msg-content"><p>${m.text}</p><span class="msg-time">${m.time} <i class="fa-solid fa-check-double" style="color:var(--lime);font-size:.6rem"></i></span></div>`;
-  }
-  d.style.opacity='0';
-  d.style.transform=m.type==='sent'?'translateX(20px)':'translateX(-20px)';
-  requestAnimationFrame(()=>{
-    d.style.transition='all .25s ease';
-    d.style.opacity='1';
-    d.style.transform='translateX(0)';
-  });
-  return d;
-}
-
-function sendMessage(){
-  const text=msgInput.value.trim();
-  if(!text)return;
-  const msg={type:'sent',text,time:now()};
-  const conv=state.conversations[state.activeConv];
-  conv.messages.push(msg);
-  conv.preview=text;
-  conv.time=now();
-  chatMessages.appendChild(makeMsg(msg));
-  scrollBottom();
-  msgInput.value='';
-  msgInput.focus();
-  renderConvList(searchConv.value);
-  setTimeout(()=>autoReply(state.activeConv),1200);
-}
-
-function autoReply(id){
-  const replies=['Bonne idee! Continuons 🚀','Super, je note ca 📝','Excellent! Tu avances bien 💪','Parfait, on est sur la bonne track 🟢','Interessant! T as pense a GitHub pour ca? 🐙'];
-  const msg={type:'received',sender:state.conversations[id].name,text:replies[Math.floor(Math.random()*replies.length)],time:now()};
-  const conv=state.conversations[id];
-  conv.messages.push(msg);
-  conv.preview=msg.text;
-  conv.time=now();
-  if(state.activeConv===id){chatMessages.appendChild(makeMsg(msg));scrollBottom();}
-  renderConvList(searchConv.value);
-}
-
-function newConversation(){
-  const name=prompt('Nom de la nouvelle conversation:');
-  if(!name||!name.trim())return;
-  const id=state.conversations.length;
-  state.conversations.unshift({id,name:name.trim(),avatar:name.trim().substring(0,2).toUpperCase(),avatarClass:'',preview:'Nouvelle conversation',time:'maintenant',messages:[{type:'received',sender:'Skiller',text:'Bienvenue dans '+name.trim()+' ! 👋',time:'maintenant'}]});
-  state.conversations.forEach((c,i)=>c.id=i);
-  state.activeConv=0;
-  renderConvList();
-  renderMessages(0);
-}
-
-function connectGitHub(){
-  if(state.githubConnected){disconnectGitHub();return;}
-  btnGithub.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
-  btnGithub.disabled=true;
-  setTimeout(()=>{
-    state.githubConnected=true;
-    state.githubUser='Alexmarceauprevost812';
-    btnGithub.innerHTML='<i class="fa-brands fa-github"></i> Connecte ✓';
-    btnGithub.classList.add('connected');
-    btnGithub.disabled=false;
-    githubStatus.textContent='@'+state.githubUser;
-    githubStatus.classList.add('online');
-    loadRepos();
-    const msg={type:'received',sender:'GitHub',text:'Connecte en tant que @'+state.githubUser+' ! 🐙',time:now()};
-    state.conversations[state.activeConv].messages.push(msg);
-    chatMessages.appendChild(makeMsg(msg));
-    scrollBottom();
-  },1500);
-}
-
-function disconnectGitHub(){
-  state.githubConnected=false;
-  state.githubUser=null;
-  btnGithub.innerHTML='<i class="fa-brands fa-github"></i> Connecter GitHub';
-  btnGithub.classList.remove('connected');
-  githubStatus.textContent='Non connecte';
-  githubStatus.classList.remove('online');
-  reposList.innerHTML='<div class="repo-placeholder">Connecte GitHub pour voir tes repos</div>';
-}
-
-function loadRepos(){
-  const repos=[{name:'texte-1',lang:'JS',branch:'Alex',stars:2},{name:'portfolio',lang:'HTML',branch:'main',stars:5},{name:'skiller-app',lang:'JS',branch:'dev',stars:1},{name:'api-rest',lang:'Node',branch:'main',stars:3}];
-  reposList.innerHTML='';
-  repos.forEach(r=>{
-    const d=document.createElement('div');
-    d.className='repo-item';
-    d.innerHTML=`<i class="fa-solid fa-code-branch"></i><div class="repo-details"><span class="repo-name">${r.name}</span><span class="repo-branch"><i class="fa-solid fa-code-branch" style="font-size:.6rem"></i> ${r.branch}</span></div><div class="repo-meta"><span class="repo-lang">${r.lang}</span><span class="repo-stars"><i class="fa-solid fa-star" style="color:var(--orange);font-size:.6rem"></i> ${r.stars}</span></div>`;
-    d.onclick=()=>window.open('https://github.com/Alexmarceauprevost812/'+r.name,'_blank');
-    reposList.appendChild(d);
-  });
-}
-
-function animateSkillBars(){
-  document.querySelectorAll('.skill-fill').forEach(b=>{
-    const w=b.style.width;
-    b.style.width='0%';
-    setTimeout(()=>{b.style.transition='width 1s cubic-bezier(.4,0,.2,1)';b.style.width=w;},400);
-  });
-}
-
-function scrollBottom(){
-  requestAnimationFrame(()=>{chatMessages.scrollTop=chatMessages.scrollHeight;});
-}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  renderConvList();
-  renderMessages(0);
+// ─── INIT ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initNav();
+  initChat();
+  initSettings();
+  initGitHub();
   animateSkillBars();
-  btnSend.onclick=sendMessage;
-  msgInput.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}};
-  btnNewConv.onclick=newConversation;
-  searchConv.oninput=e=>renderConvList(e.target.value);
-  btnGithub.onclick=connectGitHub;
-  document.querySelectorAll('.nav-btn').forEach(b=>{
-    b.onclick=()=>{document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');};
-  });
-  const ref=document.getElementById('refreshRepos');
-  if(ref)ref.onclick=()=>{if(state.githubConnected)loadRepos();};
+  loadWelcomeMsg();
 });
+
+// ─── NAVIGATION SIDEBAR ────────────────────────────────────
+function initNav() {
+  document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = btn.dataset.panel;
+      // Active le bouton
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Affiche le bon panneau
+      document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('panel-' + panel);
+      if (target) target.classList.add('active');
+      state.activePanel = panel;
+    });
+  });
+}
+
+// ─── MESSAGE DE BIENVENUE ──────────────────────────────────
+function loadWelcomeMsg() {
+  const key = state.anthropicKey;
+  const txt = key
+    ? 'Cle API chargee ! Je suis Claude, ton Codex AI. Comment puis-je taider aujourd hui ? 🚀'
+    : 'Bienvenue sur Skiller Codex AI ! Entre ta cle API Anthropic dans Parametres (engrenage) pour activer Claude. 🔑';
+  addMsg('received', txt, 'Claude');
+}
+
+// ─── INIT CHAT ─────────────────────────────────────────────
+function initChat() {
+  const input = $('msgInput');
+  const sendBtn = $('btnSend');
+  const clearBtn = $('btnClearChat');
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  clearBtn.addEventListener('click', () => {
+    $('chatMessages').innerHTML = '';
+    state.messages = [];
+    loadWelcomeMsg();
+  });
+}
+
+// ─── ENVOYER MESSAGE ───────────────────────────────────────
+async function sendMessage() {
+  const input = $('msgInput');
+  const text = input.value.trim();
+  if (!text || state.isLoading) return;
+
+  addMsg('sent', text);
+  state.messages.push({ role: 'user', content: text });
+  input.value = '';
+
+  if (!state.anthropicKey) {
+    addMsg('received', 'Aucune cle API detectee. Va dans Parametres et entre ta cle Anthropic pour activer Claude ! 🔑', 'Claude');
+    return;
+  }
+
+  await callClaude(text);
+}
+
+// ─── APPEL CLAUDE API ──────────────────────────────────────
+async function callClaude(userText) {
+  state.isLoading = true;
+  const sendBtn = $('btnSend');
+  sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+  sendBtn.disabled = true;
+
+  // Indicateur typing
+  const typingId = addTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.anthropicKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-browser': 'true'
+      },
+      body: JSON.stringify({
+        model: state.model,
+        max_tokens: 1024,
+        system: 'Tu es Codex AI, un assistant de developpement integre dans la plateforme Skiller. Tu aides avec le code, larchitecture, le debug et les explications. Reponds en francais, de facon claire et concise.',
+        messages: state.messages
+      })
+    });
+
+    removeTyping(typingId);
+
+    if (!res.ok) {
+      const err = await res.json();
+      const msg = err.error?.message || 'Erreur API Anthropic';
+      addMsg('received', '❌ Erreur: ' + msg, 'Claude');
+      return;
+    }
+
+    const data = await res.json();
+    const reply = data.content[0].text;
+    state.messages.push({ role: 'assistant', content: reply });
+    addMsg('received', reply, 'Claude');
+
+  } catch (e) {
+    removeTyping(typingId);
+    addMsg('received', '❌ Erreur de connexion. Verifie ta cle API et ta connexion internet.', 'Claude');
+  } finally {
+    state.isLoading = false;
+    sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+    sendBtn.disabled = false;
+  }
+}
+
+// ─── AJOUTER MESSAGE ───────────────────────────────────────
+function addMsg(type, text, sender) {
+  const container = $('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'message ' + type;
+
+  const now = new Date();
+  const time = now.getHours() + 'h' + String(now.getMinutes()).padStart(2, '0');
+
+  if (type === 'received') {
+    div.innerHTML = `
+      <div class="msg-avatar">${(sender||'AI').substring(0,2).toUpperCase()}</div>
+      <div class="msg-content">
+        <span class="msg-sender">${sender || 'Claude'}</span>
+        <p>${escapeHtml(text)}</p>
+        <span class="msg-time">${time}</span>
+      </div>`;
+  } else {
+    div.innerHTML = `
+      <div class="msg-content">
+        <p>${escapeHtml(text)}</p>
+        <span class="msg-time">${time} <i class="fa-solid fa-check-double" style="color:var(--accent);font-size:.6rem"></i></span>
+      </div>`;
+  }
+
+  div.style.opacity = '0';
+  div.style.transform = type === 'sent' ? 'translateX(20px)' : 'translateX(-20px)';
+  container.appendChild(div);
+
+  requestAnimationFrame(() => {
+    div.style.transition = 'all .25s ease';
+    div.style.opacity = '1';
+    div.style.transform = 'translateX(0)';
+  });
+
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+// ─── TYPING INDICATOR ──────────────────────────────────────
+function addTyping() {
+  const id = 'typing-' + Date.now();
+  const container = $('chatMessages');
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'message received';
+  div.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-content">
+      <span class="msg-sender">Claude</span>
+      <p style="display:flex;gap:5px;align-items:center">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </p>
+    </div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return id;
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function escapeHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br/>');
+}
+
+// ─── SETTINGS ──────────────────────────────────────────────
+function initSettings() {
+  const keyInput = $('anthropicKey');
+  const btnSave = $('btnSaveKey');
+  const btnClear = $('btnClearKey');
+  const btnEye = $('btnEye');
+  const keyStatus = $('keyStatus');
+  const modelSelect = $('modelSelect');
+
+  // Charge la cle sauvegardee
+  if (state.anthropicKey) {
+    keyInput.value = state.anthropicKey;
+    showKeyStatus('ok', '✅ Cle API chargee — Claude est actif !');
+  }
+
+  // Charge le modele
+  modelSelect.value = state.model;
+  modelSelect.addEventListener('change', () => {
+    state.model = modelSelect.value;
+    localStorage.setItem('sk_model', state.model);
+  });
+
+  // Toggle visibilite
+  btnEye.addEventListener('click', () => {
+    const isPass = keyInput.type === 'password';
+    keyInput.type = isPass ? 'text' : 'password';
+    btnEye.innerHTML = isPass
+      ? '<i class="fa-solid fa-eye-slash"></i>'
+      : '<i class="fa-solid fa-eye"></i>';
+  });
+
+  // Sauvegarder
+  btnSave.addEventListener('click', () => {
+    const val = keyInput.value.trim();
+    if (!val) {
+      showKeyStatus('err', '❌ Entre une cle API valide.');
+      return;
+    }
+    if (!val.startsWith('sk-ant-')) {
+      showKeyStatus('err', '❌ La cle doit commencer par sk-ant-...');
+      return;
+    }
+    state.anthropicKey = val;
+    localStorage.setItem('sk_anthropic', val);
+    showKeyStatus('ok', '✅ Cle sauvegardee ! Claude est maintenant actif.');
+    // Message de confirmation dans le chat
+    addMsg('received', '🔑 Cle API Anthropic activee ! Je suis Claude, pret a taider. Pose-moi une question !', 'Claude');
+  });
+
+  // Effacer
+  btnClear.addEventListener('click', () => {
+    state.anthropicKey = '';
+    localStorage.removeItem('sk_anthropic');
+    keyInput.value = '';
+    showKeyStatus('err', '🗑️ Cle effacee.');
+    setTimeout(() => { keyStatus.className = 'key-status'; keyStatus.style.display='none'; }, 2000);
+  });
+
+  function showKeyStatus(type, msg) {
+    keyStatus.textContent = msg;
+    keyStatus.className = 'key-status ' + type;
+  }
+}
+
+// ─── GITHUB ────────────────────────────────────────────────
+function initGitHub() {
+  [$('btnGithub'), $('btnGithub2')].forEach(btn => {
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      if (state.githubConnected) return;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
+      btn.disabled = true;
+      setTimeout(() => {
+        state.githubConnected = true;
+        [$('btnGithub'), $('btnGithub2')].forEach(b => {
+          if (!b) return;
+          b.innerHTML = '<i class="fa-brands fa-github"></i> Connecte ✓';
+          b.classList.add('connected');
+          b.disabled = false;
+        });
+        [$('githubStatus'), $('githubStatus2')].forEach(s => {
+          if (!s) return;
+          s.textContent = '@Alexmarceauprevost812';
+          s.classList.add('online');
+        });
+        loadRepos();
+        addMsg('received', '🐙 GitHub connecte ! Tes repos sont charges dans le panneau GitHub.', 'Claude');
+      }, 1500);
+    });
+  });
+}
+
+function loadRepos() {
+  const repos = [
+    { name: 'texte-1', lang: 'JS', branch: 'Alex', stars: 2 },
+    { name: 'portfolio', lang: 'HTML', branch: 'main', stars: 5 },
+    { name: 'skiller-app', lang: 'JS', branch: 'dev', stars: 1 },
+    { name: 'api-rest', lang: 'Node', branch: 'main', stars: 3 }
+  ];
+  [$('reposList'), $('reposList2')].forEach(list => {
+    if (!list) return;
+    list.innerHTML = '';
+    repos.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'repo-item';
+      d.innerHTML = `<i class="fa-solid fa-code-branch"></i><div class="repo-details"><span class="repo-name">${r.name}</span><span class="repo-branch"><i class="fa-solid fa-code-branch" style="font-size:.6rem"></i> ${r.branch}</span></div><div class="repo-meta"><span class="repo-lang">${r.lang}</span><span class="repo-stars"><i class="fa-solid fa-star" style="color:var(--accent);font-size:.6rem"></i> ${r.stars}</span></div>`;
+      d.onclick = () => window.open('https://github.com/Alexmarceauprevost812/' + r.name, '_blank');
+      list.appendChild(d);
+    });
+  });
+}
+
+// ─── SKILL BARS ────────────────────────────────────────────
+function animateSkillBars() {
+  document.querySelectorAll('.skill-fill').forEach(b => {
+    const w = b.style.width;
+    b.style.width = '0%';
+    setTimeout(() => { b.style.transition = 'width 1s cubic-bezier(.4,0,.2,1)'; b.style.width = w; }, 500);
+  });
+}
