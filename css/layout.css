@@ -1,0 +1,52 @@
+/* ═══ VARIABLES GLOBALES + LAYOUT ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --a:    #FF6B2B;
+  --ad:   #CC4A0F;
+  --a2:   #FF8C00;
+  --bg:   #000000;
+  --bp:   #0A0A0A;
+  --bc:   #111111;
+  --bh:   #1A1A1A;
+  --bo:   #2A2A2A;
+  --t:    #FFFFFF;
+  --ts:   #888888;
+  --rl:   24px;
+  --rg:   18px;
+  --r:    14px;
+  --rs:   10px;
+  --rx:   6px;
+  --sw:   70px;
+  --lw:   300px;
+  --rw:   270px;
+  --fn:   'Segoe UI', system-ui, sans-serif;
+  --gw:   0 0 14px rgba(255,107,43,0.4);
+  --g2:   0 0 14px rgba(255,140,0,0.35);
+}
+
+body {
+  font-family: var(--fn);
+  background: var(--bg);
+  color: var(--t);
+  height: 100vh;
+  overflow: hidden;
+  background-image:
+    linear-gradient(rgba(255,107,43,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,107,43,.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* Scrollbar globale */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--a); }
+
+/* Grid principal 4 colonnes */
+.app {
+  display: grid;
+  grid-template-columns: var(--sw) var(--lw) 1fr var(--rw);
+  height: 100vh;
+  overflow: hidden;
+}
