@@ -1,768 +1,394 @@
-TABARNAK mon chum, chu comprends! 😄👑
-
-T'as perdu le visuel du **CODEX** pis tu veux un bouton **CONNEXION** + **INSCRIPTION** pour revenir à ton look d'avant! **AWEILLE**, chu sur le cas dret là! 🔥
-
 ---
 
-# 👑 TI-CODER — CODEX COMPLET AVEC AUTH BUTTONS
-### 🍁 ti-lex-al — Connexion + Inscription intégrés!
+# 📄 FICHIER 2 — `login.html` (Connexion / Inscription)
 
 ```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ti-lex-al 🍁 — L'intelligence du Québec</title>
+  <title>ti-lex-al 🍁 — Accès</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
-      background: #020008;
-      font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
-      color: #fff;
-    }
-
-    #bg-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-    }
-
-    /* ===== OVERLAY PRINCIPAL ===== */
-    .overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 10;
+      background: #000;
+      font-family: 'Courier New', monospace;
+      color: #00ff41;
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      pointer-events: none;
+      overflow: hidden;
     }
 
-    /* ===== BRAND ===== */
-    .brand {
+    #bgCanvas {
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      z-index: 0;
+      opacity: 0.3;
+    }
+
+    /* ===== CARD ===== */
+    .auth-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 440px;
+      padding: 3rem 2.5rem;
+      border: 1px solid rgba(0,255,65,0.3);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(20px);
+      box-shadow:
+        0 0 40px rgba(0,255,65,0.1),
+        inset 0 0 40px rgba(0,255,65,0.02);
+      animation: cardAppear 0.6s ease-out forwards;
+    }
+
+    @keyframes cardAppear {
+      from { opacity:0; transform: translateY(30px) scale(0.97); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    /* ===== HEADER CARD ===== */
+    .card-header {
       text-align: center;
-      animation: breatheUI 4s ease-in-out infinite;
-      pointer-events: none;
+      margin-bottom: 2.5rem;
     }
 
-    .brand-maple {
-      font-size: 4rem;
-      filter: drop-shadow(0 0 30px #ff4444);
-      animation: rotatemaple 8s linear infinite;
+    .card-logo {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      animation: mapleSpin 6s ease-in-out infinite;
       display: inline-block;
     }
 
-    .brand-title {
-      font-size: 2.8rem;
+    @keyframes mapleSpin {
+      0%,100% { transform: rotate(0deg); }
+      25%     { transform: rotate(8deg); }
+      75%     { transform: rotate(-8deg); }
+    }
+
+    .card-title {
+      font-size: 1.8rem;
       font-weight: 900;
-      letter-spacing: 0.15em;
-      background: linear-gradient(135deg, #ff0050, #7700ff, #00d4ff, #ff0050);
-      background-size: 300% 300%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: gradientShift 4s ease-in-out infinite;
-      text-transform: uppercase;
-    }
-
-    .brand-sub {
-      font-size: 1.1rem;
-      letter-spacing: 0.4em;
-      color: rgba(255,255,255,0.5);
-      margin-top: 0.5rem;
-      text-transform: uppercase;
-    }
-
-    /* ===== PULSE RINGS ===== */
-    .pulse-ring-container {
-      position: relative;
-      margin: 2.5rem 0;
-      width: 180px;
-      height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .pulse-ring {
-      position: absolute;
-      border-radius: 50%;
-      border: 2px solid;
-      animation: pulseRing 4s ease-in-out infinite;
-    }
-
-    .pulse-ring:nth-child(1) { width:60px;  height:60px;  border-color:rgba(255,0,80,0.9);   animation-delay:0s; }
-    .pulse-ring:nth-child(2) { width:90px;  height:90px;  border-color:rgba(119,0,255,0.7);  animation-delay:0.3s; }
-    .pulse-ring:nth-child(3) { width:120px; height:120px; border-color:rgba(0,212,255,0.5);  animation-delay:0.6s; }
-    .pulse-ring:nth-child(4) { width:155px; height:155px; border-color:rgba(255,255,255,0.2);animation-delay:0.9s; }
-
-    .core-dot {
-      width: 20px; height: 20px;
-      background: #fff;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #fff, 0 0 30px #ff0050, 0 0 60px #7700ff;
-      animation: breatheUI 4s ease-in-out infinite;
-      z-index: 2;
-    }
-
-    /* ===== BREATH LABEL ===== */
-    .breath-label {
-      font-size: 1rem;
-      letter-spacing: 0.3em;
-      color: rgba(255,255,255,0.6);
-      text-transform: uppercase;
-      margin-top: -1rem;
-      animation: fadeBreath 4s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    /* ===== CHIPS ===== */
-    .stats {
-      display: flex;
-      gap: 1.5rem;
-      margin-top: 1.5rem;
-      pointer-events: all;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .stat-chip {
-      padding: 0.5rem 1.5rem;
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 50px;
-      font-size: 0.8rem;
       letter-spacing: 0.2em;
-      text-transform: uppercase;
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(10px);
-      cursor: default;
-      transition: all 0.3s ease;
-      animation: breatheUI 4s ease-in-out infinite;
+      color: #00ff41;
+      text-shadow: 0 0 20px #00ff41;
     }
 
-    .stat-chip:hover {
-      border-color: rgba(0,212,255,0.6);
-      box-shadow: 0 0 20px rgba(0,212,255,0.3);
-      color: #00d4ff;
+    .card-sub {
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      color: rgba(0,255,65,0.5);
+      margin-top: 0.3rem;
     }
 
-    .stat-chip:nth-child(1) { animation-delay:0.2s; }
-    .stat-chip:nth-child(2) { animation-delay:0.4s; }
-    .stat-chip:nth-child(3) { animation-delay:0.6s; }
-
-    /* ===== 🔐 BOUTONS AUTH ===== */
-    .auth-buttons {
+    /* ===== TABS ===== */
+    .tabs {
       display: flex;
-      gap: 1.2rem;
-      margin-top: 2rem;
-      pointer-events: all;
-      flex-wrap: wrap;
-      justify-content: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(0,255,65,0.2);
     }
 
-    .btn-connexion {
-      padding: 0.75rem 2.2rem;
-      border-radius: 50px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      cursor: pointer;
-      border: 2px solid #00d4ff;
-      background: rgba(0, 212, 255, 0.08);
-      color: #00d4ff;
-      backdrop-filter: blur(12px);
-      transition: all 0.35s ease;
-      animation: breatheUI 4s ease-in-out infinite;
-      animation-delay: 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-connexion::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent, rgba(0,212,255,0.15), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.5s ease;
-    }
-
-    .btn-connexion:hover::before { transform: translateX(100%); }
-
-    .btn-connexion:hover {
-      background: rgba(0, 212, 255, 0.2);
-      box-shadow:
-        0 0 20px rgba(0,212,255,0.5),
-        0 0 40px rgba(0,212,255,0.2),
-        inset 0 0 20px rgba(0,212,255,0.1);
-      transform: translateY(-3px) scale(1.04);
-      color: #fff;
-    }
-
-    .btn-inscription {
-      padding: 0.75rem 2.2rem;
-      border-radius: 50px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      cursor: pointer;
-      border: none;
-      background: linear-gradient(135deg, #ff0050, #7700ff);
-      background-size: 200% 200%;
-      color: #fff;
-      backdrop-filter: blur(12px);
-      transition: all 0.35s ease;
-      animation: breatheUI 4s ease-in-out infinite, gradientShift 3s ease-in-out infinite;
-      animation-delay: 0.5s;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(119,0,255,0.3);
-    }
-
-    .btn-inscription::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.5s ease;
-    }
-
-    .btn-inscription:hover::before { transform: translateX(100%); }
-
-    .btn-inscription:hover {
-      transform: translateY(-3px) scale(1.04);
-      box-shadow:
-        0 0 30px rgba(255,0,80,0.6),
-        0 0 60px rgba(119,0,255,0.3),
-        0 8px 25px rgba(0,0,0,0.4);
-    }
-
-    /* ===== MODALES AUTH ===== */
-    .modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(2, 0, 8, 0.85);
-      backdrop-filter: blur(16px);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-backdrop.active { display: flex; }
-
-    .modal-box {
-      background: rgba(15, 5, 30, 0.95);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 20px;
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 420px;
-      box-shadow:
-        0 0 60px rgba(119,0,255,0.2),
-        0 0 120px rgba(0,212,255,0.1);
-      animation: modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
-      position: relative;
-    }
-
-    @keyframes modalIn {
-      from { opacity:0; transform: scale(0.85) translateY(30px); }
-      to   { opacity:1; transform: scale(1) translateY(0); }
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 1rem; right: 1.2rem;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: rgba(255,255,255,0.4);
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem;
       background: none;
       border: none;
-      transition: all 0.2s;
-      line-height: 1;
-    }
-
-    .modal-close:hover { color: #ff0050; transform: rotate(90deg); }
-
-    .modal-title {
-      font-size: 1.6rem;
-      font-weight: 900;
-      margin-bottom: 0.3rem;
-      background: linear-gradient(135deg, #00d4ff, #7700ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .modal-title-conn {
-      background: linear-gradient(135deg, #00d4ff, #7700ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .modal-title-insc {
-      background: linear-gradient(135deg, #ff0050, #7700ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .modal-sub {
+      color: rgba(0,255,65,0.4);
+      font-family: 'Courier New', monospace;
       font-size: 0.85rem;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 2rem;
-      letter-spacing: 0.05em;
-    }
-
-    .form-group {
-      margin-bottom: 1.2rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.78rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn.active {
+      color: #00ff41;
+      border-bottom-color: #00ff41;
+      text-shadow: 0 0 10px #00ff41;
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: rgba(0,255,65,0.7);
+    }
+
+    /* ===== FORMS ===== */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: rgba(0,255,65,0.6);
+      text-transform: uppercase;
       margin-bottom: 0.5rem;
     }
 
-    .form-group input {
+    .form-input {
       width: 100%;
-      padding: 0.8rem 1.2rem;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      color: #fff;
+      padding: 0.85rem 1rem;
+      background: rgba(0,255,65,0.04);
+      border: 1px solid rgba(0,255,65,0.25);
+      border-radius: 4px;
+      color: #00ff41;
+      font-family: 'Courier New', monospace;
       font-size: 0.95rem;
       outline: none;
       transition: all 0.3s ease;
-      font-family: 'Segoe UI', sans-serif;
+      caret-color: #00ff41;
     }
 
-    .form-group input::placeholder { color: rgba(255,255,255,0.2); }
-
-    .form-group input:focus {
-      border-color: rgba(0,212,255,0.6);
-      background: rgba(0,212,255,0.05);
-      box-shadow: 0 0 20px rgba(0,212,255,0.15);
+    .form-input::placeholder {
+      color: rgba(0,255,65,0.2);
     }
 
-    .form-group input:focus.insc-input {
-      border-color: rgba(255,0,80,0.6);
-      background: rgba(255,0,80,0.05);
-      box-shadow: 0 0 20px rgba(255,0,80,0.15);
+    .form-input:focus {
+      border-color: #00ff41;
+      background: rgba(0,255,65,0.07);
+      box-shadow: 0 0 15px rgba(0,255,65,0.15);
     }
 
-    .btn-submit-conn {
+    /* ===== SUBMIT BTN ===== */
+    .submit-btn {
       width: 100%;
-      padding: 0.9rem;
-      border: 2px solid #00d4ff;
-      border-radius: 12px;
-      background: rgba(0,212,255,0.1);
-      color: #00d4ff;
+      padding: 1rem;
+      background: rgba(0,255,65,0.08);
+      border: 2px solid #00ff41;
+      border-radius: 4px;
+      color: #00ff41;
+      font-family: 'Courier New', monospace;
       font-size: 1rem;
       font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
       cursor: pointer;
-      margin-top: 0.5rem;
       transition: all 0.3s ease;
-    }
-
-    .btn-submit-conn:hover {
-      background: rgba(0,212,255,0.25);
-      box-shadow: 0 0 30px rgba(0,212,255,0.4);
-      transform: translateY(-2px);
-      color: #fff;
-    }
-
-    .btn-submit-insc {
-      width: 100%;
-      padding: 0.9rem;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #ff0050, #7700ff);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      cursor: pointer;
+      text-shadow: 0 0 8px #00ff41;
+      box-shadow: 0 0 20px rgba(0,255,65,0.15);
+      position: relative;
+      overflow: hidden;
       margin-top: 0.5rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 20px rgba(119,0,255,0.3);
     }
 
-    .btn-submit-insc:hover {
-      box-shadow: 0 0 40px rgba(255,0,80,0.5), 0 0 80px rgba(119,0,255,0.3);
-      transform: translateY(-2px);
+    .submit-btn::before {
+      content:'';
+      position: absolute;
+      top:0; left:-100%;
+      width:100%; height:100%;
+      background: linear-gradient(90deg, transparent, rgba(0,255,65,0.15), transparent);
+      transition: left 0.4s;
     }
 
-    .modal-switch {
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.35);
+    .submit-btn:hover::before { left:100%; }
+
+    .submit-btn:hover {
+      background: rgba(0,255,65,0.18);
+      box-shadow: 0 0 35px rgba(0,255,65,0.4);
+      transform: translateY(-1px);
     }
 
-    .modal-switch a {
-      color: #00d4ff;
-      cursor: pointer;
-      text-decoration: none;
-      font-weight: 700;
-      transition: color 0.2s;
+    .submit-btn:active {
+      transform: translateY(0);
     }
 
-    .modal-switch a:hover { color: #fff; }
+    /* ===== LOADING ===== */
+    .submit-btn.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
 
-    .modal-switch a.insc-link { color: #ff0050; }
-    .modal-switch a.insc-link:hover { color: #fff; }
+    .submit-btn.loading::after {
+      content: '...';
+      animation: dots 1s infinite;
+    }
 
-    /* ===== DIVIDER ===== */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin: 1.2rem 0;
-      color: rgba(255,255,255,0.2);
-      font-size: 0.75rem;
+    @keyframes dots {
+      0%   { content: '.'; }
+      33%  { content: '..'; }
+      66%  { content: '...'; }
+      100% { content: '.'; }
+    }
+
+    /* ===== MESSAGE ===== */
+    .msg {
+      margin-top: 1.2rem;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
       letter-spacing: 0.1em;
+      text-align: center;
+      display: none;
     }
 
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgba(255,255,255,0.1);
+    .msg.error {
+      border: 1px solid rgba(255,50,50,0.4);
+      background: rgba(255,50,50,0.08);
+      color: #ff5555;
+      text-shadow: 0 0 8px #ff0000;
+      display: block;
     }
 
-    /* ===== BADGE ===== */
-    .badge {
-      position: fixed;
-      bottom: 2rem; right: 2rem;
+    .msg.success {
+      border: 1px solid rgba(0,255,65,0.4);
+      background: rgba(0,255,65,0.08);
+      color: #00ff41;
+      text-shadow: 0 0 8px #00ff41;
+      display: block;
+    }
+
+    /* ===== BACK LINK ===== */
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 2rem;
+      color: rgba(0,255,65,0.35);
+      text-decoration: none;
       font-size: 0.75rem;
-      color: rgba(255,255,255,0.3);
       letter-spacing: 0.15em;
-      text-transform: uppercase;
-      z-index: 20;
+      transition: color 0.3s;
     }
 
-    /* ===== KEYFRAMES ===== */
-    @keyframes breatheUI {
-      0%,100% { transform: scale(1); opacity:0.85; }
-      50%      { transform: scale(1.04); opacity:1; }
+    .back-link:hover { color: rgba(0,255,65,0.7); }
+
+    /* ===== SCANLINES ===== */
+    .scanlines {
+      position: fixed;
+      top:0;left:0;width:100%;height:100%;
+      z-index:5;pointer-events:none;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px
+      );
     }
 
-    @keyframes pulseRing {
-      0%,100% { transform:scale(1); opacity:0.8; }
-      50%      { transform:scale(1.25); opacity:0.2; box-shadow:0 0 20px currentColor; }
+    /* ===== PASSWORD STRENGTH ===== */
+    .pw-strength {
+      height: 3px;
+      border-radius: 2px;
+      margin-top: 0.4rem;
+      background: rgba(0,255,65,0.1);
+      transition: all 0.3s ease;
     }
 
-    @keyframes gradientShift {
-      0%   { background-position: 0% 50%; }
-      50%  { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    @keyframes rotatemaple {
-      0%   { transform: rotate(0deg) scale(1); }
-      25%  { transform: rotate(10deg) scale(1.1); }
-      50%  { transform: rotate(0deg) scale(1); }
-      75%  { transform: rotate(-10deg) scale(1.1); }
-      100% { transform: rotate(0deg) scale(1); }
-    }
-
-    @keyframes fadeBreath {
-      0%,100% { opacity:0.3; letter-spacing:0.3em; }
-      50%      { opacity:0.9; letter-spacing:0.5em; }
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 500px) {
-      .brand-title { font-size: 2rem; }
-      .auth-buttons { flex-direction: column; align-items: center; }
-      .modal-box { margin: 1rem; padding: 2rem 1.5rem; }
+    .pw-strength-bar {
+      height: 100%;
+      border-radius: 2px;
+      width: 0%;
+      transition: all 0.4s ease;
     }
   </style>
 </head>
 <body>
 
-<!-- 🎨 CANVAS 3D -->
-<canvas id="bg-canvas"></canvas>
+<canvas id="bgCanvas"></canvas>
+<div class="scanlines"></div>
 
-<!-- 🍁 OVERLAY UI -->
-<div class="overlay">
-
-  <!-- BRAND -->
-  <div class="brand">
-    <div class="brand-maple">🍁</div>
-    <div class="brand-title">TI-LEX-AL</div>
-    <div class="brand-sub">L'intelligence du Québec</div>
+<div class="auth-card">
+  <!-- Header -->
+  <div class="card-header">
+    <div class="card-logo">🍁</div>
+    <div class="card-title">TI-LEX-AL</div>
+    <div class="card-sub">L'intelligence du Québec</div>
   </div>
 
-  <!-- PULSE RINGS -->
-  <div class="pulse-ring-container">
-    <div class="pulse-ring"></div>
-    <div class="pulse-ring"></div>
-    <div class="pulse-ring"></div>
-    <div class="pulse-ring"></div>
-    <div class="core-dot"></div>
-  </div>
-
-  <!-- BREATH LABEL -->
-  <div class="breath-label" id="breathLabel">INSPIRE</div>
-
-  <!-- CHIPS -->
-  <div class="stats">
-    <div class="stat-chip">🤖 IA Active</div>
-    <div class="stat-chip">🍁 Québec</div>
-    <div class="stat-chip">⚡ 3D Live</div>
-  </div>
-
-  <!-- 🔐 AUTH BUTTONS -->
-  <div class="auth-buttons">
-    <button class="btn-connexion" onclick="openModal('connexion')">
-      🔑 Connexion
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">
+      🔐 Connexion
     </button>
-    <button class="btn-inscription" onclick="openModal('inscription')">
+    <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">
       ✨ Inscription
     </button>
   </div>
 
-</div>
-
-<!-- ===== MODALE CONNEXION ===== -->
-<div class="modal-backdrop" id="modal-connexion">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('connexion')">✕</button>
-    <div class="modal-title modal-title-conn">🔑 Connexion</div>
-    <div class="modal-sub">Bienvenue su' ti-lex-al, l'intelligence du Québec 🍁</div>
-
-    <form onsubmit="return false;">
-      <div class="form-group">
-        <label>📧 Courriel</label>
-        <input type="email" placeholder="toi@exemple.ca" autocomplete="email"/>
-      </div>
-      <div class="form-group">
-        <label>🔒 Mot de passe</label>
-        <input type="password" placeholder="••••••••" autocomplete="current-password"/>
-      </div>
-      <button class="btn-submit-conn">
-        Entrer dans le système →
-      </button>
-    </form>
-
-    <div class="divider">ou</div>
-
-    <div class="modal-switch">
-      Pas encore de compte?
-      <a onclick="switchModal('connexion','inscription')">
-        Crée-toi en un! ✨
-      </a>
+  <!-- FORM: CONNEXION -->
+  <div class="form-panel active" id="panelLogin">
+    <div class="form-group">
+      <label class="form-label">📧 Courriel</label>
+      <input type="email" class="form-input" id="loginEmail"
+             placeholder="ton@courriel.ca" autocomplete="email"/>
     </div>
-  </div>
-</div>
-
-<!-- ===== MODALE INSCRIPTION ===== -->
-<div class="modal-backdrop" id="modal-inscription">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('inscription')">✕</button>
-    <div class="modal-title modal-title-insc">✨ Inscription</div>
-    <div class="modal-sub">Join la révolution IA du Québec, câline! 🍁🔥</div>
-
-    <form onsubmit="return false;">
-      <div class="form-group">
-        <label>👤 Nom d'utilisateur</label>
-        <input class="insc-input" type="text" placeholder="monchum42" autocomplete="username"/>
-      </div>
-      <div class="form-group">
-        <label>📧 Courriel</label>
-        <input class="insc-input" type="email" placeholder="toi@exemple.ca" autocomplete="email"/>
-      </div>
-      <div class="form-group">
-        <label>🔒 Mot de passe</label>
-        <input class="insc-input" type="password" placeholder="Crée un mot de passe béton" autocomplete="new-password"/>
-      </div>
-      <div class="form-group">
-        <label>🔒 Confirme ton mot de passe</label>
-        <input class="insc-input" type="password" placeholder="••••••••" autocomplete="new-password"/>
-      </div>
-      <button class="btn-submit-insc">
-        Rejoindre ti-lex-al 🍁
-      </button>
-    </form>
-
-    <div class="divider">ou</div>
-
-    <div class="modal-switch">
-      T'as déjà un compte?
-      <a class="insc-link" onclick="switchModal('inscription','connexion')">
-        Connecte-toi! 🔑
-      </a>
+    <div class="form-group">
+      <label class="form-label">🔑 Mot de passe</label>
+      <input type="password" class="form-input" id="loginPassword"
+             placeholder="••••••••" autocomplete="current-password"/>
     </div>
+    <button class="submit-btn" id="btnLogin" onclick="handleLogin()">
+      ⚡ CONNECTER
+    </button>
+    <div class="msg" id="loginMsg"></div>
   </div>
+
+  <!-- FORM: INSCRIPTION -->
+  <div class="form-panel" id="panelRegister">
+    <div class="form-group">
+      <label class="form-label">👤 Nom d'utilisateur</label>
+      <input type="text" class="form-input" id="regUsername"
+             placeholder="monbeaunom" autocomplete="username"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📧 Courriel</label>
+      <input type="email" class="form-input" id="regEmail"
+             placeholder="ton@courriel.ca" autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🔑 Mot de passe</label>
+      <input type="password" class="form-input" id="regPassword"
+             placeholder="••••••••" autocomplete="new-password"
+             oninput="checkPwStrength(this.value)"/>
+      <div class="pw-strength">
+        <div class="pw-strength-bar" id="pwBar"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🔑 Confirmer mot de passe</label>
+      <input type="password" class="form-input" id="regConfirm"
+             placeholder="••••••••" autocomplete="new-password"/>
+    </div>
+    <button class="submit-btn" id="btnRegister" onclick="handleRegister()">
+      🚀 CRÉER MON COMPTE
+    </button>
+    <div class="msg" id="registerMsg"></div>
+  </div>
+
+  <a href="index.html" class="back-link">← Retour à l'accueil</a>
 </div>
-
-<div class="badge">ti-lex-al © 2025 — TI-CODER 👑</div>
-
-<!-- THREE.JS -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
 // ====================================================
-// 👑 TI-CODER — MOTEUR 3D BREATHING + AUTH MODALS
+// 👑 TI-CODER — AUTH + MATRIX BG
 // ====================================================
 
-// -------- MODALES JS --------
-function openModal(type) {
-  document.getElementById('modal-' + type).classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
+// --- Matrix bg léger ---
+const canvas = document.getElementById('bgCanvas');
+const ctx    = canvas.getContext('2d');
+canvas.width  = window.innerWidth;
+canvas.height = window.innerHeight;
 
-function closeModal(type) {
-  document.getElementById('modal-' + type).classList.remove('active');
-  document.body.style.overflow = '';
-}
+const CHARS   = 'アイウエオ01∑∆π∞ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const FONT    = 13;
+const cols    = Math.floor(canvas.width / FONT);
+const drops   = new Array(cols).fill(1);
 
-function switchModal(from, to) {
-  closeModal(from);
-  setTimeout(() => openModal(to), 200);
-}
-
-// Fermer en cliquant dehors
-document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-  backdrop.addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  });
-});
-
-// Fermer avec Escape
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-backdrop.active').forEach(m => {
-      m.classList.remove('active');
-    });
-    document.body.style.overflow = '';
-  }
-});
-
-// -------- THREE.JS 3D BREATHING --------
-const canvas = document.getElementById('bg-canvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x020008, 1);
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
-
-let breathTime = 0;
-const BREATH_SPEED = 0.008;
-
-// PARTICULES
-const PARTICLE_COUNT = 3000;
-const particleGeo   = new THREE.BufferGeometry();
-const positions      = new Float32Array(PARTICLE_COUNT * 3);
-const colors         = new Float32Array(PARTICLE_COUNT * 3);
-const basePositions  = new Float32Array(PARTICLE_COUNT * 3);
-
-const colorPalette = [
-  new THREE.Color(0xff0050),
-  new THREE.Color(0x7700ff),
-  new THREE.Color(0x00d4ff),
-  new THREE.Color(0xffffff),
-  new THREE.Color(0xff6600),
-];
-
-for (let i = 0; i < PARTICLE_COUNT; i++) {
-  const theta = Math.random() * Math.PI * 2;
-  const phi   = Math.acos(2 * Math.random() - 1);
-  const r     = 2 + Math.random() * 8;
-  const x = r * Math.sin(phi) * Math.cos(theta);
-  const y = r * Math.sin(phi) * Math.sin(theta);
-  const z = r * Math.cos(phi);
-  positions[i*3]   = basePositions[i*3]   = x;
-  positions[i*3+1] = basePositions[i*3+1] = y;
-  positions[i*3+2] = basePositions[i*3+2] = z;
-  const c = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-  colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
-}
-
-particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-particleGeo.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
-
-const particleMat = new THREE.PointsMaterial({
-  size: 0.04, vertexColors: true, transparent: true,
-  opacity: 0.85, sizeAttenuation: true,
-  blending: THREE.AdditiveBlending, depthWrite: false,
-});
-
-const particles = new THREE.Points(particleGeo, particleMat);
-scene.add(particles);
-
-// SPHÈRE
-const sphereGeo = new THREE.IcosahedronGeometry(1.2, 4);
-const sphereMat = new THREE.MeshBasicMaterial({
-  color: 0x7700ff, wireframe: true, transparent: true, opacity: 0.15
-});
-const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-scene.add(sphere);
-
-// ANNEAUX
-const ring1 = new THREE.Mesh(
-  new THREE.TorusGeometry(1.6, 0.004, 16, 120),
-  new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending })
-);
-ring1.rotation.x = Math.PI / 3;
-scene.add(ring1);
-
-const ring2 = new THREE.Mesh(
-  new THREE.TorusGeometry(2.2, 0.003, 16, 120),
-  new THREE.MeshBasicMaterial({ color: 0xff0050, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending })
-);
-ring2.rotation.x = -Math.PI / 4;
-ring2.rotation.y = Math.PI / 6;
-scene.add(ring2);
-
-// LUMIÈRES
-const pointLight1 = new THREE.PointLight(0xff0050, 2, 10);
-pointLight1.position.set(3, 3, 3);
-scene.add(pointLight1);
-const pointLight2 = new THREE.PointLight(0x00d4ff, 2, 10);
-pointLight2.position.set(-3, -3, 2);
-scene.add(pointLight2);
-scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-
-// MOUSE
-let mouseX = 0, mouseY = 0;
-document.addEventListener('mousemove', (e) => {
-  mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
-  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-});
-
-// BREATH LABEL
-const breathLabel  = document.getElementById('breathLabel');
-const breathPhases = ['INSPIRE', 'RETIENS', 'EXPIRE', 'PAUSE'];
-let lastPhaseIdx   = -1;
-
-function getBreathPhase(t) {
-  const cycle = (t % (Math.PI * 2)) / (Math.PI * 2);
-  if (cycle < 0.35) return 0;
-  if (cycle < 0.5)  return 1;
-  if (cycle < 0.85) return 2;
-  return
+function drawBg() {
+  ctx.fillStyle = 'rgba(0,0,0,0.06)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#003311';
+  ctx.font = `${FONT}px Courier New`;
+  for (let i = 0; i < cols; i++) {
+    const ch = CHARS[Math.floor(Math.random()*CHARS.length)];
+    ctx.fillText(ch, i*FONT, drops[i]*FONT);
+    if (drops[i]*FONT > canvas.height && Math.random() > 0.975
