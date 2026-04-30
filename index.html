@@ -1,61 +1,742 @@
+# Câline mon chum! 🤙 On repart from scratch — FULL MALADE! 🔥🍁
+
+On met **tout dans UN seul fichier HTML** avec **JavaScript** comme langue principale, **effet Matrix** derrière pis des boutons 3D! Attache ta tuque! 
+
+---
+
+## 📄 `index.html` — TOUT EN UN FICHIER!
+
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🍁 CODEX — Accueil</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="accueil.css">
+  <title>🍁 TI-CODEX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ================================
+       RESET + BASE
+    ================================ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background: #080808;
+      color: #a6e300;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ================================
+       🟢 CANVAS MATRIX
+    ================================ */
+    #matrixCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      opacity: 0.18;
+    }
+
+    /* ================================
+       TOUT AU DESSUS DU MATRIX
+    ================================ */
+    .page {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ================================
+       🔝 NAVBAR
+    ================================ */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      background: rgba(8,8,8,0.92);
+      border-bottom: 1px solid rgba(166,227,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    .logo-ti    {
+      color: #a6e300;
+      text-shadow: 0 0 15px rgba(166,227,0,0.8);
+    }
+    .logo-codex {
+      color: #ff8c00;
+      text-shadow: 0 0 15px rgba(255,140,0,0.8);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 35px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: rgba(166,227,0,0.55);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 2px;
+      transition: all 0.3s;
+      text-transform: uppercase;
+    }
+
+    .nav-link:hover { color: #ff8c00; }
+
+    /* ================================
+       🦸 HERO SECTION
+    ================================ */
+    .hero {
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Particules */
+    .particules span {
+      position: absolute;
+      display: block;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      animation: floatUp 9s infinite;
+      opacity: 0;
+    }
+    .particules span:nth-child(1){left:8%;  animation-delay:0s; background:#a6e300;}
+    .particules span:nth-child(2){left:22%; animation-delay:2s; background:#ff8c00;}
+    .particules span:nth-child(3){left:40%; animation-delay:4s; background:#a6e300;}
+    .particules span:nth-child(4){left:58%; animation-delay:1s; background:#ff8c00;}
+    .particules span:nth-child(5){left:75%; animation-delay:3s; background:#a6e300;}
+    .particules span:nth-child(6){left:91%; animation-delay:5s; background:#ff8c00;}
+
+    @keyframes floatUp {
+      0%   { bottom:-10px; opacity:0; }
+      20%  { opacity:0.9; }
+      100% { bottom:100vh; opacity:0; }
+    }
+
+    /* ===== CONTENU HERO ===== */
+    .hero-content {
+      flex: 1;
+      max-width: 570px;
+      z-index: 2;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,140,0,0.1);
+      border: 1px solid rgba(255,140,0,0.4);
+      color: #ff8c00;
+      padding: 6px 18px;
+      font-size: 10px;
+      letter-spacing: 3px;
+      margin-bottom: 28px;
+      animation: pulseGlow 3s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%,100%{ box-shadow: 0 0 0 0 rgba(255,140,0,0.3); }
+      50%    { box-shadow: 0 0 15px 5px rgba(255,140,0,0.15); }
+    }
+
+    .hero-titre {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 22px;
+    }
+
+    .titre-ligne1 {
+      display: block;
+      font-size: 1.3rem;
+      color: rgba(166,227,0,0.55);
+      letter-spacing: 10px;
+    }
+
+    .titre-ligne2 {
+      display: block;
+      font-size: 5.8rem;
+      color: #a6e300;
+      letter-spacing: 4px;
+      text-shadow:
+        0 0 20px rgba(166,227,0,0.7),
+        0 0 50px rgba(166,227,0,0.25);
+      animation: glitch 6s infinite;
+    }
+
+    @keyframes glitch {
+      0%,89%,100% {
+        text-shadow: 0 0 20px rgba(166,227,0,0.7);
+        transform: none;
+      }
+      90% { text-shadow: -3px 0 #ff8c00, 3px 0 #a6e300; transform:translateX(2px);}
+      91% { text-shadow: 3px 0 #ff8c00, -3px 0 #a6e300; transform:translateX(-2px);}
+      92% { text-shadow: 0 0 20px rgba(166,227,0,0.7); transform:none;}
+    }
+
+    .titre-ligne3 {
+      display: block;
+      font-size: 1.7rem;
+      color: #ff8c00;
+      letter-spacing: 14px;
+      text-shadow: 0 0 15px rgba(255,140,0,0.6);
+    }
+
+    .hero-sous-titre {
+      color: rgba(166,227,0,0.55);
+      font-size: 14px;
+      line-height: 1.9;
+      margin-bottom: 28px;
+      letter-spacing: 1px;
+    }
+
+    .accent-orange { color: #ff8c00; }
+
+    /* Stats */
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 38px;
+    }
+
+    .stat-num {
+      display: block;
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #a6e300;
+      text-shadow: 0 0 10px rgba(166,227,0,0.6);
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 9px;
+      color: rgba(255,140,0,0.7);
+      letter-spacing: 2px;
+    }
+
+    .stat-divider {
+      color: rgba(166,227,0,0.2);
+      font-size: 1.5rem;
+    }
+
+    /* ================================
+       🔴 BOUTONS 3D — LE BOUTTE!
+    ================================ */
+    .hero-boutons {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .btn-3d {
+      position: relative;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 6px;
+      transition: transform 0.1s;
+    }
+
+    .btn-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 17px 34px;
+      border-radius: 6px;
+      position: relative;
+      z-index: 2;
+      font-size: 14px;
+      transition: transform 0.1s;
+    }
+
+    .btn-shadow {
+      position: absolute;
+      bottom: -6px; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 6px;
+      z-index: 1;
+      transition: all 0.1s;
+    }
+
+    /* Effet clic */
+    .btn-3d:active .btn-top    { transform: translateY(5px); }
+    .btn-3d:active .btn-shadow { bottom: -1px; }
+
+    /* Connexion — VERT LIME */
+    .btn-connexion .btn-top {
+      background: #a6e300;
+      color: #080808;
+      box-shadow:
+        0 0 25px rgba(166,227,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .btn-connexion .btn-shadow { background: #4a6e00; }
+    .btn-connexion:hover .btn-top {
+      background: #c0f500;
+      box-shadow: 0 0 35px rgba(166,227,0,0.8), 0 0 70px rgba(166,227,0,0.3);
+    }
+
+    /* Inscription — ORANGE */
+    .btn-inscription .btn-top {
+      background: transparent;
+      color: #ff8c00;
+      border: 2px solid #ff8c00;
+      box-shadow: 0 0 20px rgba(255,140,0,0.3);
+    }
+    .btn-inscription .btn-shadow { background: #6b3800; }
+    .btn-inscription:hover .btn-top {
+      background: rgba(255,140,0,0.12);
+      color: #ffaa44;
+      border-color: #ffaa44;
+      box-shadow: 0 0 35px rgba(255,140,0,0.7), 0 0 70px rgba(255,140,0,0.25);
+    }
+
+    .hero-lien-bas {
+      margin-top: 22px;
+      color: rgba(166,227,0,0.4);
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .hero-lien-bas a {
+      color: #ff8c00;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .hero-lien-bas a:hover {
+      text-shadow: 0 0 10px rgba(255,140,0,0.9);
+    }
+
+    /* ================================
+       💻 CARTE DÉCO DROITE
+    ================================ */
+    .hero-deco {
+      flex: 0 0 410px;
+      z-index: 2;
+      animation: floatCard 4s ease-in-out infinite;
+    }
+
+    @keyframes floatCard {
+      0%,100% { transform: translateY(0) rotateY(-4deg); }
+      50%      { transform: translateY(-18px) rotateY(4deg); }
+    }
+
+    .deco-card {
+      background: rgba(4,4,4,0.96);
+      border: 1px solid rgba(166,227,0,0.22);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow:
+        0 0 40px rgba(166,227,0,0.08),
+        0 30px 60px rgba(0,0,0,0.85);
+    }
+
+    .deco-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px 18px;
+      background: rgba(166,227,0,0.04);
+      border-bottom: 1px solid rgba(166,227,0,0.12);
+    }
+
+    .dot { width:11px; height:11px; border-radius:50%; display:inline-block; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #febc2e; }
+    .dot.g { background: #28c840; }
+
+    .deco-filename {
+      margin-left: 8px;
+      color: rgba(166,227,0,0.35);
+      font-size: 12px;
+    }
+
+    .deco-body {
+      padding: 22px 25px;
+      font-size: 13px;
+      line-height: 1.85;
+    }
+
+    .co { color: #ff8c00; }       /* orange — mots-clés */
+    .cv { color: #a6e300; }       /* vert lime — fonctions */
+    .cs { color: #c8f07a; }       /* lime clair — strings */
+    .cc { color: rgba(166,227,0,0.3); } /* commentaires */
+
+    .cursor {
+      color: #a6e300;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ================================
+       🃏 FEATURES
+    ================================ */
+    .features {
+      padding: 80px;
+      border-top: 1px solid rgba(166,227,0,0.08);
+    }
+
+    .section-titre {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: rgba(166,227,0,0.65);
+      letter-spacing: 5px;
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-titre span { color: #ff8c00; text-shadow: 0 0 15px rgba(255,140,0,0.5); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 22px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: rgba(8,8,8,0.85);
+      border: 1px solid rgba(166,227,0,0.12);
+      border-bottom: 3px solid #a6e300;
+      border-radius: 6px;
+      padding: 30px 22px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: default;
+    }
+
+    .feature-card:hover {
+      border-bottom-color: #ff8c00;
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 25px rgba(166,227,0,0.06);
+    }
+
+    .feature-icon { font-size: 2.4rem; margin-bottom: 14px; display: block; }
+
+    .feature-card h3 {
+      font-family: 'Orbitron', monospace;
+      color: #ff8c00;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: rgba(166,227,0,0.5);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* ================================
+       🪟 MODALS
+    ================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-box {
+      background: #060606;
+      border: 1px solid rgba(166,227,0,0.25);
+      border-top: 3px solid #ff8c00;
+      border-radius: 8px;
+      padding: 45px 40px;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow:
+        0 0 60px rgba(166,227,0,0.08),
+        0 0 120px rgba(255,140,0,0.05);
+    }
+
+    @keyframes popIn {
+      from { transform: translateY(-50px) scale(0.93); opacity:0; }
+      to   { transform: translateY(0) scale(1); opacity:1; }
+    }
+
+    .modal-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 2px;
+      font-size: 10px;
+      letter-spacing: 3px;
+      margin-bottom: 14px;
+    }
+
+    .badge-connexion {
+      background: rgba(255,140,0,0.1);
+      border: 1px solid rgba(255,140,0,0.3);
+      color: #ff8c00;
+    }
+
+    .badge-inscription {
+      background: rgba(166,227,0,0.1);
+      border: 1px solid rgba(166,227,0,0.3);
+      color: #a6e300;
+    }
+
+    .modal-box h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.3rem;
+      letter-spacing: 3px;
+      margin-bottom: 28px;
+      color: #a6e300;
+    }
+
+    .modal-box h2.orange { color: #ff8c00; text-shadow: 0 0 15px rgba(255,140,0,0.5); }
+
+    .btn-fermer {
+      position: absolute;
+      top: 15px; right: 18px;
+      background: transparent;
+      border: none;
+      color: #ff8c00;
+      font-size: 22px;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      transition: all 0.2s;
+    }
+
+    .btn-fermer:hover {
+      color: #a6e300;
+      transform: rotate(90deg);
+      text-shadow: 0 0 10px rgba(166,227,0,0.8);
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      color: #ff8c00;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 13px 15px;
+      background: #0a0a0a;
+      border: 1px solid rgba(166,227,0,0.3);
+      border-radius: 4px;
+      color: #a6e300;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .form-group input::placeholder { color: rgba(166,227,0,0.2); }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #ff8c00;
+      box-shadow: 0 0 15px rgba(255,140,0,0.25);
+      color: #ff8c00;
+    }
+
+    /* Bouton modal 3D vert */
+    .btn-modal-login {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .btn-modal-login .btn-top {
+      background: #a6e300;
+      color: #080808;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(166,227,0,0.4);
+      width: 100%;
+    }
+
+    .btn-modal-login .btn-top:hover {
+      background: #c0f500;
+    }
+
+    .btn-modal-login .btn-shadow { background: #4a6e00; }
+
+    /* Bouton modal 3D orange */
+    .btn-modal-reg {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .btn-modal-reg .btn-top {
+      background: #ff8c00;
+      color: #080808;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(255,140,0,0.4);
+      width: 100%;
+      font-weight: 900;
+    }
+
+    .btn-modal-reg .btn-shadow { background: #6b3800; }
+
+    .btn-modal-reg:hover .btn-top {
+      background: #ffaa33;
+      box-shadow: 0 0 30px rgba(255,140,0,0.7);
+    }
+
+    .msg-erreur {
+      color: #ff4444;
+      font-size: 12px;
+      text-align: center;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(255,68,68,0.5);
+    }
+
+    .msg-succes {
+      color: #a6e300;
+      font-size: 12px;
+      text-align: center;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(166,227,0,0.5);
+    }
+
+    .lien-switch {
+      text-align: center;
+      color: rgba(166,227,0,0.4);
+      font-size: 12px;
+      margin-top: 16px;
+      letter-spacing: 1px;
+    }
+
+    .lien-switch a {
+      color: #ff8c00;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lien-switch a:hover { text-shadow: 0 0 10px rgba(255,140,0,0.9); }
+
+    /* ================================
+       🔔 TOAST
+    ================================ */
+    .toast {
+      position: fixed;
+      bottom: 30px; right: 30px;
+      background: #060606;
+      border: 1px solid #a6e300;
+      border-left: 4px solid #ff8c00;
+      color: #a6e300;
+      padding: 15px 22px;
+      border-radius: 4px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      box-shadow: 0 0 25px rgba(166,227,0,0.2);
+      animation: slideToast 0.3s ease;
+      z-index: 9999;
+    }
+
+    @keyframes slideToast {
+      from { opacity:0; transform:translateY(15px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ================================
+       UTILITAIRES
+    ================================ */
+    .hidden { display: none !important; }
+
+    /* ================================
+       📱 RESPONSIVE
+    ================================ */
+    @media (max-width: 900px) {
+      .hero { flex-direction: column; padding: 40px 30px; gap: 40px; }
+      .hero-deco { flex: none; width: 100%; }
+      .features-grid { grid-template-columns: repeat(2,1fr); }
+      .navbar { padding: 15px 20px; }
+      .titre-ligne2 { font-size: 3.5rem; }
+    }
+
+    @media (max-width: 500px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .hero-boutons { flex-direction: column; }
+      .btn-top { justify-content: center; }
+      .features { padding: 40px 20px; }
+    }
+  </style>
 </head>
+
 <body>
+
+<!-- 🟢 CANVAS MATRIX -->
+<canvas id="matrixCanvas"></canvas>
+
+<div class="page">
 
   <!-- ========== NAVBAR ========== -->
   <nav class="navbar">
     <div class="logo">
       <span class="logo-ti">TI</span><span class="logo-codex">-CODEX</span>
-      <span class="logo-dot">●</span>
     </div>
     <div class="nav-links">
       <a href="#" class="nav-link">ACCUEIL</a>
       <a href="#" class="nav-link">CODEX</a>
       <a href="#" class="nav-link">DOCS</a>
+      <a href="#" class="nav-link" onclick="ouvrirConnexion(); return false;">CONNEXION</a>
     </div>
   </nav>
 
-  <!-- ========== HERO SECTION ========== -->
+  <!-- ========== HERO ========== -->
   <section class="hero">
 
-    <!-- Grille animée en background -->
-    <div class="grid-bg"></div>
-
-    <!-- Particules flottantes -->
     <div class="particules">
       <span></span><span></span><span></span>
       <span></span><span></span><span></span>
     </div>
 
-    <!-- Contenu principal -->
     <div class="hero-content">
 
-      <!-- Badge top -->
-      <div class="hero-badge">
-        ⚡ PLATEFORME DE CODE #1 AU QUÉBEC
-      </div>
+      <div class="hero-badge">⚡ PLATEFORME #1 DES CODEURS QUÉBÉCOIS</div>
 
-      <!-- Titre principal -->
       <h1 class="hero-titre">
         <span class="titre-ligne1">TON</span>
         <span class="titre-ligne2">CODEX</span>
         <span class="titre-ligne3">PERSONNEL</span>
       </h1>
 
-      <!-- Sous-titre -->
       <p class="hero-sous-titre">
         Organise, retrouve et partage ton code.<br>
         <span class="accent-orange">Fait par des codeurs. Pour des codeurs. 🍁</span>
       </p>
 
-      <!-- Stats -->
       <div class="hero-stats">
         <div class="stat-item">
           <span class="stat-num">500+</span>
@@ -76,161 +757,84 @@
       <!-- BOUTONS 3D -->
       <div class="hero-boutons">
 
-        <!-- Bouton Connexion 3D -->
         <button class="btn-3d btn-connexion" onclick="ouvrirConnexion()">
-          <span class="btn-3d-top">
-            <span class="btn-icon">🔐</span>
-            SE CONNECTER
-          </span>
-          <span class="btn-3d-bottom"></span>
+          <span class="btn-top">🔐 SE CONNECTER</span>
+          <span class="btn-shadow"></span>
         </button>
 
-        <!-- Bouton Inscription 3D -->
         <button class="btn-3d btn-inscription" onclick="ouvrirInscription()">
-          <span class="btn-3d-top">
-            <span class="btn-icon">🚀</span>
-            S'INSCRIRE
-          </span>
-          <span class="btn-3d-bottom"></span>
+          <span class="btn-top">🚀 S'INSCRIRE</span>
+          <span class="btn-shadow"></span>
         </button>
 
       </div>
 
-      <!-- Lien discret -->
       <p class="hero-lien-bas">
-        Déjà membre? <a href="#" onclick="ouvrirConnexion()">Connecte-toé icitte →</a>
+        Déjà membre? <a href="#" onclick="ouvrirConnexion(); return false;">Connecte-toé icitte →</a>
       </p>
 
     </div>
 
-    <!-- Carte déco flottante droite -->
-    <div class="hero-card-deco">
+    <!-- Carte déco code -->
+    <div class="hero-deco">
       <div class="deco-card">
         <div class="deco-header">
-          <span class="deco-dot rouge"></span>
-          <span class="deco-dot jaune"></span>
-          <span class="deco-dot vert"></span>
-          <span class="deco-titre">codex.js</span>
+          <span class="dot r"></span>
+          <span class="dot y"></span>
+          <span class="dot g"></span>
+          <span class="deco-filename">ti-codex.js</span>
         </div>
-        <pre class="deco-code"><code><span class="c-orange">const</span> <span class="c-vert">codex</span> = {
-  titre: <span class="c-lime">"Mon Snippet"</span>,
-  lang: <span class="c-lime">"JavaScript"</span>,
-  auteur: <span class="c-lime">"Ti-Coder"</span>,
-  
-  <span class="c-orange">run</span>: () => {
-    <span class="c-gris">// 🍁 C'est l'boutte!</span>
-    console.<span class="c-vert">log</span>(
-      <span class="c-lime">"Allô le monde!"</span>
+        <div class="deco-body">
+          <pre><code><span class="cc">// 🍁 Ti-Codex — JavaScript</span>
+
+<span class="co">const</span> <span class="cv">codex</span> = {
+  titre:  <span class="cs">"Mon Snippet"</span>,
+  langue: <span class="cs">"JavaScript"</span>,
+  auteur: <span class="cs">"Ti-Coder"</span>,
+
+  <span class="cv">run</span>: () => {
+    <span class="cc">// C'est l'boutte! 🔥</span>
+    console.<span class="cv">log</span>(
+      <span class="cs">"Allô le monde!"</span>
     );
   }
 };
 
-codex.<span class="c-vert">run</span>();
-<span class="c-cursor">█</span></code></pre>
+codex.<span class="cv">run</span>();
+<span class="cursor">█</span></code></pre>
+        </div>
       </div>
     </div>
 
   </section>
 
-  <!-- ========== FEATURES SECTION ========== -->
+  <!-- ========== FEATURES ========== -->
   <section class="features">
-    <h2 class="features-titre">POURQUOI <span>CODEX</span>?</h2>
+    <h2 class="section-titre">POURQUOI <span>TI-CODEX</span>?</h2>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon">⚡</div>
+        <span class="feature-icon">⚡</span>
         <h3>ULTRA RAPIDE</h3>
         <p>Retrouve ton code en 2 secondes, câline!</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔐</div>
+        <span class="feature-icon">🔐</span>
         <h3>SÉCURISÉ</h3>
-        <p>Ton code est privé pis bien protégé.</p>
+        <p>Ton code est privé pis ben protégé mon chum.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🍁</div>
+        <span class="feature-icon">🍁</span>
         <h3>100% QUÉBÉCOIS</h3>
         <p>Fait avec amour au Québec, pour les codeurs d'icitte!</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔧</div>
+        <span class="feature-icon">🔧</span>
         <h3>PERSONNALISABLE</h3>
-        <p>Organise toute comme tu veux, mon chum!</p>
+        <p>Organise toute comme tu veux tsé!</p>
       </div>
     </div>
   </section>
 
-  <!-- ========== MODAL CONNEXION ========== -->
-  <div id="modalConnexion" class="modal-overlay hidden">
-    <div class="modal">
-      <button class="fermer" onclick="fermerModals()">✕</button>
-      <div class="modal-badge">🔐 ACCÈS SÉCURISÉ</div>
-      <h2>SE CONNECTER</h2>
+</div><!-- fin .page -->
 
-      <div class="form-group">
-        <label>📧 COURRIEL</label>
-        <input type="email" id="loginCourriel" placeholder="toi@codex.ca">
-      </div>
-      <div class="form-group">
-        <label>🔑 MOT DE PASSE</label>
-        <input type="password" id="loginMdp" placeholder="••••••••">
-      </div>
-
-      <p id="loginErreur" class="erreur hidden">❌ Identifiants incorrects!</p>
-
-      <button class="btn-3d btn-modal-login" onclick="seConnecter()">
-        <span class="btn-3d-top">⚡ CONNEXION</span>
-        <span class="btn-3d-bottom"></span>
-      </button>
-
-      <p class="lien-switch">
-        Pas encore de compte?
-        <a href="#" onclick="switchModal()">S'inscrire →</a>
-      </p>
-    </div>
-  </div>
-
-  <!-- ========== MODAL INSCRIPTION ========== -->
-  <div id="modalInscription" class="modal-overlay hidden">
-    <div class="modal">
-      <button class="fermer" onclick="fermerModals()">✕</button>
-      <div class="modal-badge inscription">🚀 NOUVEAU COMPTE</div>
-      <h2 class="titre-inscription">S'INSCRIRE</h2>
-
-      <div class="form-group">
-        <label>👤 PSEUDO</label>
-        <input type="text" id="regPseudo" placeholder="ti-coder-2024">
-      </div>
-      <div class="form-group">
-        <label>📧 COURRIEL</label>
-        <input type="email" id="regCourriel" placeholder="toi@codex.ca">
-      </div>
-      <div class="form-group">
-        <label>🔑 MOT DE PASSE</label>
-        <input type="password" id="regMdp" placeholder="Min. 6 caractères">
-      </div>
-      <div class="form-group">
-        <label>🔁 CONFIRMER</label>
-        <input type="password" id="regConfirm" placeholder="••••••••">
-      </div>
-
-      <p id="regErreur" class="erreur hidden">❌ Erreur!</p>
-      <p id="regSucces" class="succes hidden">✅ Compte créé! Bienvenue!</p>
-
-      <button class="btn-3d btn-modal-inscription" onclick="sInscrire()">
-        <span class="btn-3d-top">🍁 CRÉER MON COMPTE</span>
-        <span class="btn-3d-bottom"></span>
-      </button>
-
-      <p class="lien-switch">
-        Déjà un compte?
-        <a href="#" onclick="switchModal()">Se connecter →</a>
-      </p>
-    </div>
-  </div>
-
-  <!-- ========== TOAST ========== -->
-  <div id="toast" class="toast hidden"></div>
-
-  <script src="accueil.js"></script>
-</body>
-</html>
+<!-- ========== MODAL CONNEXION ========== -->
