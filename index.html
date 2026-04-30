@@ -1,10 +1,10 @@
-# Aweille mon chum! 🤙 ON REPART DE ZÉRO — FULL FRESH! 🍁
+# AWEILLE! 🤙 On repart de ZÉRO — FULL MALADE! 🍁
 
-Câline, pas de problème! On refait **TOUTE** en un seul shot! JavaScript comme langue principale, effet Matrix, boutons qui marchent! Attache ta tuque! 🔥
+Câline, chu parti! On fait toute en **UN SEUL FICHIER** pour commencer — `index.html` complet avec toute intégré! Attache ta tuque mon chum! 🔥
 
 ---
 
-## 📄 `index.html` — FICHIER COMPLET
+## 📄 `index.html` — PAGE D'ACCUEIL COMPLÈTE
 
 ```html
 <!DOCTYPE html>
@@ -12,57 +12,49 @@ Câline, pas de problème! On refait **TOUTE** en un seul shot! JavaScript comme
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🍁 TI-CODEX</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <title>TI-CODEX 🍁</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 
-    /* ================================
-       RESET + BASE
-    ================================ */
-    * { margin:0; padding:0; box-sizing:border-box; }
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    :root {
+      --lime:   #a6e300;
+      --orange: #ff8c00;
+      --noir:   #080808;
+      --gris:   #111111;
+    }
 
     body {
       font-family: 'Share Tech Mono', monospace;
-      background: #080808;
-      color: #a6e300;
+      background: var(--noir);
+      color: var(--lime);
       overflow-x: hidden;
       min-height: 100vh;
     }
 
-    /* ================================
-       MATRIX CANVAS — DERRIÈRE TOUT
-    ================================ */
+    /* ========== MATRIX CANVAS ========== */
     #matrixCanvas {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
       z-index: 0;
-      opacity: 0.13;
+      opacity: 0.18;
+      pointer-events: none;
     }
 
-    /* ================================
-       TOUT LE CONTENU PAR-DESSUS
-    ================================ */
-    .page-wrapper {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* ================================
-       NAVBAR
-    ================================ */
+    /* ========== NAVBAR ========== */
     .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 50px;
+      padding: 18px 60px;
       background: rgba(8,8,8,0.92);
-      border-bottom: 1px solid rgba(166,227,0,0.25);
+      border-bottom: 1px solid rgba(166,227,0,0.2);
       backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 50;
     }
 
     .logo {
@@ -72,119 +64,90 @@ Câline, pas de problème! On refait **TOUTE** en un seul shot! JavaScript comme
       letter-spacing: 3px;
       cursor: pointer;
     }
+    .logo .ti    { color: var(--lime); text-shadow: 0 0 15px rgba(166,227,0,0.8); }
+    .logo .codex { color: var(--orange); text-shadow: 0 0 15px rgba(255,140,0,0.8); }
 
-    .logo-ti    { color: #a6e300; text-shadow: 0 0 15px rgba(166,227,0,0.7); }
-    .logo-codex { color: #ff8c00; text-shadow: 0 0 15px rgba(255,140,0,0.7); }
-
-    .nav-links { display: flex; gap: 30px; align-items: center; }
+    .nav-links { display: flex; gap: 40px; align-items: center; }
 
     .nav-link {
       color: rgba(166,227,0,0.55);
       text-decoration: none;
       font-size: 12px;
       letter-spacing: 2px;
+      text-transform: uppercase;
       transition: color 0.3s;
+      cursor: pointer;
     }
+    .nav-link:hover { color: var(--orange); }
 
-    .nav-link:hover { color: #ff8c00; }
-
-    /* ================================
-       HERO SECTION
-    ================================ */
+    /* ========== HERO ========== */
     .hero {
-      min-height: 91vh;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 60px 80px;
+      padding: 120px 80px 60px;
       position: relative;
-      overflow: hidden;
+      z-index: 1;
     }
 
-    /* Grille animée */
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(166,227,0,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(166,227,0,0.03) 1px, transparent 1px);
-      background-size: 50px 50px;
-      animation: gridDrift 25s linear infinite;
-      pointer-events: none;
-    }
-
-    @keyframes gridDrift {
-      0%   { transform: translateY(0); }
-      100% { transform: translateY(50px); }
-    }
-
-    /* ===== HERO GAUCHE ===== */
-    .hero-left {
-      flex: 1;
-      max-width: 560px;
-      position: relative;
-      z-index: 2;
-    }
+    .hero-content { flex: 1; max-width: 580px; }
 
     .hero-badge {
       display: inline-block;
       background: rgba(255,140,0,0.1);
       border: 1px solid rgba(255,140,0,0.4);
-      color: #ff8c00;
-      padding: 5px 16px;
+      color: var(--orange);
+      padding: 6px 18px;
       font-size: 10px;
       letter-spacing: 3px;
-      margin-bottom: 28px;
-      animation: badgePulse 3s infinite;
+      margin-bottom: 30px;
+      animation: pulse 3s infinite;
     }
 
-    @keyframes badgePulse {
-      0%,100% { box-shadow: 0 0 0 0 rgba(255,140,0,0.2); }
-      50%      { box-shadow: 0 0 15px 5px rgba(255,140,0,0.1); }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 rgba(255,140,0,0.3); }
+      50%      { box-shadow: 0 0 20px rgba(255,140,0,0.2); }
     }
 
     .hero-titre {
       font-family: 'Orbitron', monospace;
       font-weight: 900;
-      line-height: 1.0;
-      margin-bottom: 22px;
+      line-height: 1;
+      margin-bottom: 25px;
+    }
+
+    .titre-small {
+      display: block;
+      font-size: 1.2rem;
+      color: rgba(166,227,0,0.5);
+      letter-spacing: 10px;
+    }
+
+    .titre-big {
+      display: block;
+      font-size: 5.5rem;
+      color: var(--lime);
+      letter-spacing: 5px;
+      text-shadow:
+        0 0 20px rgba(166,227,0,0.7),
+        0 0 60px rgba(166,227,0,0.2),
+        4px 4px 0 rgba(166,227,0,0.12);
+      animation: glitch 6s infinite;
+    }
+
+    @keyframes glitch {
+      0%,88%,100% { text-shadow: 0 0 20px rgba(166,227,0,0.7), 4px 4px 0 rgba(166,227,0,0.12); }
+      90% { text-shadow: -4px 0 var(--orange), 4px 0 var(--lime); transform: translateX(3px); }
+      91% { text-shadow: 4px 0 var(--orange), -4px 0 var(--lime); transform: translateX(-3px); }
+      92% { text-shadow: 0 0 20px rgba(166,227,0,0.7); transform: none; }
     }
 
     .titre-sub {
       display: block;
-      font-size: 1.2rem;
-      color: rgba(166,227,0,0.5);
-      letter-spacing: 8px;
-      margin-bottom: 5px;
-    }
-
-    .titre-main {
-      display: block;
-      font-size: 5rem;
-      color: #a6e300;
-      letter-spacing: 4px;
-      text-shadow:
-        0 0 20px rgba(166,227,0,0.6),
-        0 0 60px rgba(166,227,0,0.2);
-      animation: titreGlitch 6s infinite;
-    }
-
-    @keyframes titreGlitch {
-      0%,88%,100% {
-        text-shadow: 0 0 20px rgba(166,227,0,0.6), 0 0 60px rgba(166,227,0,0.2);
-        transform: none;
-      }
-      89% { transform: translateX(-3px); color: #ff8c00; }
-      90% { transform: translateX(3px);  color: #a6e300; }
-      91% { transform: translateX(0);    color: #a6e300; }
-    }
-
-    .titre-accent {
-      display: block;
       font-size: 1.6rem;
-      color: #ff8c00;
-      letter-spacing: 10px;
+      color: var(--orange);
+      letter-spacing: 14px;
       text-shadow: 0 0 15px rgba(255,140,0,0.6);
     }
 
@@ -192,181 +155,128 @@ Câline, pas de problème! On refait **TOUTE** en un seul shot! JavaScript comme
       font-size: 14px;
       color: rgba(166,227,0,0.55);
       line-height: 1.9;
-      margin-bottom: 28px;
-      letter-spacing: 0.5px;
+      margin-bottom: 35px;
+      letter-spacing: 1px;
     }
 
-    .hero-desc span { color: #ff8c00; }
+    .hero-desc .oj { color: var(--orange); }
 
     /* Stats */
-    .hero-stats {
+    .stats {
       display: flex;
       gap: 25px;
       align-items: center;
-      margin-bottom: 40px;
+      margin-bottom: 45px;
     }
-
     .stat { text-align: center; }
-
     .stat-n {
       display: block;
       font-family: 'Orbitron', monospace;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 900;
-      color: #a6e300;
-      text-shadow: 0 0 10px rgba(166,227,0,0.5);
+      color: var(--lime);
+      text-shadow: 0 0 12px rgba(166,227,0,0.6);
     }
-
     .stat-l {
       display: block;
       font-size: 9px;
-      color: rgba(255,140,0,0.65);
+      color: rgba(255,140,0,0.7);
       letter-spacing: 2px;
     }
+    .stat-sep { color: rgba(166,227,0,0.2); font-size: 1.8rem; }
 
-    .stat-div { color: rgba(166,227,0,0.15); font-size: 2rem; }
+    /* ========== BOUTONS 3D ========== */
+    .btns { display: flex; gap: 22px; flex-wrap: wrap; }
 
-    /* ================================
-       BOUTONS 3D — LE CŒUR!
-    ================================ */
-    .boutons-hero {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-
-    /* Base commune */
     .btn3d {
       position: relative;
-      cursor: pointer;
       border: none;
+      cursor: pointer;
       outline: none;
       font-family: 'Orbitron', monospace;
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
-      background: transparent;
-      transform-style: preserve-3d;
-      transition: transform 0.1s;
       border-radius: 6px;
+      transition: filter 0.3s;
     }
 
     .btn3d-face {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 15px 30px;
+      padding: 17px 35px;
       border-radius: 6px;
       font-size: 14px;
       position: relative;
       z-index: 2;
       transition: transform 0.1s;
-      user-select: none;
     }
 
-    .btn3d-ombre {
+    .btn3d-shadow {
       position: absolute;
-      inset: 0;
+      bottom: -7px; left: 0;
+      width: 100%; height: 100%;
       border-radius: 6px;
-      transform: translateY(6px);
       z-index: 1;
-      transition: transform 0.1s;
+      transition: bottom 0.1s;
     }
 
-    /* Clic 3D */
-    .btn3d:active .btn3d-face {
-      transform: translateY(5px);
-    }
-    .btn3d:active .btn3d-ombre {
-      transform: translateY(1px);
-    }
+    .btn3d:active .btn3d-face { transform: translateY(6px); }
+    .btn3d:active .btn3d-shadow { bottom: -1px; }
 
-    /* ===== CONNEXION — VERT LIME ===== */
-    .btn-cnx .btn3d-face {
-      background: #a6e300;
-      color: #080808;
-      box-shadow:
-        0 0 25px rgba(166,227,0,0.5),
-        inset 0 1px 0 rgba(255,255,255,0.25);
+    /* Vert lime */
+    .btn-conn .btn3d-face {
+      background: var(--lime);
+      color: var(--noir);
+      box-shadow: 0 0 25px rgba(166,227,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
     }
-
-    .btn-cnx .btn3d-ombre {
-      background: #567500;
+    .btn-conn .btn3d-shadow { background: #5a7a00; }
+    .btn-conn:hover .btn3d-face {
+      background: #c4f000;
+      box-shadow: 0 0 40px rgba(166,227,0,0.8), 0 0 80px rgba(166,227,0,0.3);
     }
+    .btn-conn:hover { filter: brightness(1.1); }
 
-    .btn-cnx:hover .btn3d-face {
-      background: #c2f700;
-      box-shadow:
-        0 0 40px rgba(166,227,0,0.8),
-        0 0 80px rgba(166,227,0,0.3),
-        inset 0 1px 0 rgba(255,255,255,0.3);
-    }
-
-    /* ===== INSCRIPTION — ORANGE ===== */
-    .btn-ins .btn3d-face {
+    /* Orange */
+    .btn-reg .btn3d-face {
       background: transparent;
-      color: #ff8c00;
-      border: 2px solid #ff8c00;
-      box-shadow:
-        0 0 20px rgba(255,140,0,0.3),
-        inset 0 0 15px rgba(255,140,0,0.05);
+      color: var(--orange);
+      border: 2px solid var(--orange);
+      box-shadow: 0 0 20px rgba(255,140,0,0.35), inset 0 0 15px rgba(255,140,0,0.06);
     }
-
-    .btn-ins .btn3d-ombre {
-      background: #6b3900;
-    }
-
-    .btn-ins:hover .btn3d-face {
+    .btn-reg .btn3d-shadow { background: #7a3d00; }
+    .btn-reg:hover .btn3d-face {
       background: rgba(255,140,0,0.12);
-      color: #ffaa44;
-      border-color: #ffaa44;
-      box-shadow:
-        0 0 35px rgba(255,140,0,0.6),
-        0 0 70px rgba(255,140,0,0.2),
-        inset 0 0 20px rgba(255,140,0,0.08);
+      color: #ffaa33;
+      border-color: #ffaa33;
+      box-shadow: 0 0 40px rgba(255,140,0,0.7), 0 0 80px rgba(255,140,0,0.25);
     }
 
-    .btn-icon-emoji { font-size: 16px; }
-
-    .hero-note {
-      margin-top: 22px;
-      color: rgba(166,227,0,0.3);
-      font-size: 12px;
-      letter-spacing: 1px;
-    }
-
-    .hero-note a {
-      color: #ff8c00;
-      text-decoration: none;
-    }
-
-    .hero-note a:hover { text-shadow: 0 0 10px rgba(255,140,0,0.8); }
-
-    /* ===== HERO DROITE — CARTE CODE ===== */
-    .hero-right {
-      flex: 0 0 400px;
+    /* ========== CARTE DÉCO CODE ========== */
+    .hero-deco {
+      flex: 0 0 430px;
       position: relative;
-      z-index: 2;
-      animation: floatCard 4s ease-in-out infinite;
+      z-index: 1;
+      animation: float 4s ease-in-out infinite;
     }
 
-    @keyframes floatCard {
-      0%,100% { transform: translateY(0) rotateY(-5deg); }
+    @keyframes float {
+      0%,100% { transform: translateY(0) rotateY(-4deg); }
       50%      { transform: translateY(-18px) rotateY(4deg); }
     }
 
     .code-card {
-      background: rgba(5,5,5,0.97);
+      background: rgba(5,5,5,0.96);
       border: 1px solid rgba(166,227,0,0.2);
       border-radius: 10px;
       overflow: hidden;
       box-shadow:
-        0 0 50px rgba(166,227,0,0.08),
-        0 0 100px rgba(255,140,0,0.04),
+        0 0 40px rgba(166,227,0,0.08),
         0 30px 60px rgba(0,0,0,0.9);
     }
 
-    .card-header {
+    .code-header {
       display: flex;
       align-items: center;
       gap: 7px;
@@ -375,58 +285,43 @@ Câline, pas de problème! On refait **TOUTE** en un seul shot! JavaScript comme
       border-bottom: 1px solid rgba(166,227,0,0.12);
     }
 
-    .dot { width:11px; height:11px; border-radius:50%; }
-    .dot-r { background:#ff5f57; }
-    .dot-y { background:#febc2e; }
-    .dot-g { background:#28c840; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #febc2e; }
+    .dot.g { background: #28c840; }
+    .code-fn { margin-left: 8px; color: rgba(166,227,0,0.35); font-size: 11px; }
 
-    .card-filename {
-      margin-left: 8px;
-      color: rgba(166,227,0,0.35);
-      font-size: 12px;
-      letter-spacing: 1px;
-    }
-
-    .card-body {
-      padding: 22px;
+    .code-body {
+      padding: 22px 25px;
       font-size: 13px;
-      line-height: 1.85;
+      line-height: 1.9;
     }
 
-    .card-body code { font-family: 'Share Tech Mono', monospace; }
+    .co { color: var(--orange); }
+    .cv { color: var(--lime); }
+    .cs { color: #c8f07a; }
+    .cc { color: rgba(166,227,0,0.3); }
+    .cur { animation: blink 1s step-end infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    .co { color: #ff8c00; }           /* keyword orange */
-    .cv { color: #a6e300; }           /* variable lime */
-    .cs { color: #c8f07a; }           /* string */
-    .cc { color: rgba(166,227,0,0.3); } /* commentaire */
-    .cn { color: #ffdd77; }           /* nombre */
-
-    .cursor-blink {
-      color: #a6e300;
-      animation: blink 1s step-end infinite;
-    }
-
-    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
-
-    /* ================================
-       FEATURES
-    ================================ */
+    /* ========== FEATURES ========== */
     .features {
       padding: 80px;
       border-top: 1px solid rgba(166,227,0,0.08);
+      position: relative;
+      z-index: 1;
     }
 
-    .section-titre {
+    .sect-titre {
       font-family: 'Orbitron', monospace;
       font-size: 1.8rem;
       font-weight: 900;
-      color: rgba(166,227,0,0.65);
+      color: rgba(166,227,0,0.6);
       letter-spacing: 5px;
       text-align: center;
       margin-bottom: 50px;
     }
-
-    .section-titre span { color: #ff8c00; }
+    .sect-titre span { color: var(--orange); text-shadow: 0 0 15px rgba(255,140,0,0.5); }
 
     .feat-grid {
       display: grid;
@@ -437,65 +332,55 @@ Câline, pas de problème! On refait **TOUTE** en un seul shot! JavaScript comme
     }
 
     .feat-card {
-      background: rgba(8,8,8,0.85);
+      background: rgba(10,10,10,0.85);
       border: 1px solid rgba(166,227,0,0.12);
-      border-bottom: 3px solid #a6e300;
+      border-bottom: 3px solid var(--lime);
       border-radius: 6px;
-      padding: 28px 22px;
+      padding: 30px 22px;
       text-align: center;
       transition: all 0.3s;
       cursor: default;
     }
 
     .feat-card:hover {
-      border-bottom-color: #ff8c00;
       transform: translateY(-8px);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(166,227,0,0.06);
+      border-bottom-color: var(--orange);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 25px rgba(166,227,0,0.07);
     }
 
     .feat-ico { font-size: 2.2rem; margin-bottom: 14px; display: block; }
-
     .feat-card h3 {
       font-family: 'Orbitron', monospace;
-      color: #ff8c00;
-      font-size: 0.8rem;
+      color: var(--orange);
+      font-size: 0.75rem;
       letter-spacing: 2px;
       margin-bottom: 10px;
     }
+    .feat-card p { color: rgba(166,227,0,0.5); font-size: 12px; line-height: 1.7; }
 
-    .feat-card p {
-      color: rgba(166,227,0,0.5);
-      font-size: 12px;
-      line-height: 1.7;
-    }
-
-    /* ================================
-       MODALS
-    ================================ */
+    /* ========== MODALS ========== */
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.88);
+      background: rgba(0,0,0,0.9);
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 999;
+      z-index: 500;
       backdrop-filter: blur(8px);
     }
 
     .modal {
-      background: #080808;
+      background: var(--noir);
       border: 1px solid rgba(166,227,0,0.25);
-      border-top: 3px solid #ff8c00;
+      border-top: 3px solid var(--orange);
       border-radius: 8px;
-      padding: 42px 38px;
+      padding: 45px 42px;
       width: 100%;
-      max-width: 430px;
+      max-width: 440px;
       position: relative;
-      animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
-      box-shadow:
-        0 0 60px rgba(166,227,0,0.1),
-        0 0 120px rgba(255,140,0,0.05);
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 0 80px rgba(166,227,0,0.08), 0 0 160px rgba(255,140,0,0.04);
     }
 
     @keyframes popIn {
@@ -503,119 +388,117 @@ Câline, pas de problème! On refait **TOUTE** en un seul shot! JavaScript comme
       to   { transform: translateY(0) scale(1); opacity: 1; }
     }
 
-    .modal-tag {
+    .modal-badge {
       display: inline-block;
-      padding: 3px 12px;
-      font-size: 10px;
+      border: 1px solid rgba(255,140,0,0.35);
+      background: rgba(255,140,0,0.08);
+      color: var(--orange);
+      padding: 4px 14px;
+      font-size: 9px;
       letter-spacing: 3px;
       margin-bottom: 14px;
-      border-radius: 2px;
     }
 
-    .tag-cnx {
-      background: rgba(255,140,0,0.1);
-      border: 1px solid rgba(255,140,0,0.3);
-      color: #ff8c00;
-    }
-
-    .tag-ins {
-      background: rgba(166,227,0,0.1);
-      border: 1px solid rgba(166,227,0,0.3);
-      color: #a6e300;
+    .modal-badge.lime {
+      border-color: rgba(166,227,0,0.35);
+      background: rgba(166,227,0,0.08);
+      color: var(--lime);
     }
 
     .modal h2 {
       font-family: 'Orbitron', monospace;
       font-size: 1.2rem;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
+      color: var(--lime);
       margin-bottom: 28px;
-      color: #ff8c00;
-      text-shadow: 0 0 15px rgba(255,140,0,0.5);
     }
 
-    .modal h2.h-ins { color: #a6e300; text-shadow: 0 0 15px rgba(166,227,0,0.5); }
+    .modal h2.orange { color: var(--orange); text-shadow: 0 0 15px rgba(255,140,0,0.5); }
 
-    .btn-close {
+    .btn-fermer {
       position: absolute;
-      top: 14px; right: 16px;
-      background: transparent;
+      top: 16px; right: 18px;
+      background: none;
       border: none;
-      color: rgba(255,140,0,0.6);
+      color: var(--orange);
       font-size: 20px;
       cursor: pointer;
       font-family: 'Share Tech Mono', monospace;
       transition: all 0.2s;
-      line-height: 1;
     }
+    .btn-fermer:hover { color: var(--lime); transform: rotate(90deg); }
 
-    .btn-close:hover {
-      color: #a6e300;
-      transform: rotate(90deg);
-      text-shadow: 0 0 10px rgba(166,227,0,0.7);
-    }
-
-    /* Form */
     .fg { margin-bottom: 18px; }
-
     .fg label {
       display: block;
-      color: #ff8c00;
+      color: var(--orange);
       font-size: 11px;
       letter-spacing: 2px;
+      margin-bottom: 6px;
       text-transform: uppercase;
-      margin-bottom: 7px;
     }
-
     .fg input {
       width: 100%;
-      padding: 12px 14px;
+      padding: 13px 15px;
       background: #050505;
       border: 1px solid rgba(166,227,0,0.3);
-      border-radius: 4px;
-      color: #a6e300;
+      border-radius: 3px;
+      color: var(--lime);
       font-family: 'Share Tech Mono', monospace;
       font-size: 14px;
       transition: all 0.3s;
     }
-
-    .fg input::placeholder { color: rgba(166,227,0,0.2); }
-
     .fg input:focus {
       outline: none;
-      border-color: #ff8c00;
+      border-color: var(--orange);
       box-shadow: 0 0 12px rgba(255,140,0,0.25);
-      color: #ff8c00;
+      color: var(--orange);
     }
 
     /* Boutons dans modal */
-    .btn3d-modal {
+    .btn-modal {
       width: 100%;
-      margin-top: 10px;
-    }
-
-    .btn3d-modal .btn3d-face {
-      justify-content: center;
-      font-size: 13px;
       padding: 14px;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+      position: relative;
     }
 
-    /* Msg erreur / succès */
-    .msg-err {
+    .btn-modal.lime {
+      background: var(--lime);
+      color: var(--noir);
+      box-shadow: 0 6px 0 #5a7a00, 0 0 20px rgba(166,227,0,0.4);
+    }
+    .btn-modal.lime:hover {
+      box-shadow: 0 6px 0 #5a7a00, 0 0 35px rgba(166,227,0,0.7);
+      background: #c4f000;
+    }
+    .btn-modal.lime:active { transform: translateY(4px); box-shadow: 0 2px 0 #5a7a00; }
+
+    .btn-modal.orange {
+      background: transparent;
+      color: var(--orange);
+      border: 2px solid var(--orange);
+      box-shadow: 0 6px 0 #7a3d00, 0 0 20px rgba(255,140,0,0.3);
+    }
+    .btn-modal.orange:hover { box-shadow: 0 6px 0 #7a3d00, 0 0 35px rgba(255,140,0,0.6); }
+    .btn-modal.orange:active { transform: translateY(4px); box-shadow: 0 2px 0 #7a3d00; }
+
+    .erreur {
       color: #ff4444;
       font-size: 12px;
       text-align: center;
-      margin-bottom: 10px;
+      margin: 8px 0;
       letter-spacing: 1px;
-      text-shadow: 0 0 8px rgba(255,68,68,0.4);
-    }
-
-    .msg-ok {
-      color: #a6e300;
-      font-size: 12px;
-      text-align: center;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-      text-shadow: 0 0 8px rgba(166,227,0,0.4);
+      text-shadow: 0 0 8px rgba(255,68,68,0.5);
     }
 
     .switch-link {
@@ -625,218 +508,239 @@ Câline, pas de problème! On refait **TOUTE** en un seul shot! JavaScript comme
       margin-top: 18px;
       letter-spacing: 1px;
     }
-
     .switch-link a {
-      color: #ff8c00;
+      color: var(--orange);
       text-decoration: none;
       cursor: pointer;
     }
+    .switch-link a:hover { text-shadow: 0 0 10px rgba(255,140,0,0.8); }
 
-    .switch-link a:hover { text-shadow: 0 0 10px rgba(255,140,0,0.7); }
-
-    /* ================================
-       TOAST
-    ================================ */
+    /* ========== TOAST ========== */
     .toast {
       position: fixed;
-      bottom: 28px; right: 28px;
-      background: #080808;
-      border: 1px solid #a6e300;
-      border-left: 4px solid #ff8c00;
-      color: #a6e300;
-      padding: 14px 22px;
+      bottom: 30px; right: 30px;
+      background: var(--noir);
+      border: 1px solid var(--lime);
+      border-left: 4px solid var(--orange);
+      color: var(--lime);
+      padding: 15px 22px;
       border-radius: 4px;
       font-size: 13px;
       letter-spacing: 1px;
-      box-shadow: 0 0 25px rgba(166,227,0,0.15);
-      animation: toastIn 0.3s ease;
       z-index: 9999;
+      box-shadow: 0 0 25px rgba(166,227,0,0.15);
+      animation: slideUp 0.3s ease;
     }
-
-    @keyframes toastIn {
+    @keyframes slideUp {
       from { opacity:0; transform: translateY(15px); }
       to   { opacity:1; transform: translateY(0); }
     }
 
-    /* ================================
-       UTILITAIRE
-    ================================ */
     .hidden { display: none !important; }
 
-    /* ================================
-       RESPONSIVE
-    ================================ */
-    @media (max-width: 900px) {
-      .hero { flex-direction: column; padding: 40px 25px; gap: 40px; }
-      .hero-right { flex: none; width: 100%; max-width: 100%; }
-      .features { padding: 50px 25px; }
+    /* ========== RESPONSIVE ========== */
+    @media(max-width:900px) {
+      .hero { flex-direction: column; padding: 100px 30px 50px; gap: 50px; }
+      .hero-deco { flex: unset; width: 100%; max-width: 400px; }
+      .titre-big { font-size: 3.5rem; }
       .feat-grid { grid-template-columns: repeat(2,1fr); }
-      .navbar { padding: 15px 20px; }
-      .titre-main { font-size: 3.5rem; }
+      .navbar { padding: 15px 25px; }
+      .features { padding: 50px 30px; }
     }
 
-    @media (max-width: 500px) {
+    @media(max-width:500px) {
       .feat-grid { grid-template-columns: 1fr; }
-      .boutons-hero { flex-direction: column; }
-      .btn3d-face { padding: 14px 22px; font-size: 12px; }
+      .btns { flex-direction: column; }
+      .btn3d-face { padding: 15px 25px; }
     }
-
   </style>
 </head>
 <body>
 
-<!-- 🔴 MATRIX CANVAS -->
+<!-- ========== MATRIX BG ========== -->
 <canvas id="matrixCanvas"></canvas>
 
-<div class="page-wrapper">
+<!-- ========== NAVBAR ========== -->
+<nav class="navbar">
+  <div class="logo">
+    <span class="ti">TI</span><span class="codex">-CODEX</span>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link">ACCUEIL</a>
+    <a class="nav-link" onclick="ouvrirConnexion()">CONNEXION</a>
+    <a class="nav-link" onclick="ouvrirInscription()">INSCRIPTION</a>
+  </div>
+</nav>
 
-  <!-- ========== NAVBAR ========== -->
-  <nav class="navbar">
-    <div class="logo">
-      <span class="logo-ti">TI</span><span class="logo-codex">-CODEX</span>
-    </div>
-    <div class="nav-links">
-      <a href="#" class="nav-link">ACCUEIL</a>
-      <a href="#" class="nav-link">CODEX</a>
-      <a href="#" class="nav-link">DOCS</a>
-      <a href="#" class="nav-link" onclick="ouvrirCnx(); return false;">CONNEXION</a>
-    </div>
-  </nav>
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <div class="hero-content">
 
-  <!-- ========== HERO ========== -->
-  <section class="hero">
+    <div class="hero-badge">⚡ PLATEFORME DE CODE #1 AU QUÉBEC 🍁</div>
 
-    <div class="hero-left">
+    <h1 class="hero-titre">
+      <span class="titre-small">TON</span>
+      <span class="titre-big">CODEX</span>
+      <span class="titre-sub">PERSONNEL</span>
+    </h1>
 
-      <div class="hero-badge">⚡ PLATEFORME #1 AU QUÉBEC 🍁</div>
+    <p class="hero-desc">
+      Organise, retrouve pis partage ton code comme un pro.<br>
+      <span class="oj">Fait par des codeurs. Pour des codeurs. 🍁</span>
+    </p>
 
-      <h1 class="hero-titre">
-        <span class="titre-sub">TON</span>
-        <span class="titre-main">CODEX</span>
-        <span class="titre-accent">PERSONNEL</span>
-      </h1>
-
-      <p class="hero-desc">
-        Organise, retrouve pis partage ton code.<br>
-        <span>Fait par des codeurs. Pour des codeurs. 🍁</span>
-      </p>
-
-      <div class="hero-stats">
-        <div class="stat">
-          <span class="stat-n">500+</span>
-          <span class="stat-l">SNIPPETS</span>
-        </div>
-        <div class="stat-div">|</div>
-        <div class="stat">
-          <span class="stat-n">100%</span>
-          <span class="stat-l">GRATUIT</span>
-        </div>
-        <div class="stat-div">|</div>
-        <div class="stat">
-          <span class="stat-n">∞</span>
-          <span class="stat-l">POSSIBILITÉS</span>
-        </div>
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-n">500+</span>
+        <span class="stat-l">SNIPPETS</span>
       </div>
-
-      <!-- 🔴 BOUTONS 3D -->
-      <div class="boutons-hero">
-
-        <!-- CONNEXION -->
-        <button class="btn3d btn-cnx" onclick="ouvrirCnx()">
-          <span class="btn3d-ombre"></span>
-          <span class="btn3d-face">
-            <span class="btn-icon-emoji">🔐</span>
-            SE CONNECTER
-          </span>
-        </button>
-
-        <!-- INSCRIPTION -->
-        <button class="btn3d btn-ins" onclick="ouvrirIns()">
-          <span class="btn3d-ombre"></span>
-          <span class="btn3d-face">
-            <span class="btn-icon-emoji">🚀</span>
-            S'INSCRIRE
-          </span>
-        </button>
-
+      <div class="stat-sep">|</div>
+      <div class="stat">
+        <span class="stat-n">100%</span>
+        <span class="stat-l">GRATUIT</span>
       </div>
-
-      <p class="hero-note">
-        Déjà membre? <a href="#" onclick="ouvrirCnx(); return false;">Connecte-toé icitte →</a>
-      </p>
-
-    </div>
-
-    <!-- Carte code droite -->
-    <div class="hero-right">
-      <div class="code-card">
-        <div class="card-header">
-          <span class="dot dot-r"></span>
-          <span class="dot dot-y"></span>
-          <span class="dot dot-g"></span>
-          <span class="card-filename">ti-codex.js</span>
-        </div>
-        <div class="card-body">
-          <code>
-<span class="co">const</span> <span class="cv">codex</span> = {<br>
-&nbsp;&nbsp;nom:  <span class="cs">"Ti-Codex"</span>,<br>
-&nbsp;&nbsp;lang: <span class="cs">"JavaScript"</span>,<br>
-&nbsp;&nbsp;lieu: <span class="cs">"Québec 🍁"</span>,<br>
-<br>
-&nbsp;&nbsp;<span class="cv">init</span>: <span class="co">function</span>() {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc">// Aweille mon chum!</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="cv">log</span>(<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cs">"C'est l'boutte!"</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="co">return</span> <span class="cs">"Allô!"</span>;<br>
-&nbsp;&nbsp;}<br>
-};<br>
-<br>
-codex.<span class="cv">init</span>();<br>
-<span class="cc">// ✅ C'est l'boutte!</span><br>
-<span class="cursor-blink">█</span>
-          </code>
-        </div>
+      <div class="stat-sep">|</div>
+      <div class="stat">
+        <span class="stat-n">∞</span>
+        <span class="stat-l">POSSIBILITÉS</span>
       </div>
     </div>
 
-  </section>
+    <div class="btns">
+      <button class="btn3d btn-conn" onclick="ouvrirConnexion()">
+        <span class="btn3d-face">🔐 SE CONNECTER</span>
+        <span class="btn3d-shadow"></span>
+      </button>
+      <button class="btn3d btn-reg" onclick="ouvrirInscription()">
+        <span class="btn3d-face">🚀 S'INSCRIRE</span>
+        <span class="btn3d-shadow"></span>
+      </button>
+    </div>
 
-  <!-- ========== FEATURES ========== -->
-  <section class="features">
-    <h2 class="section-titre">POURQUOI <span>CODEX</span>?</h2>
-    <div class="feat-grid">
-      <div class="feat-card">
-        <span class="feat-ico">⚡</span>
-        <h3>ULTRA RAPIDE</h3>
-        <p>Retrouve ton code en 2 secondes, câline!</p>
+    <p class="switch-link" style="margin-top:22px; text-align:left;">
+      Déjà membre? <a onclick="ouvrirConnexion()">Connecte-toé icitte →</a>
+    </p>
+
+  </div>
+
+  <!-- Carte déco code -->
+  <div class="hero-deco">
+    <div class="code-card">
+      <div class="code-header">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+        <span class="code-fn">ti-codex.js</span>
       </div>
-      <div class="feat-card">
-        <span class="feat-ico">🔐</span>
-        <h3>SÉCURISÉ</h3>
-        <p>Ton code est privé pis ben protégé, mon chum!</p>
-      </div>
-      <div class="feat-card">
-        <span class="feat-ico">🍁</span>
-        <h3>100% QUÉBÉCOIS</h3>
-        <p>Fait avec amour au Québec, pour les codeurs d'icitte!</p>
-      </div>
-      <div class="feat-card">
-        <span class="feat-ico">🔧</span>
-        <h3>PERSONNALISABLE</h3>
-        <p>Organise toute comme tu veux, aweille!</p>
+      <div class="code-body">
+        <pre><code><span class="co">const</span> <span class="cv">codex</span> = {
+  titre:  <span class="cs">"Mon Snippet 🍁"</span>,
+  lang:   <span class="cs">"JavaScript"</span>,
+  auteur: <span class="cs">"Ti-Coder"</span>,
+
+  <span class="co">charger</span>: <span class="co">async</span> () => {
+    <span class="cc">// Câline que c'est l'boutte!</span>
+    <span class="co">const</span> data = <span class="co">await</span>
+      fetch(<span class="cs">"/api/codex"</span>);
+    <span class="co">return</span> data.<span class="cv">json</span>();
+  },
+
+  <span class="co">run</span>: () => {
+    console.<span class="cv">log</span>(
+      <span class="cs">"Allô le monde! 🚀"</span>
+    );
+  }
+};
+
+codex.<span class="cv">run</span>(); <span class="cur">█</span></code></pre>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-</div><!-- fin page-wrapper -->
+<!-- ========== FEATURES ========== -->
+<section class="features">
+  <h2 class="sect-titre">POURQUOI <span>TI-CODEX</span>?</h2>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <span class="feat-ico">⚡</span>
+      <h3>ULTRA RAPIDE</h3>
+      <p>Retrouve ton code en 2 secondes, câline!</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-ico">📦</span>
+      <h3>IMPORT ZIP</h3>
+      <p>Glisse tes fichiers ZIP — on gère toute pour toé!</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-ico">💬</span>
+      <h3>CHAT IA</h3>
+      <p>Un assistant IA intégré pour t'aider à coder!</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-ico">🍁</span>
+      <h3>100% QUÉBÉCOIS</h3>
+      <p>Fait avec amour au Québec, pour les codeurs d'icitte!</p>
+    </div>
+  </div>
+</section>
 
 <!-- ========== MODAL CONNEXION ========== -->
-<div id="modalCnx" class="overlay hidden">
+<div id="modalConn" class="overlay hidden">
   <div class="modal">
-    <button class="btn-close" onclick="fermerTout()">✕</button>
-    <span class="modal-tag tag-cnx">🔐 ACCÈS SÉCURISÉ</span>
+    <button class="btn-fermer" onclick="fermerTout()">✕</button>
+    <div class="modal-badge">🔐 ACCÈS SÉCURISÉ</div>
     <h2>SE CONNECTER</h2>
 
     <div class="fg">
-      <label>
+      <label>📧 Courriel</label>
+      <input type="email" id="connEmail" placeholder="toi@codex.ca">
+    </div>
+    <div class="fg">
+      <label>🔑 Mot de passe</label>
+      <input type="password" id="connMdp" placeholder="••••••••">
+    </div>
+
+    <p id="connErr" class="erreur hidden">❌ Courriel ou mot de passe incorrect!</p>
+
+    <button class="btn-modal lime" onclick="seConnecter()">⚡ CONNEXION</button>
+
+    <p class="switch-link">
+      Pas encore de compte?
+      <a onclick="switchInscription()">S'inscrire →</a>
+    </p>
+  </div>
+</div>
+
+<!-- ========== MODAL INSCRIPTION ========== -->
+<div id="modalReg" class="overlay hidden">
+  <div class="modal">
+    <button class="btn-fermer" onclick="fermerTout()">✕</button>
+    <div class="modal-badge lime">🚀 NOUVEAU COMPTE</div>
+    <h2 class="orange">S'INSCRIRE</h2>
+
+    <div class="fg">
+      <label>👤 Pseudo</label>
+      <input type="text" id="regPseudo" placeholder="ti-coder-2024">
+    </div>
+    <div class="fg">
+      <label>📧 Courriel</label>
+      <input type="email" id="regEmail" placeholder="toi@codex.ca">
+    </div>
+    <div class="fg">
+      <label>🔑 Mot de passe</label>
+      <input type="password" id="regMdp" placeholder="Min. 6 caractères">
+    </div>
+    <div class="fg">
+      <label>🔁 Confirmer</label>
+      <input type="password" id="regConf" placeholder="••••••••">
+    </div>
+
+    <p id="regErr" class="erreur hidden"></p>
+
+    <button class="btn-modal orange" onclick="sInscrire()">🍁 CRÉER MON COMPTE</button>
+
+    <p class="switch-link">
+      Déjà un compte?
+      <a onclick="switchConnexion()">Se connecter →</a>
+    </p>
