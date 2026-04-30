@@ -1,326 +1,417 @@
-// ===== SKILLER CODEX AI — script.js =====
+/* ===== SKILLER — script.js ===== */
 
+// ─── ÉTAT GLOBAL ───────────────────────────────────────────
 const state = {
-  activePanel: 'conversations',
   githubConnected: false,
-  anthropicKey: localStorage.getItem('sk_anthropic') || '',
-  model: localStorage.getItem('sk_model') || 'claude-sonnet-4-5',
-  messages: [],
-  isLoading: false
+  githubUser: null,
+  activeConv: 0,
+  conversations: [
+    {
+      id: 0,
+      name: 'Projet JavaScript',
+      avatar: 'JS',
+      avatarClass: '',
+      preview: 'Dernier message...',
+      time: '14h22',
+      messages: [
+        { type: 'received', sender: 'Skiller', text: 'Bienvenue sur la plateforme Skiller ! 🚀', time: '14h00' },
+        { type: 'sent', text: 'Merci ! On commence le projet texte-1.', time: '14h05' },
+        { type: 'received', sender: 'Skiller', text: 'Parfait ! Connecte ton GitHub pour voir tes repos 🟢', time: '14h22' }
+      ]
+    },
+    {
+      id: 1,
+      name: 'Repo texte-1',
+      avatar: '\uF09B',
+      avatarClass: 'gh',
+      preview: 'Commits récents',
+      time: '12h10',
+      messages: [
+        { type: 'received', sender: 'GitHub', text: 'Connecte ton compte GitHub pour voir tes repos ici 📂', time: '12h10' }
+      ]
+    },
+    {
+      id: 2,
+      name: 'Skiller General',
+      avatar: 'SK',
+      avatarClass: 'sk',
+      preview: 'Bienvenue !',
+      time: 'Hier',
+      messages: [
+        { type: 'received', sender: 'Skiller', text: 'Bienvenue dans Skiller General ! 👋', time: 'Hier' },
+        { type: 'received', sender: 'Skiller', text: 'Partage tes skills pis avance dans tes projets 💪', time: 'Hier' }
+      ]
+    }
+  ]
 };
 
-// ─── DOM ───────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
+// ─── SÉLECTEURS DOM ────────────────────────────────────────
+const convList       = document.getElementById('convList');
+const chatMessages   = document.getElementById('chatMessages');
+const msgInput       = document.getElementById('msgInput');
+const btnSend        = document.getElementById('btnSend');
+const btnNewConv     = document.getElementById('btnNewConv');
+const searchConv     = document.getElementById('searchConv');
+const btnGithub      = document.getElementById('btnGithub');
+const githubStatus   = document.getElementById('githubStatus');
+const reposList      = document.getElementById('reposList');
+const navBtns        = document.querySelectorAll('.nav-btn');
 
 // ─── INIT ──────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  initNav();
-  initChat();
-  initSettings();
-  initGitHub();
+function init() {
+  renderConvList();
+  renderMessages(state.activeConv);
+  bindEvents();
   animateSkillBars();
-  loadWelcomeMsg();
-});
+}
 
-// ─── NAVIGATION SIDEBAR ────────────────────────────────────
-function initNav() {
-  document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const panel = btn.dataset.panel;
-      // Active le bouton
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      // Affiche le bon panneau
-      document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
-      const target = document.getElementById('panel-' + panel);
-      if (target) target.classList.add('active');
-      state.activePanel = panel;
-    });
+// ─── RENDER LISTE CONVERSATIONS ────────────────────────────
+function renderConvList(filter = '') {
+  convList.innerHTML = '';
+  const filtered = state.conversations.filter(c =>
+    c.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  filtered.forEach(conv => {
+    const li = document.createElement('li');
+    li.className = 'conv-item' + (conv.id === state.activeConv ? ' active' : '');
+    li.dataset.id = conv.id;
+
+    const avatarContent = conv.avatarClass === 'gh'
+      ? '<i class="fa-brands fa-github"></i>'
+      : conv.avatar;
+
+    li.innerHTML = `
+      <div class="conv-avatar ${conv.avatarClass}">${avatarContent}</div>
+      <div class="conv-info">
+        <span class="conv-name">${conv.name}</span>
+        <span class="conv-preview">${conv.preview}</span>
+      </div>
+      <span class="conv-time">${conv.time}</span>
+    `;
+
+    li.addEventListener('click', () => selectConv(conv.id));
+    convList.appendChild(li);
   });
 }
 
-// ─── MESSAGE DE BIENVENUE ──────────────────────────────────
-function loadWelcomeMsg() {
-  const key = state.anthropicKey;
-  const txt = key
-    ? 'Cle API chargee ! Je suis Claude, ton Codex AI. Comment puis-je taider aujourd hui ? 🚀'
-    : 'Bienvenue sur Skiller Codex AI ! Entre ta cle API Anthropic dans Parametres (engrenage) pour activer Claude. 🔑';
-  addMsg('received', txt, 'Claude');
-}
+// ─── SÉLECTIONNER UNE CONVERSATION ────────────────────────
+function selectConv(id) {
+  state.activeConv = id;
+  renderConvList(searchConv.value);
+  renderMessages(id);
 
-// ─── INIT CHAT ─────────────────────────────────────────────
-function initChat() {
-  const input = $('msgInput');
-  const sendBtn = $('btnSend');
-  const clearBtn = $('btnClearChat');
+  // Met à jour le header du chat
+  const conv = state.conversations.find(c => c.id === id);
+  const headerAvatar = document.querySelector('.chat-avatar');
+  const headerTitle  = document.querySelector('.chat-title h3');
 
-  sendBtn.addEventListener('click', sendMessage);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  });
-  clearBtn.addEventListener('click', () => {
-    $('chatMessages').innerHTML = '';
-    state.messages = [];
-    loadWelcomeMsg();
-  });
-}
-
-// ─── ENVOYER MESSAGE ───────────────────────────────────────
-async function sendMessage() {
-  const input = $('msgInput');
-  const text = input.value.trim();
-  if (!text || state.isLoading) return;
-
-  addMsg('sent', text);
-  state.messages.push({ role: 'user', content: text });
-  input.value = '';
-
-  if (!state.anthropicKey) {
-    addMsg('received', 'Aucune cle API detectee. Va dans Parametres et entre ta cle Anthropic pour activer Claude ! 🔑', 'Claude');
-    return;
+  if (conv.avatarClass === 'gh') {
+    headerAvatar.innerHTML = '<i class="fa-brands fa-github"></i>';
+    headerAvatar.style.background = 'linear-gradient(135deg, #222, #444)';
+    headerAvatar.style.color = '#fff';
+    headerAvatar.style.boxShadow = 'none';
+  } else if (conv.avatarClass === 'sk') {
+    headerAvatar.innerHTML = conv.avatar;
+    headerAvatar.style.background = 'linear-gradient(135deg, var(--orange-dark), var(--orange))';
+    headerAvatar.style.color = '#fff';
+    headerAvatar.style.boxShadow = 'var(--glow-orange)';
+  } else {
+    headerAvatar.innerHTML = conv.avatar;
+    headerAvatar.style.background = 'linear-gradient(135deg, var(--lime-dark), var(--lime))';
+    headerAvatar.style.color = '#000';
+    headerAvatar.style.boxShadow = 'var(--glow-lime)';
   }
 
-  await callClaude(text);
+  headerTitle.textContent = conv.name;
 }
 
-// ─── APPEL CLAUDE API ──────────────────────────────────────
-async function callClaude(userText) {
-  state.isLoading = true;
-  const sendBtn = $('btnSend');
-  sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-  sendBtn.disabled = true;
+// ─── RENDER MESSAGES ───────────────────────────────────────
+function renderMessages(convId) {
+  const conv = state.conversations.find(c => c.id === convId);
+  chatMessages.innerHTML = '';
 
-  // Indicateur typing
-  const typingId = addTyping();
+  // Diviseur de date
+  const divider = document.createElement('div');
+  divider.className = 'msg-date-divider';
+  divider.textContent = "Aujourd'hui";
+  chatMessages.appendChild(divider);
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': state.anthropicKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-allow-browser': 'true'
-      },
-      body: JSON.stringify({
-        model: state.model,
-        max_tokens: 1024,
-        system: 'Tu es Codex AI, un assistant de developpement integre dans la plateforme Skiller. Tu aides avec le code, larchitecture, le debug et les explications. Reponds en francais, de facon claire et concise.',
-        messages: state.messages
-      })
-    });
+  conv.messages.forEach(msg => {
+    const el = createMessageEl(msg);
+    chatMessages.appendChild(el);
+  });
 
-    removeTyping(typingId);
-
-    if (!res.ok) {
-      const err = await res.json();
-      const msg = err.error?.message || 'Erreur API Anthropic';
-      addMsg('received', '❌ Erreur: ' + msg, 'Claude');
-      return;
-    }
-
-    const data = await res.json();
-    const reply = data.content[0].text;
-    state.messages.push({ role: 'assistant', content: reply });
-    addMsg('received', reply, 'Claude');
-
-  } catch (e) {
-    removeTyping(typingId);
-    addMsg('received', '❌ Erreur de connexion. Verifie ta cle API et ta connexion internet.', 'Claude');
-  } finally {
-    state.isLoading = false;
-    sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
-    sendBtn.disabled = false;
-  }
+  scrollToBottom();
 }
 
-// ─── AJOUTER MESSAGE ───────────────────────────────────────
-function addMsg(type, text, sender) {
-  const container = $('chatMessages');
+// ─── CRÉER UN ÉLÉMENT MESSAGE ──────────────────────────────
+function createMessageEl(msg) {
   const div = document.createElement('div');
-  div.className = 'message ' + type;
+  div.className = `message ${msg.type}`;
 
-  const now = new Date();
-  const time = now.getHours() + 'h' + String(now.getMinutes()).padStart(2, '0');
-
-  if (type === 'received') {
+  if (msg.type === 'received') {
     div.innerHTML = `
-      <div class="msg-avatar">${(sender||'AI').substring(0,2).toUpperCase()}</div>
+      <div class="msg-avatar">${msg.sender ? msg.sender.substring(0, 2).toUpperCase() : 'SK'}</div>
       <div class="msg-content">
-        <span class="msg-sender">${sender || 'Claude'}</span>
-        <p>${escapeHtml(text)}</p>
-        <span class="msg-time">${time}</span>
-      </div>`;
+        <span class="msg-sender">${msg.sender || 'Skiller'}</span>
+        <p>${msg.text}</p>
+        <span class="msg-time">${msg.time}</span>
+      </div>
+    `;
   } else {
     div.innerHTML = `
       <div class="msg-content">
-        <p>${escapeHtml(text)}</p>
-        <span class="msg-time">${time} <i class="fa-solid fa-check-double" style="color:var(--accent);font-size:.6rem"></i></span>
-      </div>`;
+        <p>${msg.text}</p>
+        <span class="msg-time">${msg.time} <i class="fa-solid fa-check-double" style="color:var(--lime);font-size:0.65rem"></i></span>
+      </div>
+    `;
   }
 
+  // Animation d'entrée
   div.style.opacity = '0';
-  div.style.transform = type === 'sent' ? 'translateX(20px)' : 'translateX(-20px)';
-  container.appendChild(div);
-
+  div.style.transform = msg.type === 'sent' ? 'translateX(20px)' : 'translateX(-20px)';
   requestAnimationFrame(() => {
-    div.style.transition = 'all .25s ease';
+    div.style.transition = 'all 0.25s ease';
     div.style.opacity = '1';
     div.style.transform = 'translateX(0)';
   });
 
-  container.scrollTop = container.scrollHeight;
   return div;
 }
 
-// ─── TYPING INDICATOR ──────────────────────────────────────
-function addTyping() {
-  const id = 'typing-' + Date.now();
-  const container = $('chatMessages');
-  const div = document.createElement('div');
-  div.id = id;
-  div.className = 'message received';
-  div.innerHTML = `
-    <div class="msg-avatar">AI</div>
-    <div class="msg-content">
-      <span class="msg-sender">Claude</span>
-      <p style="display:flex;gap:5px;align-items:center">
-        <span class="typing-dot"></span>
-        <span class="typing-dot"></span>
-        <span class="typing-dot"></span>
-      </p>
-    </div>`;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return id;
+// ─── ENVOYER UN MESSAGE ────────────────────────────────────
+function sendMessage() {
+  const text = msgInput.value.trim();
+  if (!text) return;
+
+  const now = new Date();
+  const time = `${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
+
+  const msg = { type: 'sent', text, time };
+  state.conversations[state.activeConv].messages.push(msg);
+  state.conversations[state.activeConv].preview = text;
+  state.conversations[state.activeConv].time = time;
+
+  const el = createMessageEl(msg);
+  chatMessages.appendChild(el);
+  scrollToBottom();
+
+  msgInput.value = '';
+  msgInput.focus();
+
+  renderConvList(searchConv.value);
+
+  // Réponse automatique après 1.2s
+  setTimeout(() => autoReply(state.activeConv), 1200);
 }
 
-function removeTyping(id) {
-  const el = document.getElementById(id);
-  if (el) el.remove();
-}
+// ─── RÉPONSE AUTO ──────────────────────────────────────────
+function autoReply(convId) {
+  const replies = [
+    'Bonne idée ! Continuons 🚀',
+    'Super, je note ça dans le projet 📝',
+    'Excellent ! Tu avances bien 💪',
+    'Parfait, on est sur la bonne track 🟢',
+    'Intéressant ! T as pensé à GitHub pour ça ? 🐙'
+  ];
 
-function escapeHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br/>');
-}
+  const now = new Date();
+  const time = `${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
+  const conv = state.conversations[convId];
 
-// ─── SETTINGS ──────────────────────────────────────────────
-function initSettings() {
-  const keyInput = $('anthropicKey');
-  const btnSave = $('btnSaveKey');
-  const btnClear = $('btnClearKey');
-  const btnEye = $('btnEye');
-  const keyStatus = $('keyStatus');
-  const modelSelect = $('modelSelect');
+  const msg = {
+    type: 'received',
+    sender: conv.name,
+    text: replies[Math.floor(Math.random() * replies.length)],
+    time
+  };
 
-  // Charge la cle sauvegardee
-  if (state.anthropicKey) {
-    keyInput.value = state.anthropicKey;
-    showKeyStatus('ok', '✅ Cle API chargee — Claude est actif !');
+  conv.messages.push(msg);
+  conv.preview = msg.text;
+  conv.time = time;
+
+  if (state.activeConv === convId) {
+    const el = createMessageEl(msg);
+    chatMessages.appendChild(el);
+    scrollToBottom();
   }
 
-  // Charge le modele
-  modelSelect.value = state.model;
-  modelSelect.addEventListener('change', () => {
-    state.model = modelSelect.value;
-    localStorage.setItem('sk_model', state.model);
-  });
+  renderConvList(searchConv.value);
+}
 
-  // Toggle visibilite
-  btnEye.addEventListener('click', () => {
-    const isPass = keyInput.type === 'password';
-    keyInput.type = isPass ? 'text' : 'password';
-    btnEye.innerHTML = isPass
-      ? '<i class="fa-solid fa-eye-slash"></i>'
-      : '<i class="fa-solid fa-eye"></i>';
-  });
+// ─── NOUVELLE CONVERSATION ─────────────────────────────────
+function newConversation() {
+  const name = prompt('Nom de la nouvelle conversation :');
+  if (!name || !name.trim()) return;
 
-  // Sauvegarder
-  btnSave.addEventListener('click', () => {
-    const val = keyInput.value.trim();
-    if (!val) {
-      showKeyStatus('err', '❌ Entre une cle API valide.');
-      return;
-    }
-    if (!val.startsWith('sk-ant-')) {
-      showKeyStatus('err', '❌ La cle doit commencer par sk-ant-...');
-      return;
-    }
-    state.anthropicKey = val;
-    localStorage.setItem('sk_anthropic', val);
-    showKeyStatus('ok', '✅ Cle sauvegardee ! Claude est maintenant actif.');
-    // Message de confirmation dans le chat
-    addMsg('received', '🔑 Cle API Anthropic activee ! Je suis Claude, pret a taider. Pose-moi une question !', 'Claude');
-  });
+  const initiales = name.trim().substring(0, 2).toUpperCase();
+  const newConv = {
+    id: state.conversations.length,
+    name: name.trim(),
+    avatar: initiales,
+    avatarClass: '',
+    preview: 'Nouvelle conversation',
+    time: 'maintenant',
+    messages: [
+      {
+        type: 'received',
+        sender: 'Skiller',
+        text: `Bienvenue dans « ${name.trim()} » ! 👋`,
+        time: 'maintenant'
+      }
+    ]
+  };
 
-  // Effacer
-  btnClear.addEventListener('click', () => {
-    state.anthropicKey = '';
-    localStorage.removeItem('sk_anthropic');
-    keyInput.value = '';
-    showKeyStatus('err', '🗑️ Cle effacee.');
-    setTimeout(() => { keyStatus.className = 'key-status'; keyStatus.style.display='none'; }, 2000);
-  });
+  state.conversations.unshift(newConv);
+  // Réindexer les IDs
+  state.conversations.forEach((c, i) => c.id = i);
+  state.activeConv = 0;
 
-  function showKeyStatus(type, msg) {
-    keyStatus.textContent = msg;
-    keyStatus.className = 'key-status ' + type;
+  renderConvList();
+  renderMessages(0);
+}
+
+// ─── CONNEXION GITHUB ──────────────────────────────────────
+function connectGitHub() {
+  if (state.githubConnected) {
+    disconnectGitHub();
+    return;
   }
+
+  // Simulation de connexion GitHub OAuth
+  btnGithub.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
+  btnGithub.disabled = true;
+
+  setTimeout(() => {
+    state.githubConnected = true;
+    state.githubUser = 'Alexmarceauprevost812';
+
+    btnGithub.innerHTML = '<i class="fa-brands fa-github"></i> Connecté ✓';
+    btnGithub.classList.add('connected');
+    btnGithub.disabled = false;
+    githubStatus.textContent = '@' + state.githubUser;
+    githubStatus.classList.add('online');
+
+    loadGitHubRepos();
+
+    // Message de confirmation dans le chat actif
+    const now = new Date();
+    const time = `${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
+    const msg = {
+      type: 'received',
+      sender: 'GitHub',
+      text: `✅ Connecté en tant que @${state.githubUser} ! Tes repos sont chargés 🐙`,
+      time
+    };
+    state.conversations[state.activeConv].messages.push(msg);
+    const el = createMessageEl(msg);
+    chatMessages.appendChild(el);
+    scrollToBottom();
+  }, 1800);
 }
 
-// ─── GITHUB ────────────────────────────────────────────────
-function initGitHub() {
-  [$('btnGithub'), $('btnGithub2')].forEach(btn => {
-    if (!btn) return;
-    btn.addEventListener('click', () => {
-      if (state.githubConnected) return;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
-      btn.disabled = true;
-      setTimeout(() => {
-        state.githubConnected = true;
-        [$('btnGithub'), $('btnGithub2')].forEach(b => {
-          if (!b) return;
-          b.innerHTML = '<i class="fa-brands fa-github"></i> Connecte ✓';
-          b.classList.add('connected');
-          b.disabled = false;
-        });
-        [$('githubStatus'), $('githubStatus2')].forEach(s => {
-          if (!s) return;
-          s.textContent = '@Alexmarceauprevost812';
-          s.classList.add('online');
-        });
-        loadRepos();
-        addMsg('received', '🐙 GitHub connecte ! Tes repos sont charges dans le panneau GitHub.', 'Claude');
-      }, 1500);
-    });
-  });
+function disconnectGitHub() {
+  state.githubConnected = false;
+  state.githubUser = null;
+  btnGithub.innerHTML = '<i class="fa-brands fa-github"></i> Connecter GitHub';
+  btnGithub.classList.remove('connected');
+  githubStatus.textContent = 'Non connecté';
+  githubStatus.classList.remove('online');
+  reposList.innerHTML = '<div class="repo-placeholder">Connecte GitHub pour voir tes repos</div>';
 }
 
-function loadRepos() {
+// ─── CHARGER LES REPOS GITHUB ──────────────────────────────
+function loadGitHubRepos() {
   const repos = [
     { name: 'texte-1', lang: 'JS', branch: 'Alex', stars: 2 },
     { name: 'portfolio', lang: 'HTML', branch: 'main', stars: 5 },
     { name: 'skiller-app', lang: 'JS', branch: 'dev', stars: 1 },
     { name: 'api-rest', lang: 'Node', branch: 'main', stars: 3 }
   ];
-  [$('reposList'), $('reposList2')].forEach(list => {
-    if (!list) return;
-    list.innerHTML = '';
-    repos.forEach(r => {
-      const d = document.createElement('div');
-      d.className = 'repo-item';
-      d.innerHTML = `<i class="fa-solid fa-code-branch"></i><div class="repo-details"><span class="repo-name">${r.name}</span><span class="repo-branch"><i class="fa-solid fa-code-branch" style="font-size:.6rem"></i> ${r.branch}</span></div><div class="repo-meta"><span class="repo-lang">${r.lang}</span><span class="repo-stars"><i class="fa-solid fa-star" style="color:var(--accent);font-size:.6rem"></i> ${r.stars}</span></div>`;
-      d.onclick = () => window.open('https://github.com/Alexmarceauprevost812/' + r.name, '_blank');
-      list.appendChild(d);
+
+  reposList.innerHTML = '';
+  repos.forEach(repo => {
+    const div = document.createElement('div');
+    div.className = 'repo-item';
+    div.innerHTML = `
+      <i class="fa-solid fa-code-branch"></i>
+      <div class="repo-details">
+        <span class="repo-name">${repo.name}</span>
+        <span class="repo-branch"><i class="fa-solid fa-code-branch" style="font-size:0.6rem"></i> ${repo.branch}</span>
+      </div>
+      <div class="repo-meta">
+        <span class="repo-lang">${repo.lang}</span>
+        <span class="repo-stars"><i class="fa-solid fa-star" style="color:var(--orange);font-size:0.6rem"></i> ${repo.stars}</span>
+      </div>
+    `;
+    div.addEventListener('click', () => openRepo(repo));
+    reposList.appendChild(div);
+  });
+}
+
+function openRepo(repo) {
+  const url = `https://github.com/Alexmarceauprevost812/${repo.name}`;
+  window.open(url, '_blank');
+}
+
+// ─── ANIMATIONS SKILL BARS ─────────────────────────────────
+function animateSkillBars() {
+  const bars = document.querySelectorAll('.skill-fill');
+  bars.forEach(bar => {
+    const target = bar.style.width;
+    bar.style.width = '0%';
+    setTimeout(() => {
+      bar.style.transition = 'width 1s cubic-bezier(0.4, 0, 0.2, 1)';
+      bar.style.width = target;
+    }, 400);
+  });
+}
+
+// ─── NAV SIDEBAR ───────────────────────────────────────────
+function bindNavBtns() {
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
     });
   });
 }
 
-// ─── SKILL BARS ────────────────────────────────────────────
-function animateSkillBars() {
-  document.querySelectorAll('.skill-fill').forEach(b => {
-    const w = b.style.width;
-    b.style.width = '0%';
-    setTimeout(() => { b.style.transition = 'width 1s cubic-bezier(.4,0,.2,1)'; b.style.width = w; }, 500);
+// ─── SCROLL BAS ────────────────────────────────────────────
+function scrollToBottom() {
+  requestAnimationFrame(() => {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 }
+
+// ─── BIND EVENTS ───────────────────────────────────────────
+function bindEvents() {
+  // Envoyer avec bouton
+  btnSend.addEventListener('click', sendMessage);
+
+  // Envoyer avec Enter
+  msgInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Nouvelle conversation
+  btnNewConv.addEventListener('click', newConversation);
+
+  // Recherche conversations
+  searchConv.addEventListener('input', e => {
+    renderConvList(e.target.value);
+  });
+
+  // GitHub
+  btnGithub.addEventListener('click', connectGitHub);
+
+  // Nav sidebar
+  bindNavBtns();
+}
+
+// ─── DÉMARRAGE ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', init);
