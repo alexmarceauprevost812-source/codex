@@ -2,53 +2,235 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>🧠 Mon Codex JS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍁 CODEX — Accueil</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="accueil.css">
 </head>
 <body>
 
-  <!-- 🔝 NAVBAR -->
+  <!-- ========== NAVBAR ========== -->
   <nav class="navbar">
-    <h1>🍁 Mon Codex JS</h1>
-    <button id="btnConnexion" onclick="ouvrirModal()">🔐 Se connecter</button>
+    <div class="logo">
+      <span class="logo-ti">TI</span><span class="logo-codex">-CODEX</span>
+      <span class="logo-dot">●</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link">ACCUEIL</a>
+      <a href="#" class="nav-link">CODEX</a>
+      <a href="#" class="nav-link">DOCS</a>
+    </div>
   </nav>
 
-  <!-- 🪟 MODAL DE CONNEXION -->
-  <div id="modalOverlay" class="modal-overlay hidden">
+  <!-- ========== HERO SECTION ========== -->
+  <section class="hero">
+
+    <!-- Grille animée en background -->
+    <div class="grid-bg"></div>
+
+    <!-- Particules flottantes -->
+    <div class="particules">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="hero-content">
+
+      <!-- Badge top -->
+      <div class="hero-badge">
+        ⚡ PLATEFORME DE CODE #1 AU QUÉBEC
+      </div>
+
+      <!-- Titre principal -->
+      <h1 class="hero-titre">
+        <span class="titre-ligne1">TON</span>
+        <span class="titre-ligne2">CODEX</span>
+        <span class="titre-ligne3">PERSONNEL</span>
+      </h1>
+
+      <!-- Sous-titre -->
+      <p class="hero-sous-titre">
+        Organise, retrouve et partage ton code.<br>
+        <span class="accent-orange">Fait par des codeurs. Pour des codeurs. 🍁</span>
+      </p>
+
+      <!-- Stats -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num">500+</span>
+          <span class="stat-label">SNIPPETS</span>
+        </div>
+        <div class="stat-divider">|</div>
+        <div class="stat-item">
+          <span class="stat-num">100%</span>
+          <span class="stat-label">GRATUIT</span>
+        </div>
+        <div class="stat-divider">|</div>
+        <div class="stat-item">
+          <span class="stat-num">∞</span>
+          <span class="stat-label">POSSIBILITÉS</span>
+        </div>
+      </div>
+
+      <!-- BOUTONS 3D -->
+      <div class="hero-boutons">
+
+        <!-- Bouton Connexion 3D -->
+        <button class="btn-3d btn-connexion" onclick="ouvrirConnexion()">
+          <span class="btn-3d-top">
+            <span class="btn-icon">🔐</span>
+            SE CONNECTER
+          </span>
+          <span class="btn-3d-bottom"></span>
+        </button>
+
+        <!-- Bouton Inscription 3D -->
+        <button class="btn-3d btn-inscription" onclick="ouvrirInscription()">
+          <span class="btn-3d-top">
+            <span class="btn-icon">🚀</span>
+            S'INSCRIRE
+          </span>
+          <span class="btn-3d-bottom"></span>
+        </button>
+
+      </div>
+
+      <!-- Lien discret -->
+      <p class="hero-lien-bas">
+        Déjà membre? <a href="#" onclick="ouvrirConnexion()">Connecte-toé icitte →</a>
+      </p>
+
+    </div>
+
+    <!-- Carte déco flottante droite -->
+    <div class="hero-card-deco">
+      <div class="deco-card">
+        <div class="deco-header">
+          <span class="deco-dot rouge"></span>
+          <span class="deco-dot jaune"></span>
+          <span class="deco-dot vert"></span>
+          <span class="deco-titre">codex.js</span>
+        </div>
+        <pre class="deco-code"><code><span class="c-orange">const</span> <span class="c-vert">codex</span> = {
+  titre: <span class="c-lime">"Mon Snippet"</span>,
+  lang: <span class="c-lime">"JavaScript"</span>,
+  auteur: <span class="c-lime">"Ti-Coder"</span>,
+  
+  <span class="c-orange">run</span>: () => {
+    <span class="c-gris">// 🍁 C'est l'boutte!</span>
+    console.<span class="c-vert">log</span>(
+      <span class="c-lime">"Allô le monde!"</span>
+    );
+  }
+};
+
+codex.<span class="c-vert">run</span>();
+<span class="c-cursor">█</span></code></pre>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ========== FEATURES SECTION ========== -->
+  <section class="features">
+    <h2 class="features-titre">POURQUOI <span>CODEX</span>?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>ULTRA RAPIDE</h3>
+        <p>Retrouve ton code en 2 secondes, câline!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>SÉCURISÉ</h3>
+        <p>Ton code est privé pis bien protégé.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🍁</div>
+        <h3>100% QUÉBÉCOIS</h3>
+        <p>Fait avec amour au Québec, pour les codeurs d'icitte!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <h3>PERSONNALISABLE</h3>
+        <p>Organise toute comme tu veux, mon chum!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== MODAL CONNEXION ========== -->
+  <div id="modalConnexion" class="modal-overlay hidden">
     <div class="modal">
-      <button class="fermer" onclick="fermerModal()">✕</button>
-      <h2>🔐 Connexion</h2>
+      <button class="fermer" onclick="fermerModals()">✕</button>
+      <div class="modal-badge">🔐 ACCÈS SÉCURISÉ</div>
+      <h2>SE CONNECTER</h2>
 
       <div class="form-group">
-        <label>📧 Courriel</label>
-        <input type="email" id="courriel" placeholder="toi@example.com">
+        <label>📧 COURRIEL</label>
+        <input type="email" id="loginCourriel" placeholder="toi@codex.ca">
       </div>
-
       <div class="form-group">
-        <label>🔑 Mot de passe</label>
-        <input type="password" id="motdepasse" placeholder="••••••••">
+        <label>🔑 MOT DE PASSE</label>
+        <input type="password" id="loginMdp" placeholder="••••••••">
       </div>
 
-      <p id="erreurMsg" class="erreur hidden">❌ Courriel ou mot de passe incorrect!</p>
+      <p id="loginErreur" class="erreur hidden">❌ Identifiants incorrects!</p>
 
-      <button class="btn-login" onclick="seConnecter()">🚀 Connexion</button>
+      <button class="btn-3d btn-modal-login" onclick="seConnecter()">
+        <span class="btn-3d-top">⚡ CONNEXION</span>
+        <span class="btn-3d-bottom"></span>
+      </button>
 
-      <p class="lien-register">Pas encore de compte? 
-        <a href="#" onclick="afficherInscription()">S'inscrire</a>
+      <p class="lien-switch">
+        Pas encore de compte?
+        <a href="#" onclick="switchModal()">S'inscrire →</a>
       </p>
     </div>
   </div>
 
-  <!-- 🔔 TOAST NOTIFICATION -->
-  <div id="toast" class="toast hidden">✅ Connexion réussie! Allô!</div>
+  <!-- ========== MODAL INSCRIPTION ========== -->
+  <div id="modalInscription" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="fermer" onclick="fermerModals()">✕</button>
+      <div class="modal-badge inscription">🚀 NOUVEAU COMPTE</div>
+      <h2 class="titre-inscription">S'INSCRIRE</h2>
 
-  <!-- HEADER SEARCH -->
-  <header>
-    <input type="text" id="recherche" placeholder="Cherche un code...">
-  </header>
+      <div class="form-group">
+        <label>👤 PSEUDO</label>
+        <input type="text" id="regPseudo" placeholder="ti-coder-2024">
+      </div>
+      <div class="form-group">
+        <label>📧 COURRIEL</label>
+        <input type="email" id="regCourriel" placeholder="toi@codex.ca">
+      </div>
+      <div class="form-group">
+        <label>🔑 MOT DE PASSE</label>
+        <input type="password" id="regMdp" placeholder="Min. 6 caractères">
+      </div>
+      <div class="form-group">
+        <label>🔁 CONFIRMER</label>
+        <input type="password" id="regConfirm" placeholder="••••••••">
+      </div>
 
-  <main id="resultats"></main>
+      <p id="regErreur" class="erreur hidden">❌ Erreur!</p>
+      <p id="regSucces" class="succes hidden">✅ Compte créé! Bienvenue!</p>
 
-  <script src="codex.js"></script>
+      <button class="btn-3d btn-modal-inscription" onclick="sInscrire()">
+        <span class="btn-3d-top">🍁 CRÉER MON COMPTE</span>
+        <span class="btn-3d-bottom"></span>
+      </button>
+
+      <p class="lien-switch">
+        Déjà un compte?
+        <a href="#" onclick="switchModal()">Se connecter →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ========== TOAST ========== -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="accueil.js"></script>
 </body>
 </html>
