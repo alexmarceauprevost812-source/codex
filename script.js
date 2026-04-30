@@ -1,417 +1,350 @@
-/* ===== SKILLER — script.js ===== */
+// ============================================================
+//  CODEX VIVANT — script.js
+// ============================================================
 
-// ─── ÉTAT GLOBAL ───────────────────────────────────────────
-const state = {
-  githubConnected: false,
-  githubUser: null,
-  activeConv: 0,
-  conversations: [
-    {
-      id: 0,
-      name: 'Projet JavaScript',
-      avatar: 'JS',
-      avatarClass: '',
-      preview: 'Dernier message...',
-      time: '14h22',
-      messages: [
-        { type: 'received', sender: 'Skiller', text: 'Bienvenue sur la plateforme Skiller ! 🚀', time: '14h00' },
-        { type: 'sent', text: 'Merci ! On commence le projet texte-1.', time: '14h05' },
-        { type: 'received', sender: 'Skiller', text: 'Parfait ! Connecte ton GitHub pour voir tes repos 🟢', time: '14h22' }
-      ]
-    },
-    {
-      id: 1,
-      name: 'Repo texte-1',
-      avatar: '\uF09B',
-      avatarClass: 'gh',
-      preview: 'Commits récents',
-      time: '12h10',
-      messages: [
-        { type: 'received', sender: 'GitHub', text: 'Connecte ton compte GitHub pour voir tes repos ici 📂', time: '12h10' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Skiller General',
-      avatar: 'SK',
-      avatarClass: 'sk',
-      preview: 'Bienvenue !',
-      time: 'Hier',
-      messages: [
-        { type: 'received', sender: 'Skiller', text: 'Bienvenue dans Skiller General ! 👋', time: 'Hier' },
-        { type: 'received', sender: 'Skiller', text: 'Partage tes skills pis avance dans tes projets 💪', time: 'Hier' }
-      ]
+const App = {
+
+  // ---------- STATE ----------
+  users: JSON.parse(localStorage.getItem('codex_users') || '[]'),
+  currentUser: JSON.parse(localStorage.getItem('codex_current') || 'null'),
+  chatHistory: [],
+  currentCode: '',
+
+  // ---------- INIT ----------
+  init() {
+    this.buildDOM();
+    this.startMatrix();
+    setTimeout(() => this.showAuth(), 3200);
+  },
+
+  // ---------- DOM BUILDER ----------
+  buildDOM() {
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      <div id="auth-screen">
+        <div class="auth-title">✦ CODEX VIVANT ✦</div>
+        <div class="auth-subtitle">— système de connaissance —</div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Connexion</button>
+          <button class="auth-tab" data-tab="register">Inscription</button>
+        </div>
+        <form class="auth-form active" id="form-login">
+          <input class="auth-input" id="login-user" type="text" placeholder="Nom d'utilisateur" autocomplete="off" />
+          <input class="auth-input" id="login-pass" type="password" placeholder="Mot de passe" />
+          <div class="auth-msg" id="login-msg"></div>
+          <button class="auth-btn" type="submit">⚡ ENTRER</button>
+        </form>
+        <form class="auth-form" id="form-register">
+          <input class="auth-input" id="reg-user" type="text" placeholder="Nom d'utilisateur" autocomplete="off" />
+          <input class="auth-input" id="reg-pass" type="password" placeholder="Mot de passe" />
+          <input class="auth-input" id="reg-pass2" type="password" placeholder="Confirmer mot de passe" />
+          <div class="auth-msg" id="reg-msg"></div>
+          <button class="auth-btn" type="submit">✏️ CRÉER MON COMPTE</button>
+        </form>
+      </div>
+
+      <div id="codex-screen">
+        <div class="codex-topbar">
+          <span class="codex-topbar-title">✦ CODEX VIVANT</span>
+          <span class="topbar-user" id="topbar-username"></span>
+          <button class="topbar-logout" id="btn-logout">Déconnexion</button>
+        </div>
+        <div class="panel-left">
+          <div class="panel-title">📚 Navigation</div>
+          <div class="menu-section">Général</div>
+          <div class="menu-item active" data-section="accueil">🏠 Accueil</div>
+          <div class="menu-item" data-section="notes">📝 Mes notes</div>
+          <div class="menu-item" data-section="projets">🚀 Projets</div>
+          <div class="menu-section">Codex</div>
+          <div class="menu-item" data-section="entries">📖 Entrées</div>
+          <div class="menu-item" data-section="tags">🏷️ Tags</div>
+          <div class="menu-item" data-section="archive">📦 Archives</div>
+          <div class="menu-section">Outils</div>
+          <div class="menu-item" data-section="settings">⚙️ Paramètres</div>
+          <div class="menu-item" data-section="about">ℹ️ À propos</div>
+        </div>
+        <div class="panel-center">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg bot">Bienvenue dans le Codex Vivant ! Je suis AL, ton assistant. Écris-moi du code ou pose-moi une question !</div>
+          </div>
+          <div class="chat-input-bar">
+            <input class="chat-input" id="chat-input" type="text" placeholder="Écris ton message ou du code..." autocomplete="off" />
+            <button class="chat-send" id="chat-send">Envoyer ▶</button>
+          </div>
+        </div>
+        <div class="panel-right">
+          <div class="panel-title">💻 Code en direct</div>
+          <div class="code-area" id="code-area"><span class="cmt">// Le code apparaît ici...</span></div>
+          <button class="code-deploy-btn" id="deploy-btn">🚀 Déployer</button>
+        </div>
+      </div>
+
+      <div id="deploy-overlay">
+        <div class="deploy-title">🚀 DÉPLOIEMENT EN COURS...</div>
+        <div class="deploy-log" id="deploy-log"></div>
+        <div class="deploy-bar-wrap">
+          <div class="deploy-bar" id="deploy-bar"></div>
+        </div>
+        <div class="deploy-done" id="deploy-done">✅ DÉPLOIEMENT COMPLÉTÉ !</div>
+      </div>
+    `;
+    this.bindEvents();
+  },
+
+  // ---------- MATRIX ----------
+  startMatrix() {
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const chars = 'アイウエオカキクケコABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const fontSize = 16;
+    const cols = Math.floor(canvas.width / fontSize);
+    const drops = Array(cols).fill(1);
+    const draw = () => {
+      ctx.fillStyle = 'rgba(0,0,0,0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = fontSize + 'px monospace';
+      drops.forEach((y, i) => {
+        ctx.fillStyle = Math.random() > 0.7 ? '#ff6a00' : '#0f0';
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(char, i * fontSize, y * fontSize);
+        if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      });
+    };
+    this._matrixInterval = setInterval(draw, 40);
+    setTimeout(() => {
+      clearInterval(this._matrixInterval);
+      canvas.classList.add('fade-out');
+    }, 3000);
+  },
+
+  // ---------- SHOW AUTH ----------
+  showAuth() {
+    const auth = document.getElementById('auth-screen');
+    auth.classList.add('visible');
+    if (this.currentUser) {
+      setTimeout(() => this.showCodex(), 600);
     }
-  ]
+  },
+
+  // ---------- BIND EVENTS ----------
+  bindEvents() {
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('form-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+    document.getElementById('form-login').addEventListener('submit', e => {
+      e.preventDefault();
+      this.login();
+    });
+    document.getElementById('form-register').addEventListener('submit', e => {
+      e.preventDefault();
+      this.register();
+    });
+    document.getElementById('btn-logout').addEventListener('click', () => this.logout());
+    document.getElementById('chat-send').addEventListener('click', () => this.sendChat());
+    document.getElementById('chat-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') this.sendChat();
+    });
+    document.getElementById('deploy-btn').addEventListener('click', () => this.deployCode());
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  },
+
+  // ---------- AUTH LOGIC ----------
+  login() {
+    const username = document.getElementById('login-user').value.trim();
+    const password = document.getElementById('login-pass').value;
+    const msg = document.getElementById('login-msg');
+    if (!username || !password) { msg.textContent = 'Remplis tous les champs !'; return; }
+    const user = this.users.find(u => u.username === username && u.password === password);
+    if (!user) { msg.textContent = 'Mauvais identifiants !'; return; }
+    this.currentUser = user;
+    localStorage.setItem('codex_current', JSON.stringify(user));
+    msg.textContent = '';
+    this.showCodex();
+  },
+
+  register() {
+    const username = document.getElementById('reg-user').value.trim();
+    const password = document.getElementById('reg-pass').value;
+    const password2 = document.getElementById('reg-pass2').value;
+    const msg = document.getElementById('reg-msg');
+    if (!username || !password) { msg.textContent = 'Remplis tous les champs !'; return; }
+    if (password !== password2) { msg.textContent = 'Les mots de passe ne matchent pas !'; return; }
+    if (this.users.find(u => u.username === username)) { msg.textContent = 'Ce nom est déjà pris !'; return; }
+    const newUser = { username, password, id: Date.now() };
+    this.users.push(newUser);
+    localStorage.setItem('codex_users', JSON.stringify(this.users));
+    this.currentUser = newUser;
+    localStorage.setItem('codex_current', JSON.stringify(newUser));
+    msg.style.color = '#0f0';
+    msg.textContent = 'Compte créé !';
+    setTimeout(() => this.showCodex(), 800);
+  },
+
+  logout() {
+    this.currentUser = null;
+    localStorage.removeItem('codex_current');
+    const codex = document.getElementById('codex-screen');
+    codex.classList.remove('visible');
+    codex.style.display = 'none';
+    const auth = document.getElementById('auth-screen');
+    auth.style.display = 'flex';
+    auth.style.opacity = '1';
+  },
+
+  // ---------- SHOW CODEX ----------
+  showCodex() {
+    const auth = document.getElementById('auth-screen');
+    const codex = document.getElementById('codex-screen');
+    auth.style.opacity = '0';
+    setTimeout(() => {
+      auth.style.display = 'none';
+      codex.classList.add('visible');
+      document.getElementById('topbar-username').textContent = '👤 ' + this.currentUser.username;
+    }, 500);
+  },
+
+  // ---------- CHAT ----------
+  sendChat() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    this.addChatMsg(text, 'user');
+    setTimeout(() => this.botReply(text), 600);
+  },
+
+  addChatMsg(text, type) {
+    const messages = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + type;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  },
+
+  botReply(text) {
+    const lower = text.toLowerCase();
+    let reply = '';
+    let code = '';
+
+    if (lower.includes('function') || lower.includes('const') || lower.includes('var') || lower.includes('let') || lower.includes('def ') || lower.includes('class ') || lower.includes('</') || lower.includes('{')) {
+      code = text;
+      reply = 'J\'ai reçu ton code ! Je l\'ai mis dans le panneau de droite. Clique sur 🚀 Déployer quand t\'es prêt !';
+      this.setCode(code);
+    } else if (lower.includes('bonjour') || lower.includes('salut') || lower.includes('allo')) {
+      reply = 'Salut ! Prêt à coder quelque chose de sick aujourd\'hui ?';
+    } else if (lower.includes('aide') || lower.includes('help')) {
+      reply = 'Envoie-moi du code et je vais le mettre dans le panneau de droite. Quand c\'est prêt, clique Déployer !';
+    } else if (lower.includes('déployer') || lower.includes('deploy')) {
+      reply = 'Clique sur le bouton 🚀 Déployer dans le panneau de droite !';
+    } else {
+      const replies = [
+        'Intéressant ! T\'as du code à me soumettre ?',
+        'Bonne idée ! Envoie le code pis je m\'en occupe.',
+        'Roger ça ! C\'est noté dans le Codex.',
+        'Ah ouin ? Dis-moi en plus !',
+        'Parfait, on continue à construire le Codex !'
+      ];
+      reply = replies[Math.floor(Math.random() * replies.length)];
+    }
+
+    this.addChatMsg(reply, 'bot');
+  },
+
+  // ---------- CODE PANEL ----------
+  setCode(code) {
+    this.currentCode = code;
+    const area = document.getElementById('code-area');
+    area.innerHTML = this.highlightCode(code);
+
+    // Auto-deploy après 2 secondes
+    clearTimeout(this._autoDeployTimer);
+    this._autoDeployTimer = setTimeout(() => {
+      this.deployCode();
+    }, 2000);
+  },
+
+  highlightCode(code) {
+    const keywords = ['function', 'const', 'let', 'var', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'export', 'default', 'new', 'this', 'true', 'false', 'null', 'undefined', 'def', 'print', 'from'];
+    let escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    // Strings
+    escaped = escaped.replace(/("[^"]*"|'[^']*'|`[^`]*`)/g, '<span class="str">$1</span>');
+    // Comments
+    escaped = escaped.replace(/(//.*)/g, '<span class="cmt">$1</span>');
+    // Numbers
+    escaped = escaped.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+    // Keywords
+    keywords.forEach(kw => {
+      const re = new RegExp('\\b(' + kw + ')\\b', 'g');
+      escaped = escaped.replace(re, '<span class="kw">$1</span>');
+    });
+    return escaped;
+  },
+
+  // ---------- DEPLOY ----------
+  deployCode() {
+    if (!this.currentCode) {
+      this.addChatMsg('Pas de code à déployer ! Envoie-moi du code d\'abord.', 'bot');
+      return;
+    }
+    const overlay = document.getElementById('deploy-overlay');
+    const log = document.getElementById('deploy-log');
+    const bar = document.getElementById('deploy-bar');
+    const done = document.getElementById('deploy-done');
+    overlay.classList.add('active');
+    log.innerHTML = '';
+    bar.style.width = '0%';
+    done.style.display = 'none';
+
+    const steps = [
+      { msg: '> Initialisation du déploiement...', pct: 10 },
+      { msg: '> Analyse du code...', pct: 25 },
+      { msg: '> Compilation des modules...', pct: 40 },
+      { msg: '> Optimisation des assets...', pct: 55 },
+      { msg: '> Tests unitaires...', pct: 70 },
+      { msg: '> Build production...', pct: 82 },
+      { msg: '> Upload vers le serveur...', pct: 93 },
+      { msg: '> Vérification finale...', pct: 100 }
+    ];
+
+    let i = 0;
+    const run = () => {
+      if (i >= steps.length) {
+        done.style.display = 'block';
+        setTimeout(() => {
+          overlay.classList.remove('active');
+          this.addChatMsg('🚀 Déploiement complété avec succès ! Le code est en ligne.', 'bot');
+        }, 1500);
+        return;
+      }
+      const step = steps[i];
+      log.innerHTML += step.msg + '\n';
+      log.scrollTop = log.scrollHeight;
+      bar.style.width = step.pct + '%';
+      i++;
+      setTimeout(run, 400);
+    };
+    run();
+  }
 };
 
-// ─── SÉLECTEURS DOM ────────────────────────────────────────
-const convList       = document.getElementById('convList');
-const chatMessages   = document.getElementById('chatMessages');
-const msgInput       = document.getElementById('msgInput');
-const btnSend        = document.getElementById('btnSend');
-const btnNewConv     = document.getElementById('btnNewConv');
-const searchConv     = document.getElementById('searchConv');
-const btnGithub      = document.getElementById('btnGithub');
-const githubStatus   = document.getElementById('githubStatus');
-const reposList      = document.getElementById('reposList');
-const navBtns        = document.querySelectorAll('.nav-btn');
-
-// ─── INIT ──────────────────────────────────────────────────
-function init() {
-  renderConvList();
-  renderMessages(state.activeConv);
-  bindEvents();
-  animateSkillBars();
-}
-
-// ─── RENDER LISTE CONVERSATIONS ────────────────────────────
-function renderConvList(filter = '') {
-  convList.innerHTML = '';
-  const filtered = state.conversations.filter(c =>
-    c.name.toLowerCase().includes(filter.toLowerCase())
-  );
-
-  filtered.forEach(conv => {
-    const li = document.createElement('li');
-    li.className = 'conv-item' + (conv.id === state.activeConv ? ' active' : '');
-    li.dataset.id = conv.id;
-
-    const avatarContent = conv.avatarClass === 'gh'
-      ? '<i class="fa-brands fa-github"></i>'
-      : conv.avatar;
-
-    li.innerHTML = `
-      <div class="conv-avatar ${conv.avatarClass}">${avatarContent}</div>
-      <div class="conv-info">
-        <span class="conv-name">${conv.name}</span>
-        <span class="conv-preview">${conv.preview}</span>
-      </div>
-      <span class="conv-time">${conv.time}</span>
-    `;
-
-    li.addEventListener('click', () => selectConv(conv.id));
-    convList.appendChild(li);
-  });
-}
-
-// ─── SÉLECTIONNER UNE CONVERSATION ────────────────────────
-function selectConv(id) {
-  state.activeConv = id;
-  renderConvList(searchConv.value);
-  renderMessages(id);
-
-  // Met à jour le header du chat
-  const conv = state.conversations.find(c => c.id === id);
-  const headerAvatar = document.querySelector('.chat-avatar');
-  const headerTitle  = document.querySelector('.chat-title h3');
-
-  if (conv.avatarClass === 'gh') {
-    headerAvatar.innerHTML = '<i class="fa-brands fa-github"></i>';
-    headerAvatar.style.background = 'linear-gradient(135deg, #222, #444)';
-    headerAvatar.style.color = '#fff';
-    headerAvatar.style.boxShadow = 'none';
-  } else if (conv.avatarClass === 'sk') {
-    headerAvatar.innerHTML = conv.avatar;
-    headerAvatar.style.background = 'linear-gradient(135deg, var(--orange-dark), var(--orange))';
-    headerAvatar.style.color = '#fff';
-    headerAvatar.style.boxShadow = 'var(--glow-orange)';
-  } else {
-    headerAvatar.innerHTML = conv.avatar;
-    headerAvatar.style.background = 'linear-gradient(135deg, var(--lime-dark), var(--lime))';
-    headerAvatar.style.color = '#000';
-    headerAvatar.style.boxShadow = 'var(--glow-lime)';
-  }
-
-  headerTitle.textContent = conv.name;
-}
-
-// ─── RENDER MESSAGES ───────────────────────────────────────
-function renderMessages(convId) {
-  const conv = state.conversations.find(c => c.id === convId);
-  chatMessages.innerHTML = '';
-
-  // Diviseur de date
-  const divider = document.createElement('div');
-  divider.className = 'msg-date-divider';
-  divider.textContent = "Aujourd'hui";
-  chatMessages.appendChild(divider);
-
-  conv.messages.forEach(msg => {
-    const el = createMessageEl(msg);
-    chatMessages.appendChild(el);
-  });
-
-  scrollToBottom();
-}
-
-// ─── CRÉER UN ÉLÉMENT MESSAGE ──────────────────────────────
-function createMessageEl(msg) {
-  const div = document.createElement('div');
-  div.className = `message ${msg.type}`;
-
-  if (msg.type === 'received') {
-    div.innerHTML = `
-      <div class="msg-avatar">${msg.sender ? msg.sender.substring(0, 2).toUpperCase() : 'SK'}</div>
-      <div class="msg-content">
-        <span class="msg-sender">${msg.sender || 'Skiller'}</span>
-        <p>${msg.text}</p>
-        <span class="msg-time">${msg.time}</span>
-      </div>
-    `;
-  } else {
-    div.innerHTML = `
-      <div class="msg-content">
-        <p>${msg.text}</p>
-        <span class="msg-time">${msg.time} <i class="fa-solid fa-check-double" style="color:var(--lime);font-size:0.65rem"></i></span>
-      </div>
-    `;
-  }
-
-  // Animation d'entrée
-  div.style.opacity = '0';
-  div.style.transform = msg.type === 'sent' ? 'translateX(20px)' : 'translateX(-20px)';
-  requestAnimationFrame(() => {
-    div.style.transition = 'all 0.25s ease';
-    div.style.opacity = '1';
-    div.style.transform = 'translateX(0)';
-  });
-
-  return div;
-}
-
-// ─── ENVOYER UN MESSAGE ────────────────────────────────────
-function sendMessage() {
-  const text = msgInput.value.trim();
-  if (!text) return;
-
-  const now = new Date();
-  const time = `${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
-
-  const msg = { type: 'sent', text, time };
-  state.conversations[state.activeConv].messages.push(msg);
-  state.conversations[state.activeConv].preview = text;
-  state.conversations[state.activeConv].time = time;
-
-  const el = createMessageEl(msg);
-  chatMessages.appendChild(el);
-  scrollToBottom();
-
-  msgInput.value = '';
-  msgInput.focus();
-
-  renderConvList(searchConv.value);
-
-  // Réponse automatique après 1.2s
-  setTimeout(() => autoReply(state.activeConv), 1200);
-}
-
-// ─── RÉPONSE AUTO ──────────────────────────────────────────
-function autoReply(convId) {
-  const replies = [
-    'Bonne idée ! Continuons 🚀',
-    'Super, je note ça dans le projet 📝',
-    'Excellent ! Tu avances bien 💪',
-    'Parfait, on est sur la bonne track 🟢',
-    'Intéressant ! T as pensé à GitHub pour ça ? 🐙'
-  ];
-
-  const now = new Date();
-  const time = `${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
-  const conv = state.conversations[convId];
-
-  const msg = {
-    type: 'received',
-    sender: conv.name,
-    text: replies[Math.floor(Math.random() * replies.length)],
-    time
-  };
-
-  conv.messages.push(msg);
-  conv.preview = msg.text;
-  conv.time = time;
-
-  if (state.activeConv === convId) {
-    const el = createMessageEl(msg);
-    chatMessages.appendChild(el);
-    scrollToBottom();
-  }
-
-  renderConvList(searchConv.value);
-}
-
-// ─── NOUVELLE CONVERSATION ─────────────────────────────────
-function newConversation() {
-  const name = prompt('Nom de la nouvelle conversation :');
-  if (!name || !name.trim()) return;
-
-  const initiales = name.trim().substring(0, 2).toUpperCase();
-  const newConv = {
-    id: state.conversations.length,
-    name: name.trim(),
-    avatar: initiales,
-    avatarClass: '',
-    preview: 'Nouvelle conversation',
-    time: 'maintenant',
-    messages: [
-      {
-        type: 'received',
-        sender: 'Skiller',
-        text: `Bienvenue dans « ${name.trim()} » ! 👋`,
-        time: 'maintenant'
-      }
-    ]
-  };
-
-  state.conversations.unshift(newConv);
-  // Réindexer les IDs
-  state.conversations.forEach((c, i) => c.id = i);
-  state.activeConv = 0;
-
-  renderConvList();
-  renderMessages(0);
-}
-
-// ─── CONNEXION GITHUB ──────────────────────────────────────
-function connectGitHub() {
-  if (state.githubConnected) {
-    disconnectGitHub();
-    return;
-  }
-
-  // Simulation de connexion GitHub OAuth
-  btnGithub.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
-  btnGithub.disabled = true;
-
-  setTimeout(() => {
-    state.githubConnected = true;
-    state.githubUser = 'Alexmarceauprevost812';
-
-    btnGithub.innerHTML = '<i class="fa-brands fa-github"></i> Connecté ✓';
-    btnGithub.classList.add('connected');
-    btnGithub.disabled = false;
-    githubStatus.textContent = '@' + state.githubUser;
-    githubStatus.classList.add('online');
-
-    loadGitHubRepos();
-
-    // Message de confirmation dans le chat actif
-    const now = new Date();
-    const time = `${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
-    const msg = {
-      type: 'received',
-      sender: 'GitHub',
-      text: `✅ Connecté en tant que @${state.githubUser} ! Tes repos sont chargés 🐙`,
-      time
-    };
-    state.conversations[state.activeConv].messages.push(msg);
-    const el = createMessageEl(msg);
-    chatMessages.appendChild(el);
-    scrollToBottom();
-  }, 1800);
-}
-
-function disconnectGitHub() {
-  state.githubConnected = false;
-  state.githubUser = null;
-  btnGithub.innerHTML = '<i class="fa-brands fa-github"></i> Connecter GitHub';
-  btnGithub.classList.remove('connected');
-  githubStatus.textContent = 'Non connecté';
-  githubStatus.classList.remove('online');
-  reposList.innerHTML = '<div class="repo-placeholder">Connecte GitHub pour voir tes repos</div>';
-}
-
-// ─── CHARGER LES REPOS GITHUB ──────────────────────────────
-function loadGitHubRepos() {
-  const repos = [
-    { name: 'texte-1', lang: 'JS', branch: 'Alex', stars: 2 },
-    { name: 'portfolio', lang: 'HTML', branch: 'main', stars: 5 },
-    { name: 'skiller-app', lang: 'JS', branch: 'dev', stars: 1 },
-    { name: 'api-rest', lang: 'Node', branch: 'main', stars: 3 }
-  ];
-
-  reposList.innerHTML = '';
-  repos.forEach(repo => {
-    const div = document.createElement('div');
-    div.className = 'repo-item';
-    div.innerHTML = `
-      <i class="fa-solid fa-code-branch"></i>
-      <div class="repo-details">
-        <span class="repo-name">${repo.name}</span>
-        <span class="repo-branch"><i class="fa-solid fa-code-branch" style="font-size:0.6rem"></i> ${repo.branch}</span>
-      </div>
-      <div class="repo-meta">
-        <span class="repo-lang">${repo.lang}</span>
-        <span class="repo-stars"><i class="fa-solid fa-star" style="color:var(--orange);font-size:0.6rem"></i> ${repo.stars}</span>
-      </div>
-    `;
-    div.addEventListener('click', () => openRepo(repo));
-    reposList.appendChild(div);
-  });
-}
-
-function openRepo(repo) {
-  const url = `https://github.com/Alexmarceauprevost812/${repo.name}`;
-  window.open(url, '_blank');
-}
-
-// ─── ANIMATIONS SKILL BARS ─────────────────────────────────
-function animateSkillBars() {
-  const bars = document.querySelectorAll('.skill-fill');
-  bars.forEach(bar => {
-    const target = bar.style.width;
-    bar.style.width = '0%';
-    setTimeout(() => {
-      bar.style.transition = 'width 1s cubic-bezier(0.4, 0, 0.2, 1)';
-      bar.style.width = target;
-    }, 400);
-  });
-}
-
-// ─── NAV SIDEBAR ───────────────────────────────────────────
-function bindNavBtns() {
-  navBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      navBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
-}
-
-// ─── SCROLL BAS ────────────────────────────────────────────
-function scrollToBottom() {
-  requestAnimationFrame(() => {
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  });
-}
-
-// ─── BIND EVENTS ───────────────────────────────────────────
-function bindEvents() {
-  // Envoyer avec bouton
-  btnSend.addEventListener('click', sendMessage);
-
-  // Envoyer avec Enter
-  msgInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-
-  // Nouvelle conversation
-  btnNewConv.addEventListener('click', newConversation);
-
-  // Recherche conversations
-  searchConv.addEventListener('input', e => {
-    renderConvList(e.target.value);
-  });
-
-  // GitHub
-  btnGithub.addEventListener('click', connectGitHub);
-
-  // Nav sidebar
-  bindNavBtns();
-}
-
-// ─── DÉMARRAGE ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', init);
+// ============================================================
+// DÉMARRAGE
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => App.init());
