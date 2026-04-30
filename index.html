@@ -2,29 +2,161 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TI-LEX-AL — L'intelligence du Québec 🍁</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TI-LEX-AL | Codex</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Caveat+Brush&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- CANVAS MATRIX -->
+  <!-- MATRIX BACKGROUND -->
   <canvas id="matrix-canvas"></canvas>
 
-  <!-- OVERLAY ACCUEIL -->
-  <div id="accueil-overlay">
-    <div id="logo-container">
-      <h1 id="titre-principal">TI-LEX-AL</h1>
-      <p id="sous-titre">L'intelligence du Québec 🍁</p>
-      <div id="barre-chargement">
-        <div id="barre-inner"></div>
+  <!-- PARTICULES 3D -->
+  <div class="particles" id="particles"></div>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="hero">
+
+    <!-- LOGO / TITRE -->
+    <div class="hero-logo">
+      <div class="logo-ring">
+        <div class="logo-inner">
+          <span class="logo-al">AL</span>
+        </div>
       </div>
-      <p id="texte-chargement">Initialisation du Codex...</p>
-      <button id="btn-entrer">ENTRER DANS LE CODEX →</button>
     </div>
+
+    <div class="hero-text">
+      <h1 class="hero-title">
+        <span class="title-ti">TI-LEX</span>
+        <span class="title-al">-AL</span>
+      </h1>
+      <p class="hero-subtitle">Ton assistant de d&eacute;veloppement qu&eacute;b&eacute;cois</p>
+      <div class="hero-tagline">
+        <span class="tag-item">Code</span>
+        <span class="tag-sep">·</span>
+        <span class="tag-item">Architecture</span>
+        <span class="tag-sep">·</span>
+        <span class="tag-item">Codex</span>
+      </div>
+    </div>
+
+    <!-- BOUTONS 3D -->
+    <div class="hero-buttons">
+
+      <div class="btn-wrapper" id="btn-login-wrapper">
+        <button class="btn-3d btn-login" id="btn-login" data-target="login">
+          <span class="btn-top">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Connexion
+          </span>
+          <span class="btn-shadow"></span>
+        </button>
+        <div class="btn-glow btn-glow-login"></div>
+      </div>
+
+      <div class="btn-wrapper" id="btn-signup-wrapper">
+        <button class="btn-3d btn-signup" id="btn-signup" data-target="signup">
+          <span class="btn-top">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <line x1="19" y1="8" x2="19" y2="14"/>
+              <line x1="22" y1="11" x2="16" y2="11"/>
+            </svg>
+            Inscription
+          </span>
+          <span class="btn-shadow"></span>
+        </button>
+        <div class="btn-glow btn-glow-signup"></div>
+      </div>
+
+    </div>
+
+    <!-- FEATURES -->
+    <div class="features">
+      <div class="feature-card" style="--delay: 0s">
+        <span class="feature-icon">⚡</span>
+        <span class="feature-text">IA temps r&eacute;el</span>
+      </div>
+      <div class="feature-card" style="--delay: 0.15s">
+        <span class="feature-icon">🖊️</span>
+        <span class="feature-text">Codex intelligent</span>
+      </div>
+      <div class="feature-card" style="--delay: 0.3s">
+        <span class="feature-icon">🇨🇦</span>
+        <span class="feature-text">100% qu&eacute;b&eacute;cois</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="modal-overlay">
+
+    <!-- MODAL CONNEXION -->
+    <div class="modal" id="modal-login">
+      <button class="modal-close" data-close="login">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon">🔑</div>
+        <h2 class="modal-title">Connexion</h2>
+        <p class="modal-sub">Content de te r'voir!</p>
+      </div>
+      <form class="modal-form" id="form-login">
+        <div class="field-group">
+          <label class="field-label">Courriel</label>
+          <input class="field-input" type="email" placeholder="toi@example.com" required />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Mot de passe</label>
+          <input class="field-input" type="password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="modal-btn modal-btn-primary">Se connecter</button>
+        <p class="modal-switch">Pas encore de compte? <a href="#" class="modal-link" data-switch="signup">S'inscrire</a></p>
+      </form>
+    </div>
+
+    <!-- MODAL INSCRIPTION -->
+    <div class="modal" id="modal-signup">
+      <button class="modal-close" data-close="signup">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon">🚀</div>
+        <h2 class="modal-title">Inscription</h2>
+        <p class="modal-sub">Embarque dans l'aventure!</p>
+      </div>
+      <form class="modal-form" id="form-signup">
+        <div class="field-group">
+          <label class="field-label">Nom complet</label>
+          <input class="field-input" type="text" placeholder="Ton nom" required />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Courriel</label>
+          <input class="field-input" type="email" placeholder="toi@example.com" required />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Mot de passe</label>
+          <input class="field-input" type="password" placeholder="Min. 8 caract&egrave;res" required />
+        </div>
+        <button type="submit" class="modal-btn modal-btn-primary">Cr&eacute;er mon compte</button>
+        <p class="modal-switch">D&eacute;j&agrave; un compte? <a href="#" class="modal-link" data-switch="login">Se connecter</a></p>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- PLATEFORME (post-login) -->
+  <div class="platform" id="platform" style="display:none">
+    <!-- Chargé dynamiquement par script.js -->
   </div>
 
   <script src="matrix.js"></script>
-  <script src="transition.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
