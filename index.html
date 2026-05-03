@@ -24,7 +24,7 @@
     <button class="new-chat-btn">＋ Nouvelle discussion</button>
   </aside>
 
-  <!-- OVERLAY pour fermer le menu en cliquant à côté -->
+  <!-- OVERLAY -->
   <div class="overlay" id="overlay"></div>
 
   <!-- ZONE PRINCIPALE -->
@@ -39,6 +39,26 @@
 
     <!-- BULLE DE CHAT EN BAS -->
     <div class="chat-bar">
+
+      <!-- BOUTON PLUS + MENU PIÈCES JOINTES -->
+      <div class="attach-wrapper" id="attachWrapper">
+        <button class="attach-btn" id="attachBtn" title="Ajouter une pièce jointe">＋</button>
+        <div class="attach-menu" id="attachMenu">
+          <label class="attach-item" title="Fichier">
+            📄 Fichier
+            <input type="file" id="inputFichier" accept="*/*" hidden />
+          </label>
+          <label class="attach-item" title="ZIP">
+            🗜️ ZIP
+            <input type="file" id="inputZip" accept=".zip,.rar,.7z,.tar,.gz" hidden />
+          </label>
+          <label class="attach-item" title="Image">
+            🖼️ Image
+            <input type="file" id="inputImage" accept="image/*" hidden />
+          </label>
+        </div>
+      </div>
+
       <textarea
         class="chat-input"
         id="chatInput"
@@ -47,6 +67,9 @@
       ></textarea>
       <button class="send-btn" id="sendBtn">➤</button>
     </div>
+
+    <!-- ZONE APERÇU FICHIERS JOINTS -->
+    <div class="preview-bar" id="previewBar"></div>
 
   </main>
 
