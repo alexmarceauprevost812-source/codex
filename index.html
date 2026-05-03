@@ -12,21 +12,42 @@
   <header class="topbar">
     <button class="menu-toggle" id="menuToggle">☰</button>
 
-    <div class="api-wrapper" id="apiWrapper">
-      <div class="api-field" id="apiField">
-        <span class="api-icon">🔑</span>
-        <input
-          type="password"
-          id="apiKeyInput"
-          class="api-input"
-          placeholder="Clé API Anthropic  sk-ant-..."
-          autocomplete="off"
-          spellcheck="false"
-        />
-        <button class="api-toggle-visibility" id="apiToggleVisibility" title="Voir/Cacher">👁️</button>
-        <button class="api-save-btn" id="apiSaveBtn">Connecter</button>
+    <div class="topbar-center">
+      <span class="app-title">🍁 TI-LEX-AL</span>
+    </div>
+
+    <div class="topbar-right">
+      <!-- HEURE -->
+      <span class="clock" id="clock">00:00:00</span>
+
+      <!-- BOUTON CLÉ API -->
+      <div class="key-wrapper" id="keyWrapper">
+        <button class="key-btn" id="keyBtn" title="Clé API Anthropic">
+          🔑
+          <span class="key-dot" id="keyDot"></span>
+        </button>
+
+        <!-- POPUP CLÉ API -->
+        <div class="key-popup" id="keyPopup">
+          <div class="key-popup-header">🤖 Clé API Anthropic</div>
+          <div class="key-field" id="keyField">
+            <input
+              type="password"
+              id="apiKeyInput"
+              class="key-input"
+              placeholder="sk-ant-..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="key-eye" id="keyEye" title="Voir/Cacher">👁️</button>
+          </div>
+          <div class="key-actions">
+            <button class="key-save" id="keySave">Connecter</button>
+            <button class="key-clear" id="keyClear">Effacer</button>
+          </div>
+          <div class="key-status" id="keyStatus"></div>
+        </div>
       </div>
-      <div class="api-status" id="apiStatus"></div>
     </div>
   </header>
 
@@ -47,39 +68,27 @@
   <div class="overlay" id="overlay"></div>
 
   <!-- ZONE PRINCIPALE -->
-  <main class="main-content" id="mainContent">
-
-    <!-- ZONE DES MESSAGES -->
+  <main class="main-content">
     <div class="chat-window" id="chatWindow">
       <div class="message bot">
-        <span>Salut! Chu TI-LEX-AL. Entre ta clé API Anthropic en haut pis on commence! 🍁</span>
+        <span>Salut! Chu TI-LEX-AL. Clique sur 🔑 en haut à droite pour entrer ta clé API! 🍁</span>
       </div>
     </div>
 
-    <!-- BULLE DE CHAT EN BAS -->
     <div class="chat-bar">
       <div class="attach-wrapper" id="attachWrapper">
-        <button class="attach-btn" id="attachBtn" title="Ajouter une pièce jointe">＋</button>
+        <button class="attach-btn" id="attachBtn" disabled>＋</button>
         <div class="attach-menu" id="attachMenu">
-          <label class="attach-item">
-            📄 Fichier
-            <input type="file" id="inputFichier" accept="*/*" hidden />
-          </label>
-          <label class="attach-item">
-            🗜️ ZIP
-            <input type="file" id="inputZip" accept=".zip,.rar,.7z,.tar,.gz" hidden />
-          </label>
-          <label class="attach-item">
-            🖼️ Image
-            <input type="file" id="inputImage" accept="image/*" hidden />
-          </label>
+          <label class="attach-item">📄 Fichier<input type="file" id="inputFichier" accept="*/*" hidden /></label>
+          <label class="attach-item">🗜️ ZIP<input type="file" id="inputZip" accept=".zip,.rar,.7z,.tar,.gz" hidden /></label>
+          <label class="attach-item">🖼️ Image<input type="file" id="inputImage" accept="image/*" hidden /></label>
         </div>
       </div>
 
       <textarea
         class="chat-input"
         id="chatInput"
-        placeholder="Entre ta clé API pour commencer..."
+        placeholder="Entre ta clé API 🔑 pour commencer..."
         rows="1"
         disabled
       ></textarea>
