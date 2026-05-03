@@ -8,8 +8,27 @@
 </head>
 <body>
 
-  <!-- BOUTON TOGGLE MENU -->
-  <button class="menu-toggle" id="menuToggle">☰</button>
+  <!-- ═══ BARRE DU HAUT ═══ -->
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+
+    <div class="api-wrapper" id="apiWrapper">
+      <div class="api-field" id="apiField">
+        <span class="api-icon">🔑</span>
+        <input
+          type="password"
+          id="apiKeyInput"
+          class="api-input"
+          placeholder="Clé API Anthropic  sk-ant-..."
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="api-toggle-visibility" id="apiToggleVisibility" title="Voir/Cacher">👁️</button>
+        <button class="api-save-btn" id="apiSaveBtn">Connecter</button>
+      </div>
+      <div class="api-status" id="apiStatus"></div>
+    </div>
+  </header>
 
   <!-- MENU LATÉRAL GAUCHE -->
   <aside class="sidebar" id="sidebar">
@@ -33,26 +52,24 @@
     <!-- ZONE DES MESSAGES -->
     <div class="chat-window" id="chatWindow">
       <div class="message bot">
-        <span>Salut! Chu TI-LEX-AL. Comment je peux t'aider aujourd'hui? 🍁</span>
+        <span>Salut! Chu TI-LEX-AL. Entre ta clé API Anthropic en haut pis on commence! 🍁</span>
       </div>
     </div>
 
     <!-- BULLE DE CHAT EN BAS -->
     <div class="chat-bar">
-
-      <!-- BOUTON PLUS + MENU PIÈCES JOINTES -->
       <div class="attach-wrapper" id="attachWrapper">
         <button class="attach-btn" id="attachBtn" title="Ajouter une pièce jointe">＋</button>
         <div class="attach-menu" id="attachMenu">
-          <label class="attach-item" title="Fichier">
+          <label class="attach-item">
             📄 Fichier
             <input type="file" id="inputFichier" accept="*/*" hidden />
           </label>
-          <label class="attach-item" title="ZIP">
+          <label class="attach-item">
             🗜️ ZIP
             <input type="file" id="inputZip" accept=".zip,.rar,.7z,.tar,.gz" hidden />
           </label>
-          <label class="attach-item" title="Image">
+          <label class="attach-item">
             🖼️ Image
             <input type="file" id="inputImage" accept="image/*" hidden />
           </label>
@@ -62,15 +79,14 @@
       <textarea
         class="chat-input"
         id="chatInput"
-        placeholder="Écris ton message..."
+        placeholder="Entre ta clé API pour commencer..."
         rows="1"
+        disabled
       ></textarea>
-      <button class="send-btn" id="sendBtn">➤</button>
+      <button class="send-btn" id="sendBtn" disabled>➤</button>
     </div>
 
-    <!-- ZONE APERÇU FICHIERS JOINTS -->
     <div class="preview-bar" id="previewBar"></div>
-
   </main>
 
   <script src="app.js"></script>
