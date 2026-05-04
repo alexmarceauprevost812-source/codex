@@ -3,37 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat</title>
+  <title>Codex — Claude AI</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Fenêtre de chat -->
-  <div class="chat-wrapper" id="chatWrapper">
-    <div class="chat-header">
-      <span>💬 Chat</span>
-      <button class="close-btn" id="closeBtn">✕</button>
+  <!-- SIDEBAR GAUCHE -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">🧠</span>
+        <span class="logo-text">Codex</span>
+      </div>
+      <button class="toggle-btn" id="toggleSidebar" title="Réduire">◀</button>
     </div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="message bot">
-        <span>Salut! Comment je peux t'aider? 👋</span>
+
+    <button class="new-chat-btn" id="newChatBtn">
+      <span class="plus">＋</span>
+      <span class="btn-text">Nouvelle conversation</span>
+    </button>
+
+    <div class="section-label"><span>Historique</span></div>
+
+    <div class="conversations-list" id="conversationsList">
+      <!-- rempli par JS -->
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="api-key-section">
+        <label class="key-label">🔑 Clé Anthropic</label>
+        <div class="key-input-wrapper">
+          <input
+            type="password"
+            id="apiKeyInput"
+            placeholder="sk-ant-..."
+          />
+          <button id="saveKeyBtn" title="Sauvegarder">✓</button>
+        </div>
+        <span class="key-status" id="keyStatus"></span>
+      </div>
+      <div class="sidebar-model">
+        <span class="model-dot"></span>
+        <span>claude-opus-4-5</span>
       </div>
     </div>
-    <div class="chat-input-area">
-      <input
-        type="text"
-        id="chatInput"
-        placeholder="Écris ton message..."
-        autocomplete="off"
-      />
-      <button id="sendBtn">➤</button>
-    </div>
-  </div>
+  </aside>
 
-  <!-- Bulle flottante -->
-  <button class="chat-bubble" id="chatBubble">
-    💬
-  </button>
+  <!-- MAIN -->
+  <main class="main" id="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+      <span class="conv-title" id="convTitle">Nouvelle conversation</span>
+      <button class="clear-btn" id="clearBtn" title="Effacer la conversation">🗑</button>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-icon">🧠</div>
+        <h1>Bienvenue dans Codex</h1>
+        <p>Propulsé par <strong>Claude d'Anthropic</strong>.<br/>Entre ta clé API dans le menu de gauche pour commencer.</p>
+        <div class="chips">
+          <button class="chip" onclick="setInput('Explique-moi le machine learning simplement')">💡 Machine learning</button>
+          <button class="chip" onclick="setInput('Écris un composant React avec un formulaire')">⚛️ Composant React</button>
+          <button class="chip" onclick="setInput('Aide-moi à déboguer ce code JavaScript')">🐛 Debug JS</button>
+          <button class="chip" onclick="setInput('Rédige-moi un README pour mon projet GitHub')">📄 README GitHub</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-container">
+      <div class="input-box">
+        <textarea
+          id="chatInput"
+          placeholder="Envoie un message à Claude..."
+          rows="1"
+        ></textarea>
+        <button class="send-btn" id="sendBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <p class="disclaimer">Codex peut faire des erreurs — vérifie toujours les infos importantes.</p>
+    </div>
+
+  </main>
 
   <script src="script.js"></script>
 </body>
