@@ -1,36 +1,35 @@
 /* ============================================================
    Ti-LEX Codex — script.js
-   Claude API + GitHub REST + Supabase + File/ZIP upload
+   Streaming lettre/lettre + Auto-push GitHub
    ============================================================ */
 
 'use strict';
 
 // ─── STATE ────────────────────────────────────────────────────
 const state = {
-  anthropicKey: '',
-  githubToken: '',
-  repo: '',
-  branch: 'main',
-  supabase: null,
-  messages: [],          // historique Claude
-  attachments: [],       // fichiers joints au prochain message
-  repoFiles: [],         // liste des fichiers du repo
-  pendingCodex: null,    // codex-change en attente d'application
+  anthropicKey : '',
+  githubToken  : '',
+  repo         : '',
+  branch       : 'main',
+  supabase     : null,
+  messages     : [],
+  attachments  : [],
+  repoFiles    : [],
+  isStreaming  : false,
 };
 
 // ─── INIT ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedKeys();
-  document.getElementById('sidebar').addEventListener('click', (e) => {
-    if (e.target.id !== 'toggleSidebar') return;
-    document.getElementById('sidebar').classList.toggle('collapsed');
+
+  document.getElementById('sidebar').addEventListener('click', e => {
+    if (e.target.id === 'toggleSidebar')
+      document.getElementById('sidebar').classList.toggle('collapsed');
   });
-  document.addEventListener('click', (e) => {
-    const menu = document.getElementById('attachMenu');
-    if (!menu) return;
-    if (!e.target.closest('.btn-plus') && !e.target.closest('.attach-menu')) {
-      menu.style.display = 'none';
-    }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.btn-plus') && !e.target.closest('.attach-menu'))
+      document.getElementById('attachMenu').style.display = 'none';
   });
 });
 
@@ -45,13 +44,13 @@ function loadSavedKeys() {
 function saveKey(type) {
   if (type === 'anthropic') {
     const v = document.getElementById('anthropicKey').value.trim();
-    if (!v) return alert('Entre une clé Anthropic!');
+    if (!v) return showToast('⚠️ Entre une clé Anthropic!', true);
     state.anthropicKey = v;
     localStorage.setItem('tilex_anthropic', v);
     showToast('✅ Clé Anthropic sauvegardée!');
-  } else if (type === 'github') {
+  } else {
     const v = document.getElementById('githubToken').value.trim();
-    if (!v) return alert('Entre un token GitHub!');
+    if (!v) return showToast('⚠️ Entre un token GitHub!', true);
     state.githubToken = v;
     localStorage.setItem('tilex_github', v);
     showToast('✅ Token GitHub sauvegardé!');
@@ -67,13 +66,10 @@ async function connectSupabase() {
   setStatus(el, 'loading', '⏳ Connexion...');
   try {
     state.supabase = supabase.createClient(url, key);
-    // test ping
-    await state.supabase.from('_dummy_').select('*').limit(1).maybeSingle();
     setStatus(el, 'ok', '✅ Supabase connecté');
     showToast('✅ Supabase OK!');
   } catch (err) {
-    setStatus(el, 'ok', '✅ Supabase initialisé');
-    showToast('✅ Supabase client créé!');
+    setStatus(el, 'err', `❌ ${err.message}`);
   }
 }
 
@@ -82,7 +78,7 @@ async function loadRepo() {
   const repo   = document.getElementById('repoInput').value.trim();
   const branch = document.getElementById('branchInput').value.trim() || 'main';
   const el     = document.getElementById('repoStatus');
-  if (!repo) return setStatus(el, 'err', '⚠️ Entre owner/repo');
+  if (!repo)              return setStatus(el, 'err', '⚠️ Entre owner/repo');
   if (!state.githubToken) return setStatus(el, 'err', '⚠️ Token GitHub requis');
   setStatus(el, 'loading', '⏳ Chargement...');
   state.repo   = repo;
@@ -105,7 +101,7 @@ async function ghFetch(path, opts = {}) {
   const res = await fetch(`https://api.github.com${path}`, {
     headers: {
       'Authorization': `token ${state.githubToken}`,
-      'Accept': 'application/vnd.github.v3+json',
+      'Accept':        'application/vnd.github.v3+json',
       ...opts.headers
     },
     ...opts
@@ -118,10 +114,10 @@ function renderFileTree() {
   const el = document.getElementById('fileTree');
   el.innerHTML = '';
   state.repoFiles.forEach(path => {
-    const div = document.createElement('div');
-    div.className = 'file-item';
-    div.innerHTML = `<span>${fileIcon(path)}</span><span>${path}</span>`;
-    div.onclick = () => injectFileContext(path, div);
+    const div       = document.createElement('div');
+    div.className   = 'file-item';
+    div.innerHTML   = `<span>${fileIcon(path)}</span><span>${path}</span>`;
+    div.onclick     = () => injectFileContext(path, div);
     el.appendChild(div);
   });
 }
@@ -140,49 +136,30 @@ function fileIcon(p) {
 async function injectFileContext(filePath, el) {
   el.classList.toggle('selected');
   try {
-    const data = await ghFetch(`/repos/${state.repo}/contents/${filePath}?ref=${state.branch}`);
+    const data    = await ghFetch(`/repos/${state.repo}/contents/${filePath}?ref=${state.branch}`);
     const content = atob(data.content.replace(/\n/g, ''));
     state.attachments.push({ name: filePath, content, fromRepo: true });
     renderAttachmentChips();
     showToast(`📎 ${filePath} ajouté au contexte`);
   } catch(e) {
-    showToast(`❌ Erreur: ${e.message}`, true);
+    showToast(`❌ ${e.message}`, true);
   }
 }
 
-// ─── APPLIQUER CODEX CHANGE AU REPO ───────────────────────────
-async function applyToRepo(change) {
-  if (!state.repo || !state.githubToken) {
-    showToast('❌ Connecte ton repo GitHub!', true);
-    return;
-  }
-  state.pendingCodex = change;
-  const el = document.getElementById('modalContent');
-  el.innerHTML = `
-    <p style="color:var(--text-muted);margin-bottom:12px;">Fichier : 
-      <code style="color:var(--orange);">${change.file_path}</code> 
-      — Opération : <span class="codex-op op-${change.operation}">${change.operation}</span>
-    </p>
-    <div class="codex-preview">${escHtml(change.content?.slice(0,600) || '')}${change.content?.length > 600 ? '\n...' : ''}</div>
-  `;
-  document.getElementById('modalOverlay').style.display = 'flex';
-}
-
-async function applyCodexChange() {
-  const change = state.pendingCodex;
-  if (!change) return;
-  closeModal();
-  showToast('⏳ Application en cours...');
+// ─── AUTO-PUSH GITHUB ─────────────────────────────────────────
+async function autoPushToRepo(change) {
+  if (!state.repo || !state.githubToken) return;
   try {
     if (change.operation === 'delete') {
       await ghDeleteFile(change.file_path);
     } else {
       await ghUpsertFile(change.file_path, change.content);
     }
-    showToast(`✅ ${change.file_path} appliqué!`);
-    await loadRepo();
+    showToast(`🚀 ${change.file_path} pushé!`);
+    // Refresh file list silently
+    if (state.repoFiles.length) loadRepo().catch(() => {});
   } catch(e) {
-    showToast(`❌ ${e.message}`, true);
+    showToast(`❌ Push raté: ${e.message}`, true);
   }
 }
 
@@ -192,37 +169,30 @@ async function ghUpsertFile(filePath, content) {
     const existing = await ghFetch(`/repos/${state.repo}/contents/${filePath}?ref=${state.branch}`);
     sha = existing.sha;
   } catch(e) { /* nouveau fichier */ }
-
   const body = {
-    message: `✏️ Ti-LEX Codex: update ${filePath}`,
-    content: btoa(unescape(encodeURIComponent(content))),
-    branch: state.branch,
+    message : `✏️ Ti-LEX Codex: ${sha ? 'update' : 'create'} ${filePath}`,
+    content : btoa(unescape(encodeURIComponent(content))),
+    branch  : state.branch,
   };
   if (sha) body.sha = sha;
-
   await ghFetch(`/repos/${state.repo}/contents/${filePath}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    method  : 'PUT',
+    headers : { 'Content-Type': 'application/json' },
+    body    : JSON.stringify(body)
   });
 }
 
 async function ghDeleteFile(filePath) {
   const existing = await ghFetch(`/repos/${state.repo}/contents/${filePath}?ref=${state.branch}`);
   await ghFetch(`/repos/${state.repo}/contents/${filePath}`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message: `🗑 Ti-LEX Codex: delete ${filePath}`,
-      sha: existing.sha,
-      branch: state.branch
+    method  : 'DELETE',
+    headers : { 'Content-Type': 'application/json' },
+    body    : JSON.stringify({
+      message : `🗑 Ti-LEX Codex: delete ${filePath}`,
+      sha     : existing.sha,
+      branch  : state.branch
     })
   });
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').style.display = 'none';
-  state.pendingCodex = null;
 }
 
 // ─── FILE UPLOAD ──────────────────────────────────────────────
@@ -232,56 +202,47 @@ function toggleAttachMenu() {
 }
 
 async function handleFileUpload(e) {
-  const files = Array.from(e.target.files);
-  for (const file of files) {
+  for (const file of Array.from(e.target.files)) {
     const content = await readFileText(file);
     state.attachments.push({ name: file.name, content });
   }
   renderAttachmentChips();
   document.getElementById('attachMenu').style.display = 'none';
-  showToast(`📎 ${files.length} fichier(s) ajouté(s)`);
+  showToast(`📎 ${e.target.files.length} fichier(s) ajouté(s)`);
   e.target.value = '';
 }
 
 async function handleZipUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
-  showToast('⏳ Extraction du ZIP...');
+  showToast('⏳ Extraction ZIP...');
   try {
-    const zip = await JSZip.loadAsync(file);
-    const promises = [];
-    zip.forEach((relativePath, zipEntry) => {
-      if (!zipEntry.dir) {
-        promises.push(
-          zipEntry.async('string').then(content => {
-            state.attachments.push({ name: relativePath, content });
-          })
-        );
-      }
+    const zip       = await JSZip.loadAsync(file);
+    const promises  = [];
+    zip.forEach((rel, entry) => {
+      if (!entry.dir)
+        promises.push(entry.async('string').then(c => state.attachments.push({ name: rel, content: c })));
     });
     await Promise.all(promises);
     renderAttachmentChips();
     document.getElementById('attachMenu').style.display = 'none';
-    showToast(`✅ ZIP extrait: ${promises.length} fichiers`);
+    showToast(`✅ ZIP: ${promises.length} fichiers extraits`);
   } catch(err) {
-    showToast(`❌ ZIP erreur: ${err.message}`, true);
+    showToast(`❌ ZIP: ${err.message}`, true);
   }
   e.target.value = '';
 }
 
 function promptRepoFile() {
   document.getElementById('attachMenu').style.display = 'none';
-  if (!state.repoFiles.length) {
-    showToast('⚠️ Charge un repo dabord!', true);
-    return;
-  }
-  const path = prompt('Chemin du fichier dans le repo:\n\n' + state.repoFiles.slice(0,20).join('\n'));
+  if (!state.repoFiles.length) return showToast('⚠️ Charge un repo dabord!', true);
+  const path = prompt('Chemin du fichier:\n\n' + state.repoFiles.slice(0, 20).join('\n'));
   if (path) injectFileContext(path, document.createElement('div'));
 }
 
 function readFileText(file) {
   return new Promise((res, rej) => {
-    const r = new FileReader();
+    const r   = new FileReader();
     r.onload  = () => res(r.result);
     r.onerror = rej;
     r.readAsText(file);
@@ -294,27 +255,24 @@ function removeAttachment(idx) {
 }
 
 function renderAttachmentChips() {
-  let container = document.getElementById('attachmentChips');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'attachmentChips';
-    container.className = 'attachment-chips';
-    document.querySelector('.input-bar').before(container);
+  let c = document.getElementById('attachmentChips');
+  if (!c) {
+    c = document.createElement('div');
+    c.id        = 'attachmentChips';
+    c.className = 'attachment-chips';
+    document.querySelector('.input-bar').before(c);
   }
-  container.innerHTML = state.attachments.map((a, i) => `
-    <div class="chip">
-      📎 ${escHtml(a.name)}
+  c.innerHTML = state.attachments.map((a, i) => `
+    <div class="chip">📎 ${escHtml(a.name)}
       <button onclick="removeAttachment(${i})">✕</button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ─── CLAUDE API ───────────────────────────────────────────────
-const SYSTEM_PROMPT = `Tu es Ti-LEX Codex, un développeur expert en joual québécois authentique.
-Tu réponds en joual : "chu", "faque", "pis", "ben", "tsé", "aweille", "câline", "toute".
-Tu es précis, concis, orienté résultat.
+// ─── SYSTEM PROMPT ────────────────────────────────────────────
+const SYSTEM = `Tu es Ti-LEX Codex, développeur expert, tu réponds en joual québécois authentique.
+Mots clés : chu, faque, pis, ben, tsé, aweille, câline, toute, lâche-toi lousse.
 
-Pour CHAQUE modification de code, tu utilises OBLIGATOIREMENT ce format JSON dans un bloc codex-change:
+Pour chaque fichier à créer/modifier/supprimer, utilise OBLIGATOIREMENT ce format exact :
 \`\`\`codex-change
 {
   "file_path": "chemin/exact/fichier.ext",
@@ -323,19 +281,17 @@ Pour CHAQUE modification de code, tu utilises OBLIGATOIREMENT ce format JSON dan
 }
 \`\`\`
 
-Règles:
-- Toujours le format codex-change pour tout code, jamais de blocs normaux.
-- Avant chaque bloc: 1 phrase d'intro. Après: 1-2 bullets d'explication.
-- Code propre, fonctionnel, commenté si nécessaire.
-- Si l'utilisateur a fourni des fichiers en contexte, utilise les vrais noms de fichiers.`;
+Les changements sont appliqués AUTOMATIQUEMENT au repo GitHub dès que tu les écris.
+Toujours écrire le contenu COMPLET du fichier, jamais de '...' ou de résumé.
+Code propre, fonctionnel, commenté si nécessaire.`;
 
+// ─── SEND MESSAGE ─────────────────────────────────────────────
 async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text  = input.value.trim();
-  if (!text && !state.attachments.length) return;
-  if (!state.anthropicKey) { showToast('⚠️ Entre ta clé Anthropic!', true); return; }
+  if ((!text && !state.attachments.length) || state.isStreaming) return;
+  if (!state.anthropicKey) return showToast('⚠️ Entre ta clé Anthropic!', true);
 
-  // Build user content
   let userText = text;
   if (state.attachments.length) {
     userText += '\n\n---\nFichiers joints:\n';
@@ -345,33 +301,70 @@ async function sendMessage() {
     state.attachments = [];
     renderAttachmentChips();
   }
-  if (state.repo) {
-    userText = `[Repo actif: ${state.repo} (${state.branch})]\n\n` + userText;
-  }
+  if (state.repo) userText = `[Repo: ${state.repo} | Branche: ${state.branch}]\n\n` + userText;
 
-  input.value = '';
+  input.value        = '';
   input.style.height = 'auto';
-
   appendMsg('user', text);
   state.messages.push({ role: 'user', content: userText });
 
-  const typingEl = appendTyping();
+  await streamResponse();
+}
+
+// ─── STREAMING SSE ────────────────────────────────────────────
+async function streamResponse() {
+  state.isStreaming = true;
+  document.getElementById('chatInput').disabled = true;
+
+  // Crée la bulle assistant
+  const msgEl    = createAssistantBubble();
+  const bodyEl   = msgEl.querySelector('.stream-body');
+
+  let   fullText   = '';
+  let   charQueue  = [];       // queue de chars à afficher
+  let   rendering  = false;
+  let   done       = false;
+
+  // Typewriter engine — lettre par lettre ultra fluide
+  const CHAR_DELAY = 8; // ms entre chaque caractère
+  function drainQueue() {
+    if (rendering) return;
+    if (charQueue.length === 0) {
+      if (done) finalizeMessage(msgEl, fullText);
+      return;
+    }
+    rendering = true;
+    function tick() {
+      if (charQueue.length === 0) {
+        rendering = false;
+        if (done) finalizeMessage(msgEl, fullText);
+        return;
+      }
+      const ch = charQueue.shift();
+      fullText += ch;
+      renderStreaming(bodyEl, fullText);
+      scrollBottom();
+      setTimeout(tick, CHAR_DELAY);
+    }
+    tick();
+  }
 
   try {
     const model = document.getElementById('modelSelect').value;
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type':      'application/json',
-        'x-api-key':         state.anthropicKey,
-        'anthropic-version': '2023-06-01',
+    const res   = await fetch('https://api.anthropic.com/v1/messages', {
+      method  : 'POST',
+      headers : {
+        'Content-Type'      : 'application/json',
+        'x-api-key'         : state.anthropicKey,
+        'anthropic-version' : '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
         model,
-        max_tokens: 8096,
-        system: SYSTEM_PROMPT,
-        messages: state.messages.slice(-20)
+        max_tokens : 8096,
+        stream     : true,
+        system     : SYSTEM,
+        messages   : state.messages.slice(-20)
       })
     });
 
@@ -380,101 +373,187 @@ async function sendMessage() {
       throw new Error(err.error?.message || `HTTP ${res.status}`);
     }
 
-    const data = await res.json();
-    const reply = data.content[0].text;
-    state.messages.push({ role: 'assistant', content: reply });
-    typingEl.remove();
-    appendMsg('assistant', reply);
-  } catch(e) {
-    typingEl.remove();
-    appendMsg('assistant', `❌ Erreur: ${e.message}`);
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let   buf     = '';
+
+    while (true) {
+      const { value, done: readerDone } = await reader.read();
+      if (readerDone) break;
+      buf += decoder.decode(value, { stream: true });
+
+      // Parse SSE lines
+      const lines = buf.split('\n');
+      buf = lines.pop(); // garde la ligne incomplète
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') break;
+        try {
+          const json = JSON.parse(data);
+          if (json.type === 'content_block_delta' && json.delta?.text) {
+            // Pousse chaque caractère dans la queue
+            for (const ch of json.delta.text) charQueue.push(ch);
+            drainQueue();
+          }
+        } catch(_) {}
+      }
+    }
+
+    done = true;
+    if (!rendering) finalizeMessage(msgEl, fullText);
+
+  } catch(err) {
+    done = true;
+    charQueue = [];
+    rendering = false;
+    bodyEl.innerHTML = `<p style="color:#f87171">❌ ${escHtml(err.message)}</p>`;
+    state.isStreaming = false;
+    document.getElementById('chatInput').disabled = false;
   }
 }
 
-// ─── RENDER MESSAGES ──────────────────────────────────────────
-function appendMsg(role, content) {
-  const win  = document.getElementById('chatWindow');
-  const welcome = win.querySelector('.welcome-msg');
-  if (welcome) welcome.remove();
+// ─── RENDU STREAMING (lettre par lettre) ──────────────────────
+function renderStreaming(el, text) {
+  // Affiche le texte brut avec un curseur clignotant
+  // Détecte les blocs codex-change COMPLETS pendant le stream
+  const escaped = escHtml(text);
+  el.innerHTML  = `<div class="stream-text">${escaped.replace(/\n/g, '<br>')}<span class="cursor">█</span></div>`;
+}
 
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
+// ─── FINALISATION ─────────────────────────────────────────────
+function finalizeMessage(msgEl, fullText) {
+  state.isStreaming = false;
+  document.getElementById('chatInput').disabled = false;
+  state.messages.push({ role: 'assistant', content: fullText });
 
-  const avatar = role === 'user' ? '👤' : '⚡';
-  const bodyHtml = renderContent(content);
+  // Render final propre avec codex blocks parsés
+  const bodyEl     = msgEl.querySelector('.stream-body');
+  bodyEl.innerHTML = renderFinal(fullText);
 
-  div.innerHTML = `
-    <div class="msg-avatar">${avatar}</div>
-    <div class="msg-body">
-      <div class="msg-content">${bodyHtml}</div>
-    </div>
-  `;
+  // Auto-push TOUS les blocs codex-change détectés
+  const codexRe = /```codex-change\s*([\s\S]*?)```/g;
+  let match;
+  const pushed  = [];
+  while ((match = codexRe.exec(fullText)) !== null) {
+    try {
+      const change = JSON.parse(match[1].trim());
+      if (change.file_path && change.operation) {
+        pushed.push(change);
+      }
+    } catch(_) {}
+  }
 
-  // Wire up codex apply buttons
-  win.appendChild(div);
-  div.querySelectorAll('.btn-apply-codex').forEach(btn => {
+  if (pushed.length > 0 && state.repo && state.githubToken) {
+    showToast(`⏳ Auto-push de ${pushed.length} fichier(s)...`);
+    // Push séquentiel pour éviter les conflits SHA
+    (async () => {
+      for (const change of pushed) {
+        await autoPushToRepo(change);
+        await sleep(400);
+      }
+    })();
+  }
+
+  // Wire les boutons copy
+  msgEl.querySelectorAll('.btn-copy-codex').forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.idx);
-      applyToRepo(JSON.parse(btn.dataset.change));
+      navigator.clipboard.writeText(btn.dataset.content).then(() => showToast('📋 Copié!'));
     });
   });
 
-  win.scrollTop = win.scrollHeight;
-  return div;
+  scrollBottom();
 }
 
-function renderContent(text) {
-  // Parse codex-change blocks
+// ─── RENDER FINAL (avec codex blocks UI) ──────────────────────
+function renderFinal(text) {
   const codexRe = /```codex-change\s*([\s\S]*?)```/g;
-  let result = '';
+  let result    = '';
   let lastIndex = 0;
   let match;
-  let codexIdx = 0;
 
   while ((match = codexRe.exec(text)) !== null) {
-    // Text before block
     const before = text.slice(lastIndex, match.index);
-    result += `<p>${escHtml(before).replace(/\n/g, '<br>')}</p>`;
+    if (before.trim())
+      result += `<div class="prose">${mdToHtml(before)}</div>`;
 
-    // Parse JSON
     let change = null;
-    try { change = JSON.parse(match[1].trim()); } catch(e) {}
+    try { change = JSON.parse(match[1].trim()); } catch(_) {}
 
     if (change) {
-      const opClass = `op-${change.operation}`;
-      const preview = escHtml((change.content || '').slice(0, 500));
-      const changeStr = escHtml(JSON.stringify(change));
+      const opCls    = `op-${change.operation}`;
+      const preview  = escHtml((change.content || '').slice(0, 600));
+      const full     = change.content || '';
+      const repoConnected = !!(state.repo && state.githubToken);
       result += `
         <div class="codex-block">
           <div class="codex-header">
             <span class="codex-filepath">${escHtml(change.file_path || '')}</span>
-            <span class="codex-op ${opClass}">${change.operation}</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="codex-op ${opCls}">${change.operation}</span>
+              ${repoConnected ? '<span class="pushed-badge">✅ Auto-pushé</span>' : ''}
+            </div>
           </div>
-          <div class="codex-preview">${preview}${(change.content || '').length > 500 ? '\n...' : ''}</div>
+          <div class="codex-preview">${preview}${full.length > 600 ? '\n...' : ''}</div>
           <div class="codex-actions">
-            <button class="btn-orange btn-sm btn-apply-codex" data-idx="${codexIdx}" data-change='${changeStr}'>🚀 Appliquer au repo</button>
-            <button class="btn-ghost" onclick="copyCodex(this)" data-content='${escHtml(change.content || '')}'>📋 Copier</button>
+            <button class="btn-ghost btn-copy-codex" data-content="${escHtml(full)}">📋 Copier le code</button>
+            ${repoConnected ? `<button class="btn-orange btn-sm" onclick="manualPush(${escHtml(JSON.stringify(change))})">🔄 Re-push</button>` : ''}
           </div>
         </div>`;
-      codexIdx++;
     } else {
-      result += `<pre>${escHtml(match[0])}</pre>`;
+      result += `<pre class="code-raw">${escHtml(match[0])}</pre>`;
     }
     lastIndex = match.index + match[0].length;
   }
 
-  // Remaining text
   const remaining = text.slice(lastIndex);
-  result += `<p>${escHtml(remaining).replace(/\n/g, '<br>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</p>`;
+  if (remaining.trim())
+    result += `<div class="prose">${mdToHtml(remaining)}</div>`;
+
   return result;
 }
 
-function copyCodex(btn) {
-  const content = btn.dataset.content;
-  navigator.clipboard.writeText(content).then(() => showToast('📋 Copié!'));
+function manualPush(changeJson) {
+  try {
+    const change = typeof changeJson === 'string' ? JSON.parse(changeJson) : changeJson;
+    autoPushToRepo(change);
+  } catch(e) {
+    showToast('❌ Erreur parse JSON', true);
+  }
 }
 
-function appendTyping() {
+// ─── MD TO HTML (basique) ─────────────────────────────────────
+function mdToHtml(text) {
+  return escHtml(text)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
+}
+
+// ─── APPEND MSG (user) ────────────────────────────────────────
+function appendMsg(role, content) {
+  const win     = document.getElementById('chatWindow');
+  const welcome = win.querySelector('.welcome-msg');
+  if (welcome) welcome.remove();
+
+  const div       = document.createElement('div');
+  div.className   = `msg ${role}`;
+  const avatar    = role === 'user' ? '👤' : '⚡';
+
+  div.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+    <div class="msg-body">
+      <div class="msg-content">${mdToHtml(content)}</div>
+    </div>`;
+
+  win.appendChild(div);
+  scrollBottom();
+  return div;
+}
+
+// ─── CRÉE BULLE ASSISTANT STREAMING ───────────────────────────
+function createAssistantBubble() {
   const win = document.getElementById('chatWindow');
   const div = document.createElement('div');
   div.className = 'msg assistant';
@@ -482,27 +561,31 @@ function appendTyping() {
     <div class="msg-avatar">⚡</div>
     <div class="msg-body">
       <div class="msg-content">
-        <div class="typing-dots"><span></span><span></span><span></span></div>
+        <div class="stream-body"></div>
       </div>
     </div>`;
   win.appendChild(div);
-  win.scrollTop = win.scrollHeight;
+  scrollBottom();
   return div;
 }
 
 // ─── UTILS ────────────────────────────────────────────────────
+function scrollBottom() {
+  const w = document.getElementById('chatWindow');
+  w.scrollTop = w.scrollHeight;
+}
+
 function clearChat() {
   if (!confirm('Vider le chat?')) return;
-  state.messages = [];
-  const win = document.getElementById('chatWindow');
-  win.innerHTML = `<div class="welcome-msg"><h2>⚡ Ti-LEX Codex</h2><p>Chu prêt à coder. Lâche-toi lousse!</p></div>`;
+  state.messages  = [];
+  state.isStreaming = false;
+  document.getElementById('chatInput').disabled = false;
+  document.getElementById('chatWindow').innerHTML =
+    `<div class="welcome-msg"><h2>⚡ Ti-LEX Codex</h2><p>Chu prêt. Lâche-toi lousse!</p></div>`;
 }
 
 function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
 function autoResize(el) {
@@ -511,7 +594,7 @@ function autoResize(el) {
 }
 
 function setStatus(el, type, msg) {
-  el.className = `status-badge ${type}`;
+  el.className  = `status-badge ${type}`;
   el.textContent = msg;
 }
 
@@ -524,25 +607,28 @@ function escHtml(str) {
     .replace(/'/g,  '&#039;');
 }
 
-let toastTimeout;
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+let _toastTimer;
 function showToast(msg, isErr = false) {
-  let toast = document.getElementById('tilex-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'tilex-toast';
-    Object.assign(toast.style, {
-      position: 'fixed', bottom: '20px', right: '20px',
-      padding: '10px 20px', borderRadius: '10px',
-      fontWeight: '600', fontSize: '13px',
-      zIndex: '9999', transition: 'opacity 0.3s',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
+  let t = document.getElementById('tilex-toast');
+  if (!t) {
+    t    = document.createElement('div');
+    t.id = 'tilex-toast';
+    Object.assign(t.style, {
+      position:'fixed', bottom:'24px', right:'24px',
+      padding:'10px 20px', borderRadius:'12px',
+      fontWeight:'600', fontSize:'13px', fontFamily:'Inter,sans-serif',
+      zIndex:'9999', transition:'opacity 0.3s ease',
+      boxShadow:'0 8px 32px rgba(0,0,0,0.6)',
+      maxWidth: '320px'
     });
-    document.body.appendChild(toast);
+    document.body.appendChild(t);
   }
-  toast.textContent = msg;
-  toast.style.background  = isErr ? '#ef4444' : '#f97316';
-  toast.style.color       = '#fff';
-  toast.style.opacity     = '1';
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+  t.textContent    = msg;
+  t.style.background = isErr ? '#ef4444' : '#ff6b2b';
+  t.style.color      = '#fff';
+  t.style.opacity    = '1';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.style.opacity = '0', 3500);
 }
