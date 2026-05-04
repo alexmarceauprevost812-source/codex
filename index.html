@@ -10,69 +10,104 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- SIDEBAR GAUCHE -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="logo">⚡ Ti-LEX Codex</div>
-    <button class="btn-icon" id="toggleSidebar" title="Réduire">☰</button>
+  <div class="sidebar-top">
+    <button class="btn-new-chat" onclick="clearChat()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Nouveau chat
+    </button>
+    <button class="btn-icon" id="toggleSidebar" title="Réduire">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
   </div>
 
-  <!-- CONNEXIONS -->
-  <div class="sidebar-section">
-    <h3 class="section-title">🔑 Clés API</h3>
+  <div class="sidebar-scroll">
 
-    <div class="input-group">
-      <label>Anthropic API Key</label>
-      <div class="input-row">
-        <input type="password" id="anthropicKey" placeholder="sk-ant-..." />
-        <button class="btn-orange btn-sm" onclick="saveKey('anthropic')">💾</button>
+    <!-- CLÉS API -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Clés API</div>
+
+      <div class="input-group">
+        <label>Anthropic</label>
+        <div class="input-row">
+          <input type="password" id="anthropicKey" placeholder="sk-ant-..." />
+          <button class="btn-save" onclick="saveKey('anthropic')" title="Sauvegarder">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          </button>
+        </div>
       </div>
+
+      <div class="input-group">
+        <label>OpenAI</label>
+        <div class="input-row">
+          <input type="password" id="openaiKey" placeholder="sk-..." />
+          <button class="btn-save" onclick="saveKey('openai')" title="Sauvegarder">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>GitHub Token</label>
+        <div class="input-row">
+          <input type="password" id="githubToken" placeholder="ghp_..." />
+          <button class="btn-save" onclick="saveKey('github')" title="Sauvegarder">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Supabase URL</label>
+        <input type="text" id="supabaseUrl" placeholder="https://xxx.supabase.co" />
+      </div>
+      <div class="input-group">
+        <label>Supabase Key</label>
+        <div class="input-row">
+          <input type="password" id="supabaseKey" placeholder="eyJ..." />
+          <button class="btn-save" onclick="connectSupabase()" title="Connecter">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="supabaseStatus" class="status-badge"></div>
     </div>
 
-    <div class="input-group">
-      <label>GitHub Token</label>
-      <div class="input-row">
-        <input type="password" id="githubToken" placeholder="ghp_..." />
-        <button class="btn-orange btn-sm" onclick="saveKey('github')">💾</button>
+    <!-- GITHUB -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">GitHub Repo</div>
+      <div class="input-group">
+        <label>owner/repo</label>
+        <div class="input-row">
+          <input type="text" id="repoInput" placeholder="user/mon-repo" />
+          <button class="btn-save" onclick="loadRepo()" title="Charger">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+        </div>
       </div>
+      <div class="input-group">
+        <label>Branche</label>
+        <input type="text" id="branchInput" value="main" />
+      </div>
+      <div id="repoStatus" class="status-badge"></div>
+      <div id="fileTree" class="file-tree"></div>
     </div>
 
-    <div class="input-group">
-      <label>Supabase URL</label>
-      <input type="text" id="supabaseUrl" placeholder="https://xxx.supabase.co" />
+    <!-- FICHIERS -->
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Fichiers joints</div>
+      <div id="uploadedFiles" class="uploaded-list"></div>
     </div>
-    <div class="input-group">
-      <label>Supabase Anon Key</label>
-      <div class="input-row">
-        <input type="password" id="supabaseKey" placeholder="eyJ..." />
-        <button class="btn-orange btn-sm" onclick="connectSupabase()">🔌</button>
-      </div>
-    </div>
-    <div id="supabaseStatus" class="status-badge"></div>
+
   </div>
 
-  <!-- GITHUB REPO -->
-  <div class="sidebar-section">
-    <h3 class="section-title">📁 GitHub Repo</h3>
-    <div class="input-group">
-      <label>owner/repo</label>
-      <div class="input-row">
-        <input type="text" id="repoInput" placeholder="user/mon-repo" />
-        <button class="btn-orange btn-sm" onclick="loadRepo()">📂</button>
-      </div>
+  <!-- SIDEBAR BOTTOM -->
+  <div class="sidebar-bottom">
+    <div class="user-pill">
+      <div class="user-avatar">⚡</div>
+      <span>Ti-LEX Codex</span>
     </div>
-    <div class="input-group">
-      <label>Branche</label>
-      <input type="text" id="branchInput" value="main" />
-    </div>
-    <div id="repoStatus" class="status-badge"></div>
-    <div id="fileTree" class="file-tree"></div>
-  </div>
-
-  <!-- FICHIERS UPLOADÉS -->
-  <div class="sidebar-section">
-    <h3 class="section-title">📎 Fichiers locaux</h3>
-    <div id="uploadedFiles" class="uploaded-list"></div>
   </div>
 </aside>
 
@@ -82,61 +117,100 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-left">
-      <span id="repoLabel" class="repo-label">Aucun repo connecté</span>
+      <button class="btn-icon sidebar-toggle-mobile" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <div class="model-switcher">
+        <select id="modelSelect" class="model-select">
+          <optgroup label="Claude (Anthropic)">
+            <option value="claude|claude-opus-4-5">Claude Opus 4.5</option>
+            <option value="claude|claude-sonnet-4-5" selected>Claude Sonnet 4.5</option>
+            <option value="claude|claude-3-5-haiku-20241022">Claude Haiku 3.5</option>
+          </optgroup>
+          <optgroup label="ChatGPT (OpenAI)">
+            <option value="openai|gpt-4o">GPT-4o</option>
+            <option value="openai|gpt-4o-mini">GPT-4o mini</option>
+            <option value="openai|o1-mini">o1-mini</option>
+          </optgroup>
+        </select>
+        <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <span id="repoLabel" class="repo-label">Aucun repo</span>
     </div>
     <div class="topbar-right">
-      <select id="modelSelect" class="select-styled">
-        <option value="claude-opus-4-5">Claude Opus 4.5</option>
-        <option value="claude-sonnet-4-5" selected>Claude Sonnet 4.5</option>
-        <option value="claude-3-5-haiku-20241022">Claude Haiku 3.5</option>
-      </select>
-      <button class="btn-orange" onclick="clearChat()">🗑 Vider</button>
+      <div id="providerBadge" class="provider-badge claude">Claude</div>
     </div>
   </header>
 
   <!-- CHAT WINDOW -->
   <div class="chat-window" id="chatWindow">
-    <div class="welcome-msg">
-      <h2>⚡ Ti-LEX Codex</h2>
-      <p>Chu prêt à coder. Connecte ton repo GitHub pis lâche-toi lousse!</p>
+    <div class="welcome-screen">
+      <div class="welcome-logo">⚡</div>
+      <h1>Ti-LEX Codex</h1>
+      <p>Chu prêt à coder. Connecte ton repo pis lâche-toi lousse!</p>
+      <div class="welcome-chips">
+        <button class="welcome-chip" onclick="setPrompt('Crée un composant React avec TypeScript')">Crée un composant React</button>
+        <button class="welcome-chip" onclick="setPrompt('Génère une API REST avec Node.js et Express')">API REST Node.js</button>
+        <button class="welcome-chip" onclick="setPrompt('Optimise mes fichiers du repo pour la performance')">Optimise mon code</button>
+        <button class="welcome-chip" onclick="setPrompt('Crée un schema Supabase pour mon projet')">Schema Supabase</button>
+      </div>
     </div>
   </div>
 
-  <!-- INPUT BAR -->
-  <div class="input-bar">
-    <button class="btn-plus" id="btnPlus" onclick="toggleAttachMenu()" title="Ajouter fichier">+</button>
+  <!-- ATTACHMENT CHIPS -->
+  <div id="attachmentChips" class="attachment-chips"></div>
 
-    <!-- ATTACH MENU -->
-    <div class="attach-menu" id="attachMenu" style="display:none">
-      <label class="attach-option" for="fileUpload">📄 Fichier(s)</label>
-      <input type="file" id="fileUpload" multiple onchange="handleFileUpload(event)" style="display:none" />
+  <!-- INPUT ZONE -->
+  <div class="input-zone">
+    <div class="input-box">
+      <!-- ATTACH MENU -->
+      <div class="attach-menu" id="attachMenu" style="display:none">
+        <label class="attach-option" for="fileUpload">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Fichier(s)
+        </label>
+        <input type="file" id="fileUpload" multiple onchange="handleFileUpload(event)" style="display:none" />
+        <label class="attach-option" for="zipUpload">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          Fichier ZIP
+        </label>
+        <input type="file" id="zipUpload" accept=".zip" onchange="handleZipUpload(event)" style="display:none" />
+        <div class="attach-option" onclick="promptRepoFile()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+          Depuis repo
+        </div>
+      </div>
 
-      <label class="attach-option" for="zipUpload">🗜 Fichier ZIP</label>
-      <input type="file" id="zipUpload" accept=".zip" onchange="handleZipUpload(event)" style="display:none" />
+      <button class="btn-attach" onclick="toggleAttachMenu()" title="Joindre">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+      </button>
 
-      <label class="attach-option" for="repoFileSelect" onclick="promptRepoFile()">📁 Depuis repo</label>
+      <textarea
+        id="chatInput"
+        placeholder="Message Ti-LEX Codex..."
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+
+      <button class="btn-send" id="btnSend" onclick="sendMessage()" title="Envoyer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      </button>
     </div>
-
-    <textarea
-      id="chatInput"
-      placeholder="Explique ce que tu veux coder..."
-      rows="1"
-      onkeydown="handleKey(event)"
-      oninput="autoResize(this)"
-    ></textarea>
-
-    <button class="btn-send" onclick="sendMessage()" title="Envoyer">➤</button>
+    <div class="input-footer">Ti-LEX peut faire des erreurs. Vérifie le code important.</div>
   </div>
 
 </main>
 
-<!-- MODAL CODEX APPLY -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay" style="display:none">
   <div class="modal">
-    <h3>📝 Appliquer au repo</h3>
+    <h3>Appliquer au repo</h3>
     <div id="modalContent"></div>
     <div class="modal-actions">
-      <button class="btn-orange" onclick="applyCodexChange()">✅ Appliquer</button>
+      <button class="btn-orange" onclick="applyCodexChange()">Appliquer</button>
       <button class="btn-ghost" onclick="closeModal()">Annuler</button>
     </div>
   </div>
