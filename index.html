@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Fenêtre de chat -->
+  <div class="chat-wrapper" id="chatWrapper">
+    <div class="chat-header">
+      <span>💬 Chat</span>
+      <button class="close-btn" id="closeBtn">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="message bot">
+        <span>Salut! Comment je peux t'aider? 👋</span>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <input
+        type="text"
+        id="chatInput"
+        placeholder="Écris ton message..."
+        autocomplete="off"
+      />
+      <button id="sendBtn">➤</button>
+    </div>
+  </div>
+
+  <!-- Bulle flottante -->
+  <button class="chat-bubble" id="chatBubble">
+    💬
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>
