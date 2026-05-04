@@ -1,4 +1,4 @@
-/* === THÈME GLOBAL : FOND NOIR, ORANGE, JAUNE === */
+/* === THÈME CHATGPT === */
 
 * {
   margin: 0;
@@ -7,73 +7,81 @@
 }
 
 body {
-  background-color: #000000;
-  color: #FFD700; /* jaune doré */
-  font-family: 'Courier New', Courier, monospace;
+  background-color: #212121;
+  color: #ECECEC;
+  font-family: 'Söhne', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
   min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #FF8C00; /* orange foncé */
-  text-shadow: 0 0 8px #FF8C00;
+  color: #FFFFFF;
+  font-weight: 600;
 }
 
 p, span, li, label {
-  color: #FFD700;
+  color: #ECECEC;
 }
 
 a {
-  color: #FFA500;
+  color: #10A37F;
   text-decoration: none;
 }
 
 a:hover {
-  color: #FFD700;
-  text-shadow: 0 0 6px #FFD700;
+  color: #1DC8A0;
 }
 
 button {
-  background-color: #FF8C00;
-  color: #000000;
-  border: 2px solid #FFD700;
+  background-color: #10A37F;
+  color: #FFFFFF;
+  border: none;
   padding: 8px 16px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 4px;
-  font-family: 'Courier New', Courier, monospace;
-  transition: all 0.2s ease;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
 }
 
 button:hover {
-  background-color: #FFD700;
-  color: #000000;
-  box-shadow: 0 0 10px #FFD700;
+  background-color: #0D8F6F;
 }
 
 input, textarea, select {
-  background-color: #111111;
-  color: #FFD700;
-  border: 1px solid #FF8C00;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-family: 'Courier New', Courier, monospace;
+  background-color: #2F2F2F;
+  color: #ECECEC;
+  border: 1px solid #3F3F3F;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
   outline: none;
+  transition: border-color 0.2s;
 }
 
 input:focus, textarea:focus, select:focus {
-  border-color: #FFD700;
-  box-shadow: 0 0 6px #FFD700;
+  border-color: #10A37F;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #8E8EA0;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #111;
+  background: #2A2A2A;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #FF8C00;
-  border-radius: 4px;
+  background: #555;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }
