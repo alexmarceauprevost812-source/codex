@@ -35,7 +35,7 @@ export function AuthButton({
   if (!enabled) {
     return (
       <span
-        className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/60"
+        className="rounded-full border border-[var(--border-soft)] bg-[var(--soft-surface)] px-3 py-1.5 text-xs text-[var(--fg-60)]"
         title="Configurez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY"
       >
         Auth non configurée
@@ -49,12 +49,12 @@ export function AuthButton({
       user.email ??
       "Connecté";
     return (
-      <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur">
-        <span className="text-sm text-white/80">{label}</span>
+      <div className="flex items-center gap-3 rounded-full border border-[var(--border-soft)] bg-[var(--soft-surface)] px-3 py-1.5 backdrop-blur">
+        <span className="text-sm text-[var(--fg-80)]">{label}</span>
         <button
           type="button"
           onClick={signOut}
-          className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white transition hover:bg-white/20"
+          className="rounded-full bg-[var(--user-bubble)] px-3 py-1 text-xs font-medium text-[var(--fg)] transition hover:opacity-80"
         >
           Déconnexion
         </button>

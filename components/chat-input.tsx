@@ -31,8 +31,12 @@ declare global {
 
 export function ChatInput({
   onSend,
+  isStreaming = false,
+  onStop,
 }: {
   onSend: (content: string, files: File[]) => void;
+  isStreaming?: boolean;
+  onStop?: () => void;
 }) {
   const [value, setValue] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -48,6 +52,7 @@ export function ChatInput({
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (isStreaming) return;
     const trimmed = value.trim();
     if (!trimmed && files.length === 0) return;
     onSend(trimmed, files);
@@ -112,14 +117,14 @@ export function ChatInput({
           {files.map((file, index) => (
             <span
               key={`${file.name}-${index}`}
-              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs"
+              className="flex items-center gap-1.5 rounded-full border border-[var(--border-soft)] bg-[var(--soft-surface)] px-3 py-1 text-xs text-[var(--fg-80)]"
             >
               <FileIcon />
               <span className="max-w-[160px] truncate">{file.name}</span>
               <button
                 type="button"
                 onClick={() => removeFile(index)}
-                className="text-white/50 transition hover:text-white"
+                className="text-[var(--fg-50)] transition hover:text-[var(--fg)]"
                 aria-label={`Retirer ${file.name}`}
               >
                 ×
@@ -130,12 +135,12 @@ export function ChatInput({
       ) : null}
       <form
         onSubmit={handleSubmit}
-        className="flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-2 py-1.5 shadow-2xl backdrop-blur-xl"
+        className="flex items-center gap-1 rounded-full border border-[var(--border-soft)] bg-[var(--input-surface)] px-2 py-1.5 shadow-2xl backdrop-blur-xl"
       >
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="rounded-full p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
+          className="rounded-full p-2 text-[var(--fg-70)] transition hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
           aria-label="Ajouter un fichier"
           title="Ajouter un fichier (incluant .zip)"
         >
@@ -155,7 +160,7 @@ export function ChatInput({
           placeholder={
             isListening ? "À l'écoute..." : "Envoyer un message à Codex..."
           }
-          className="flex-1 bg-transparent px-2 py-2 text-sm text-white placeholder:text-white/45 focus:outline-none"
+          className="flex-1 bg-transparent px-2 py-2 text-sm text-[var(--fg)] placeholder:text-[var(--fg-45)] focus:outline-none"
           autoComplete="off"
         />
         <button
@@ -164,7 +169,7 @@ export function ChatInput({
           className={`rounded-full p-2 transition ${
             isListening
               ? "animate-pulse bg-red-500 text-white"
-              : "text-white/70 hover:bg-white/10 hover:text-white"
+              : "text-[var(--fg-70)] hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
           }`}
           aria-label={
             isListening ? "Arrêter la dictée" : "Dicter un message"
@@ -173,13 +178,24 @@ export function ChatInput({
         >
           <MicIcon />
         </button>
-        <button
-          type="submit"
-          disabled={!value.trim() && files.length === 0}
-          className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-text)] shadow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Envoyer
-        </button>
+        {isStreaming && onStop ? (
+          <button
+            type="button"
+            onClick={onStop}
+            className="rounded-full bg-red-500 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-red-600"
+            aria-label="Arrêter la génération"
+          >
+            Arrêter
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={(!value.trim() && files.length === 0) || isStreaming}
+            className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-text)] shadow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Envoyer
+          </button>
+        )}
       </form>
     </div>
   );

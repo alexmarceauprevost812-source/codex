@@ -14,4 +14,20 @@ export type AccentId = (typeof ACCENT_COLORS)[number]["id"];
 
 export const DEFAULT_ACCENT: AccentId = "orange";
 
-export const STORAGE_KEY = "codex-accent";
+export const BG_MODES = [
+  { id: "video", label: "Vidéo animée" },
+  { id: "black", label: "Noir" },
+  { id: "white", label: "Blanc" },
+] as const;
+
+export type BgMode = (typeof BG_MODES)[number]["id"];
+
+export const DEFAULT_BG_MODE: BgMode = "video";
+export const DEFAULT_BG_OPACITY = 0.4;
+
+export const STORAGE_KEY_ACCENT = "codex-accent";
+export const STORAGE_KEY_BG_MODE = "codex-bg-mode";
+export const STORAGE_KEY_BG_OPACITY = "codex-bg-opacity";
+
+// Kept for backwards-compatibility with any older imports.
+export const STORAGE_KEY = STORAGE_KEY_ACCENT;

@@ -9,11 +9,11 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-30 flex w-16 flex-col items-center justify-between border-r border-white/10 bg-black/60 py-4 backdrop-blur-xl">
+      <aside className="fixed inset-y-0 left-0 z-30 flex w-16 flex-col items-center justify-between border-r border-[var(--border-soft)] bg-[var(--rail-surface)] py-4 backdrop-blur-xl">
         <div className="flex flex-col items-center gap-2">
           <button
             type="button"
-            className="rounded-full p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
+            className="rounded-full p-2 text-[var(--fg-70)] transition hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
             aria-label="Nouvelle conversation"
             title="Nouvelle conversation"
           >
@@ -24,7 +24,7 @@ export function Sidebar() {
           <button
             type="button"
             onClick={() => setShowSettings(true)}
-            className="rounded-full p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
+            className="rounded-full p-2 text-[var(--fg-70)] transition hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
             aria-label="Paramètres"
             title="Paramètres"
           >

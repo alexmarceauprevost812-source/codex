@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeScript } from "@/components/theme-script";
 
 import "./globals.css";
 
@@ -15,7 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    <html lang="fr" data-bg-mode="video">
+      <head>
+        <ThemeScript />
+      </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
       </body>

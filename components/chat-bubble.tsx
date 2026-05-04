@@ -2,36 +2,62 @@ import type { Message } from "./chat-interface";
 
 export function ChatBubble({ message }: { message: Message }) {
   const isUser = message.role === "user";
+  const showCursor = message.streaming && !message.error;
+
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[80%] space-y-2 rounded-3xl px-5 py-3 text-sm leading-relaxed shadow-sm backdrop-blur-md ${
+        className={`max-w-[80%] space-y-2 rounded-3xl px-5 py-3 text-sm leading-relaxed text-[var(--fg)] shadow-sm backdrop-blur-md ${
           isUser
-            ? "bg-white/15 text-white"
-            : "border border-white/10 bg-black/40 text-white"
+            ? "bg-[var(--user-bubble)]"
+            : "border border-[var(--border-soft)] bg-[var(--assist-bubble)]"
         }`}
       >
-        {message.content ? (
-          <p className="whitespace-pre-wrap">{message.content}</p>
-        ) : null}
         {message.attachments && message.attachments.length > 0 ? (
           <div className="flex flex-wrap gap-1.5">
             {message.attachments.map((file, index) => (
               <span
                 key={`${file.name}-${index}`}
-                className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-xs text-white/80"
+                className="flex items-center gap-1.5 rounded-full border border-[var(--border-soft)] bg-[var(--soft-surface)] px-2.5 py-1 text-xs text-[var(--fg-80)]"
               >
                 <FileIcon />
                 <span className="max-w-[140px] truncate">{file.name}</span>
-                <span className="text-white/40">
+                <span className="text-[var(--fg-40)]">
                   {formatSize(file.size)}
                 </span>
               </span>
             ))}
           </div>
         ) : null}
+
+        {message.content ? (
+          <p className="whitespace-pre-wrap">
+            {message.content}
+            {showCursor ? <Cursor /> : null}
+          </p>
+        ) : showCursor ? (
+          <p className="text-[var(--fg-60)]">
+            Codex réfléchit
+            <Cursor />
+          </p>
+        ) : null}
+
+        {message.error ? (
+          <p className="rounded-xl bg-red-500/10 px-3 py-2 text-xs text-red-400">
+            {message.error}
+          </p>
+        ) : null}
       </div>
     </div>
+  );
+}
+
+function Cursor() {
+  return (
+    <span
+      className="ml-0.5 inline-block h-3.5 w-[2px] -translate-y-[1px] animate-pulse bg-[var(--fg)] align-middle"
+      aria-hidden="true"
+    />
   );
 }
 

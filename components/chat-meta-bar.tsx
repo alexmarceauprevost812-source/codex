@@ -8,7 +8,7 @@ export function ChatMetaBar({
   removed: number;
 }) {
   return (
-    <div className="flex items-center justify-between px-3 pb-1.5 text-[11px] text-white/45">
+    <div className="flex items-center justify-between px-3 pb-1.5 text-[11px] text-[var(--fg-45)]">
       <div className="flex min-w-0 items-center gap-1.5">
         <BranchIcon />
         <span className="truncate font-mono">
@@ -16,8 +16,8 @@ export function ChatMetaBar({
         </span>
       </div>
       <div className="flex items-center gap-2 font-mono tabular-nums">
-        <span className="text-emerald-400/90">+{added}</span>
-        <span className="text-red-400/90">−{removed}</span>
+        <span className="text-emerald-500">+{added}</span>
+        <span className="text-red-500">−{removed}</span>
       </div>
     </div>
   );

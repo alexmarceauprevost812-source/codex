@@ -1,15 +1,20 @@
 # Codex
 
-Application de chat style ChatGPT avec :
-- Une vidéo d'intro (4 secondes en plein écran)
-- Puis cette même vidéo en fond à 40 % d'opacité
-- Une interface de chat aux bulles et boutons arrondis
-- Thème sombre par défaut + sélecteur de couleur d'accent (orange, bleu,
-  jaune, rose, violet, rouge, vert, gris, blanc)
-- Sidebar gauche avec accès aux **Paramètres** (apparence, personnalisation,
-  reconnaissance vocale, données)
-- Bouton **+** pour joindre des fichiers (incluant `.zip`)
-- Bouton **micro** pour dicter à la voix (Web Speech API)
+Application de chat IA propulsée par **Claude** (Anthropic) avec :
+- 3 modèles sélectionnables : **Opus 4.7** (par défaut), **Sonnet 4.6**, **Haiku 4.5**
+- Streaming des réponses (Server-Sent Events) pour un affichage temps réel
+- Adaptive thinking + effort ajusté par modèle (Opus = `xhigh`, Sonnet = `medium`)
+- Prompt caching automatique du system prompt (lecture ~10× moins chère)
+- Pièces jointes : texte, code, **images**, **PDF**, et **archives `.zip`**
+  (extraction côté serveur — limite 10 Mo / fichier, 25 Mo / requête)
+- Une vidéo d'intro (4 secondes en plein écran) puis cette vidéo en fond,
+  avec **slider d'opacité** (0–100 %) et choix Vidéo / Noir / Blanc
+- Interface style ChatGPT (bulles `rounded-3xl`, input pill, boutons arrondis)
+- Thème sombre par défaut + 9 couleurs d'accent (orange, bleu, jaune, rose,
+  violet, rouge, vert, gris, blanc), persistées en `localStorage`
+- Sidebar gauche avec accès aux **Paramètres** (apparence, fond, dictée vocale)
+- Bouton **+** pour joindre des fichiers, bouton **micro** pour dicter
+  (Web Speech API)
 - Barre meta au-dessus de l'input : nom de la branche Git à gauche,
   compteurs `+lignes`/`−lignes` à droite (vert/rouge subtil)
 - Authentification GitHub via Supabase Auth (optionnelle)
@@ -19,11 +24,44 @@ Application de chat style ChatGPT avec :
 ```bash
 pnpm install
 cp .env.local.example .env.local
-# Remplissez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY
+# Remplissez ANTHROPIC_API_KEY (et éventuellement les clés Supabase)
 pnpm dev
 ```
 
 Ouvrez http://localhost:3000.
+
+## Connexion à Claude (Anthropic)
+
+L'IA passe par l'API Anthropic. Récupérez une clé sur
+https://console.anthropic.com → **API Keys**, puis ajoutez-la
+dans `.env.local` :
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Sur Vercel : **Project Settings → Environment Variables**.
+
+> Sans clé, l'application démarre quand même : un badge « IA non configurée »
+> s'affiche à côté du titre et l'envoi renvoie une erreur 500 explicite.
+
+### Modèles disponibles
+
+| Modèle      | ID                  | Usage                                |
+| ----------- | ------------------- | ------------------------------------ |
+| Opus 4.7    | `claude-opus-4-7`   | Le plus capable — code et agentique  |
+| Sonnet 4.6  | `claude-sonnet-4-6` | Équilibre vitesse / intelligence     |
+| Haiku 4.5   | `claude-haiku-4-5`  | Le plus rapide et économique         |
+
+Le sélecteur de modèle est dans le header (à côté du bouton de connexion).
+Le choix est persisté en `localStorage`.
+
+### Paramètres par modèle (gérés automatiquement)
+
+- **Opus 4.7** : `thinking: adaptive` + `output_config.effort: "xhigh"`.
+  Pas de `temperature`/`top_p`/`budget_tokens` (renvoient 400 sur 4.7).
+- **Sonnet 4.6** : `thinking: adaptive` + `effort: "medium"`.
+- **Haiku 4.5** : pas d'`effort` (Haiku ne le supporte pas).
 
 ## Vidéo de fond
 

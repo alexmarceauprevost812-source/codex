@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { BgModePicker, BgOpacitySlider } from "./bg-controls";
 import { ThemePicker } from "./theme-picker";
 
 export function SettingsPanel({ onClose }: { onClose: () => void }) {
@@ -26,15 +27,15 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
         onClick={onClose}
         aria-label="Fermer les paramètres"
       />
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
+      <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-[var(--border-soft)] bg-[var(--modal-surface)] shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[var(--border-soft)] px-6 py-4">
           <h2 id="settings-title" className="text-lg font-medium">
             Paramètres
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white"
+            className="rounded-full p-1.5 text-[var(--fg-60)] transition hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
             aria-label="Fermer"
           >
             <CloseIcon />
@@ -45,8 +46,14 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
             <Row label="Couleur d'accent">
               <ThemePicker />
             </Row>
-            <Row label="Thème">
-              <p className="text-sm text-white/50">Sombre (par défaut)</p>
+          </Section>
+
+          <Section title="Fond d'écran">
+            <Row label="Type de fond">
+              <BgModePicker />
+            </Row>
+            <Row label="Visibilité">
+              <BgOpacitySlider />
             </Row>
           </Section>
 
@@ -55,14 +62,14 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
               <input
                 type="text"
                 placeholder="Votre nom"
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm placeholder:text-white/40 focus:border-[var(--accent)] focus:outline-none"
+                className="w-full rounded-2xl border border-[var(--border-soft)] bg-[var(--soft-surface)] px-4 py-2.5 text-sm placeholder:text-[var(--fg-40)] focus:border-[var(--accent)] focus:outline-none"
               />
             </Row>
             <Row label="Instructions personnalisées">
               <textarea
                 placeholder="Comment Codex devrait-il vous répondre ?"
                 rows={3}
-                className="w-full resize-none rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm placeholder:text-white/40 focus:border-[var(--accent)] focus:outline-none"
+                className="w-full resize-none rounded-2xl border border-[var(--border-soft)] bg-[var(--soft-surface)] px-4 py-2.5 text-sm placeholder:text-[var(--fg-40)] focus:border-[var(--accent)] focus:outline-none"
               />
             </Row>
           </Section>
@@ -71,7 +78,7 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
             <Row label="Langue de la dictée">
               <select
                 defaultValue="fr-FR"
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm focus:border-[var(--accent)] focus:outline-none"
+                className="w-full rounded-2xl border border-[var(--border-soft)] bg-[var(--soft-surface)] px-4 py-2.5 text-sm focus:border-[var(--accent)] focus:outline-none"
               >
                 <option value="fr-FR">Français (France)</option>
                 <option value="fr-CA">Français (Canada)</option>
@@ -86,7 +93,7 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
             <Row label="Historique de la conversation">
               <button
                 type="button"
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:bg-white/10"
+                className="rounded-full border border-[var(--border-soft)] bg-[var(--soft-surface)] px-4 py-2 text-sm transition hover:bg-[var(--user-bubble)]"
               >
                 Effacer la conversation
               </button>
@@ -94,7 +101,7 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
           </Section>
 
           <Section title="À propos">
-            <p className="text-sm text-white/60">Codex • v0.1.0</p>
+            <p className="text-sm text-[var(--fg-60)]">Codex • v0.1.0</p>
           </Section>
         </div>
       </div>
@@ -111,7 +118,7 @@ function Section({
 }) {
   return (
     <section className="space-y-3">
-      <h3 className="text-xs font-medium uppercase tracking-wider text-white/40">
+      <h3 className="text-xs font-medium uppercase tracking-wider text-[var(--fg-40)]">
         {title}
       </h3>
       <div className="space-y-4">{children}</div>
@@ -128,7 +135,7 @@ function Row({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-sm text-white/80">{label}</label>
+      <label className="text-sm text-[var(--fg-80)]">{label}</label>
       {children}
     </div>
   );

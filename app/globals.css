@@ -1,9 +1,55 @@
 @import "tailwindcss";
 
 :root {
+  /* Accent (button) color, controlled by ThemeProvider. */
   --accent: #f97316;
   --accent-text: #000000;
+
+  /* Foreground / text variations. */
+  --fg: #ffffff;
+  --fg-80: rgba(255, 255, 255, 0.85);
+  --fg-70: rgba(255, 255, 255, 0.72);
+  --fg-60: rgba(255, 255, 255, 0.6);
+  --fg-50: rgba(255, 255, 255, 0.5);
+  --fg-45: rgba(255, 255, 255, 0.45);
+  --fg-40: rgba(255, 255, 255, 0.4);
+
+  /* Surfaces (chat bubbles, input, sidebar, modal). */
+  --bg-base: #000000;
+  --user-bubble: rgba(255, 255, 255, 0.15);
+  --assist-bubble: rgba(0, 0, 0, 0.4);
+  --input-surface: rgba(0, 0, 0, 0.6);
+  --soft-surface: rgba(255, 255, 255, 0.05);
+  --rail-surface: rgba(0, 0, 0, 0.6);
+  --modal-surface: #09090b;
+
+  --border-soft: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.2);
+
   color-scheme: dark;
+}
+
+[data-bg-mode="white"] {
+  --fg: #0a0a0a;
+  --fg-80: rgba(10, 10, 10, 0.85);
+  --fg-70: rgba(10, 10, 10, 0.72);
+  --fg-60: rgba(10, 10, 10, 0.6);
+  --fg-50: rgba(10, 10, 10, 0.55);
+  --fg-45: rgba(10, 10, 10, 0.5);
+  --fg-40: rgba(10, 10, 10, 0.45);
+
+  --bg-base: #ffffff;
+  --user-bubble: rgba(0, 0, 0, 0.07);
+  --assist-bubble: rgba(255, 255, 255, 0.7);
+  --input-surface: rgba(255, 255, 255, 0.85);
+  --soft-surface: rgba(0, 0, 0, 0.04);
+  --rail-surface: rgba(255, 255, 255, 0.85);
+  --modal-surface: #fafafa;
+
+  --border-soft: rgba(0, 0, 0, 0.12);
+  --border-medium: rgba(0, 0, 0, 0.2);
+
+  color-scheme: light;
 }
 
 @theme inline {
@@ -17,8 +63,8 @@ body {
 }
 
 body {
-  background: #000;
-  color: #fff;
+  background: var(--bg-base);
+  color: var(--fg);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
