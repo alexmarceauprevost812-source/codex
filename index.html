@@ -3,57 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chat</title>
+  <title>Texte-1</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <div class="chat-container">
-    <!-- En-tête -->
     <div class="chat-header">
-      <span class="chat-avatar">🤖</span>
-      <span class="chat-title">Assistant AL</span>
-      <span class="chat-status">● En ligne</span>
+      <span class="chat-title">💬 Chat</span>
     </div>
 
-    <!-- Messages -->
-    <div class="chat-messages" id="chatMessages">
-      <div class="message bot">
-        <span class="bubble">Salut ! Comment je peux t'aider aujourd'hui ?</span>
-      </div>
-    </div>
+    <div class="chat-messages" id="chatMessages"></div>
 
-    <!-- Zone de saisie -->
     <div class="chat-input-area">
 
-      <!-- Bouton + avec menu -->
-      <div class="attach-wrapper">
-        <button class="btn-plus" id="btnPlus" title="Joindre un fichier">＋</button>
-        <div class="attach-menu" id="attachMenu">
-          <label class="attach-option" id="optionFile">
-            <input type="file" id="fileInput" accept="*/*" multiple hidden />
-            <span class="attach-icon">📄</span>
-            <span>Fichier</span>
-          </label>
-          <label class="attach-option" id="optionZip">
-            <input type="file" id="zipInput" accept=".zip,.tar,.gz,.rar,.7z" multiple hidden />
-            <span class="attach-icon">🗜️</span>
-            <span>Archive ZIP</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Aperçu des fichiers joints -->
+      <!-- Aperçu fichiers joints -->
       <div class="file-preview-bar" id="filePreviewBar"></div>
 
-      <!-- Input + Envoyer -->
       <div class="input-row">
-        <textarea
-          id="userInput"
-          placeholder="Écris un message…"
-          rows="1"
-        ></textarea>
-        <button class="btn-send" id="btnSend">➤</button>
+
+        <!-- Bouton + avec menu -->
+        <div class="attach-wrapper">
+          <button class="btn-plus" id="btnPlus" title="Joindre un fichier">+</button>
+          <div class="attach-menu" id="attachMenu">
+            <label class="attach-option">
+              <input type="file" id="fileInput" multiple hidden />
+              <span>📄 Fichier</span>
+            </label>
+            <label class="attach-option">
+              <input type="file" id="zipInput" accept=".zip,.tar,.gz,.rar,.7z" multiple hidden />
+              <span>🗜️ Archive ZIP</span>
+            </label>
+          </div>
+        </div>
+
+        <textarea id="userInput" placeholder="Écrire un message..." rows="1"></textarea>
+        <button id="btnSend">Envoyer</button>
       </div>
 
     </div>
