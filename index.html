@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ti-LEX Codex</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">⚡ Ti-LEX Codex</div>
+    <button class="btn-icon" id="toggleSidebar" title="Réduire">☰</button>
+  </div>
+
+  <!-- CONNEXIONS -->
+  <div class="sidebar-section">
+    <h3 class="section-title">🔑 Clés API</h3>
+
+    <div class="input-group">
+      <label>Anthropic API Key</label>
+      <div class="input-row">
+        <input type="password" id="anthropicKey" placeholder="sk-ant-..." />
+        <button class="btn-orange btn-sm" onclick="saveKey('anthropic')">💾</button>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>GitHub Token</label>
+      <div class="input-row">
+        <input type="password" id="githubToken" placeholder="ghp_..." />
+        <button class="btn-orange btn-sm" onclick="saveKey('github')">💾</button>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Supabase URL</label>
+      <input type="text" id="supabaseUrl" placeholder="https://xxx.supabase.co" />
+    </div>
+    <div class="input-group">
+      <label>Supabase Anon Key</label>
+      <div class="input-row">
+        <input type="password" id="supabaseKey" placeholder="eyJ..." />
+        <button class="btn-orange btn-sm" onclick="connectSupabase()">🔌</button>
+      </div>
+    </div>
+    <div id="supabaseStatus" class="status-badge"></div>
+  </div>
+
+  <!-- GITHUB REPO -->
+  <div class="sidebar-section">
+    <h3 class="section-title">📁 GitHub Repo</h3>
+    <div class="input-group">
+      <label>owner/repo</label>
+      <div class="input-row">
+        <input type="text" id="repoInput" placeholder="user/mon-repo" />
+        <button class="btn-orange btn-sm" onclick="loadRepo()">📂</button>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Branche</label>
+      <input type="text" id="branchInput" value="main" />
+    </div>
+    <div id="repoStatus" class="status-badge"></div>
+    <div id="fileTree" class="file-tree"></div>
+  </div>
+
+  <!-- FICHIERS UPLOADÉS -->
+  <div class="sidebar-section">
+    <h3 class="section-title">📎 Fichiers locaux</h3>
+    <div id="uploadedFiles" class="uploaded-list"></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span id="repoLabel" class="repo-label">Aucun repo connecté</span>
+    </div>
+    <div class="topbar-right">
+      <select id="modelSelect" class="select-styled">
+        <option value="claude-opus-4-5">Claude Opus 4.5</option>
+        <option value="claude-sonnet-4-5" selected>Claude Sonnet 4.5</option>
+        <option value="claude-3-5-haiku-20241022">Claude Haiku 3.5</option>
+      </select>
+      <button class="btn-orange" onclick="clearChat()">🗑 Vider</button>
+    </div>
+  </header>
+
+  <!-- CHAT WINDOW -->
+  <div class="chat-window" id="chatWindow">
+    <div class="welcome-msg">
+      <h2>⚡ Ti-LEX Codex</h2>
+      <p>Chu prêt à coder. Connecte ton repo GitHub pis lâche-toi lousse!</p>
+    </div>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div class="input-bar">
+    <button class="btn-plus" id="btnPlus" onclick="toggleAttachMenu()" title="Ajouter fichier">+</button>
+
+    <!-- ATTACH MENU -->
+    <div class="attach-menu" id="attachMenu" style="display:none">
+      <label class="attach-option" for="fileUpload">📄 Fichier(s)</label>
+      <input type="file" id="fileUpload" multiple onchange="handleFileUpload(event)" style="display:none" />
+
+      <label class="attach-option" for="zipUpload">🗜 Fichier ZIP</label>
+      <input type="file" id="zipUpload" accept=".zip" onchange="handleZipUpload(event)" style="display:none" />
+
+      <label class="attach-option" for="repoFileSelect" onclick="promptRepoFile()">📁 Depuis repo</label>
+    </div>
+
+    <textarea
+      id="chatInput"
+      placeholder="Explique ce que tu veux coder..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+
+    <button class="btn-send" onclick="sendMessage()" title="Envoyer">➤</button>
+  </div>
+
+</main>
+
+<!-- MODAL CODEX APPLY -->
+<div class="modal-overlay" id="modalOverlay" style="display:none">
+  <div class="modal">
+    <h3>📝 Appliquer au repo</h3>
+    <div id="modalContent"></div>
+    <div class="modal-actions">
+      <button class="btn-orange" onclick="applyCodexChange()">✅ Appliquer</button>
+      <button class="btn-ghost" onclick="closeModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
