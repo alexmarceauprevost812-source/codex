@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 
+import { ConversationsProvider } from "@/components/conversations-provider";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeScript } from "@/components/theme-script";
@@ -39,7 +40,9 @@ export default function RootLayout({
         <ThemeScript />
       </head>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <ConversationsProvider>{children}</ConversationsProvider>
+        </ThemeProvider>
         <ServiceWorkerRegister />
       </body>
     </html>

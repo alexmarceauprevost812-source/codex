@@ -172,6 +172,22 @@ export async function buildContentBlocks(
 async function processAttachment(
   att: IncomingAttachment,
 ): Promise<Anthropic.ContentBlockParam[]> {
+  // Persistence in localStorage strips heavy base64 payloads — when an
+  // older message is replayed in history, its attachments arrive with
+  // empty `data`. Surface them as a simple text mention so the model
+  // knows the attachment existed without trying (and failing) to load
+  // empty image/document blocks.
+  if (!att.data) {
+    return [
+      {
+        type: "text",
+        text: `[Pièce jointe précédente: ${att.name}${
+          att.type ? ` (${att.type})` : ""
+        } — contenu non conservé dans l'historique]`,
+      },
+    ];
+  }
+
   if (isImage(att)) {
     return [
       {

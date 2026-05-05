@@ -8,12 +8,12 @@ import {
   streamChat,
   type ClientAttachment,
   type ClientMessage,
-  type CommitState,
 } from "@/lib/chat/client";
 
 import { ChatBubble } from "./chat-bubble";
 import { ChatInput } from "./chat-input";
 import { ChatMetaBar } from "./chat-meta-bar";
+import { useConversations } from "./conversations-provider";
 import { useTheme, type GithubProject } from "./theme-provider";
 
 export type Attachment = ClientAttachment;
@@ -29,22 +29,31 @@ export function ChatInterface({
   removed: number;
 }) {
   const { model, apiKey, githubProject, autoCommit } = useTheme();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const {
+    active,
+    activeId,
+    newConversation,
+    updateMessages,
+  } = useConversations();
   const [isStreaming, setIsStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
-  const updateMessage = useCallback(
-    (id: string, patch: Partial<Message>) => {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, ...patch } : m)),
-      );
-    },
-    [],
-  );
+  const messages = active?.messages ?? [];
+
+  // Most recent message snapshot for safe in-flight updates regardless
+  // of React's render cadence.
+  const messagesRef = useRef<Message[]>(messages);
+  messagesRef.current = messages;
 
   const handleSend = useCallback(
     async (content: string, files: File[]) => {
       if (isStreaming) return;
+
+      // Make sure we have a conversation to write into.
+      let conversationId = activeId;
+      if (!conversationId) {
+        conversationId = newConversation();
+      }
 
       let attachments: ClientAttachment[];
       try {
@@ -52,14 +61,15 @@ export function ChatInterface({
       } catch (error) {
         const text =
           error instanceof Error ? error.message : "Erreur de fichier";
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: "",
-            error: text,
-          },
+        const errorMessage: Message = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "",
+          error: text,
+        };
+        updateMessages(conversationId, [
+          ...messagesRef.current,
+          errorMessage,
         ]);
         return;
       }
@@ -79,28 +89,38 @@ export function ChatInterface({
         model,
       };
 
-      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+      let working: Message[] = [
+        ...messagesRef.current,
+        userMessage,
+        assistantMessage,
+      ];
+      updateMessages(conversationId, working);
       setIsStreaming(true);
+
+      const patch = (id: string, updater: (m: Message) => Message) => {
+        working = working.map((m) => (m.id === id ? updater(m) : m));
+        updateMessages(conversationId!, working);
+      };
 
       const controller = new AbortController();
       abortRef.current = controller;
 
       let finalContent = "";
       try {
-        const history: Message[] = [...messages, userMessage];
-        for await (const event of streamChat(history, model, {
+        for await (const event of streamChat(working.slice(0, -1), model, {
           mode: "codex",
           apiKey,
           signal: controller.signal,
         })) {
           if (event.type === "text") {
             finalContent += event.text;
-            updateMessage(assistantId, { content: finalContent });
+            patch(assistantId, (m) => ({ ...m, content: finalContent }));
           } else if (event.type === "error") {
-            updateMessage(assistantId, {
+            patch(assistantId, (m) => ({
+              ...m,
               error: event.error,
               streaming: false,
-            });
+            }));
           }
         }
       } catch (error) {
@@ -109,25 +129,40 @@ export function ChatInterface({
         ) {
           const text =
             error instanceof Error ? error.message : "Erreur de streaming";
-          updateMessage(assistantId, { error: text, streaming: false });
+          patch(assistantId, (m) => ({ ...m, error: text, streaming: false }));
         }
       } finally {
-        updateMessage(assistantId, { streaming: false });
+        patch(assistantId, (m) => ({ ...m, streaming: false }));
         setIsStreaming(false);
         abortRef.current = null;
 
         if (autoCommit && githubProject) {
           await runAutoCommit(
+            conversationId!,
             assistantId,
             finalContent,
             content,
             githubProject,
-            updateMessage,
+            (cid, mid, commit) => {
+              working = working.map((m) =>
+                m.id === mid ? { ...m, commit } : m,
+              );
+              updateMessages(cid, working);
+            },
           );
         }
       }
     },
-    [apiKey, autoCommit, githubProject, isStreaming, messages, model, updateMessage],
+    [
+      apiKey,
+      activeId,
+      autoCommit,
+      githubProject,
+      isStreaming,
+      model,
+      newConversation,
+      updateMessages,
+    ],
   );
 
   const handleStop = useCallback(() => {
@@ -145,7 +180,7 @@ export function ChatInterface({
           ))
         )}
       </div>
-      <div className="fixed inset-x-0 bottom-0 z-20 px-4 pb-6 pl-4 sm:pl-20">
+      <div className="fixed inset-x-0 bottom-0 z-20 px-4 pb-6 pl-4 sm:pl-72">
         <div className="mx-auto max-w-3xl">
           <ChatMetaBar branch={branch} added={added} removed={removed} />
           <ChatInput
@@ -160,29 +195,32 @@ export function ChatInterface({
 }
 
 async function runAutoCommit(
+  conversationId: string,
   messageId: string,
   assistantContent: string,
   userPrompt: string,
   project: GithubProject,
-  update: (id: string, patch: Partial<Message>) => void,
+  patchCommit: (
+    conversationId: string,
+    messageId: string,
+    commit: NonNullable<Message["commit"]>,
+  ) => void,
 ) {
   const files = parseFileBlocks(assistantContent);
   if (files.length === 0) {
-    // Surface this so the user knows why nothing was pushed instead
-    // of being silently confused.
-    update(messageId, {
-      commit: {
-        status: "skipped",
-        message:
-          "Aucun bloc avec annotation `file:chemin` détecté dans la réponse — rien à pousser.",
-      },
+    patchCommit(conversationId, messageId, {
+      status: "skipped",
+      message:
+        "Aucun bloc avec annotation `file:chemin` détecté dans la réponse — rien à pousser.",
     });
     return;
   }
 
   const paths = files.map((f) => f.path);
-  update(messageId, {
-    commit: { status: "pending", files: files.length, paths },
+  patchCommit(conversationId, messageId, {
+    status: "pending",
+    files: files.length,
+    paths,
   });
 
   const commitMessage = userPrompt.trim()
@@ -209,8 +247,10 @@ async function runAutoCommit(
       } catch {
         // ignore
       }
-      update(messageId, {
-        commit: { status: "error", message: errMsg, paths },
+      patchCommit(conversationId, messageId, {
+        status: "error",
+        message: errMsg,
+        paths,
       });
       return;
     }
@@ -219,22 +259,18 @@ async function runAutoCommit(
       url: string;
       files: number;
     };
-    update(messageId, {
-      commit: {
-        status: "ok",
-        url: data.url,
-        files: data.files,
-        paths,
-      },
+    patchCommit(conversationId, messageId, {
+      status: "ok",
+      url: data.url,
+      files: data.files,
+      paths,
     });
   } catch (error) {
-    update(messageId, {
-      commit: {
-        status: "error",
-        message:
-          error instanceof Error ? error.message : "Erreur réseau inconnue.",
-        paths,
-      },
+    patchCommit(conversationId, messageId, {
+      status: "error",
+      message:
+        error instanceof Error ? error.message : "Erreur réseau inconnue.",
+      paths,
     });
   }
 }

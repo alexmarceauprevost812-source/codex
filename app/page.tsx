@@ -31,8 +31,8 @@ export default async function Home() {
   return (
     <main className="relative min-h-dvh overflow-hidden">
       <Sidebar />
-      <div className="ml-16 flex min-h-dvh flex-col">
-        <header className="flex items-center justify-between gap-4 px-6 py-4">
+      <div className="flex min-h-dvh flex-col sm:ml-64">
+        <header className="flex items-center justify-between gap-4 px-6 py-4 pl-16 sm:pl-6">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-semibold tracking-tight">Codex</h1>
             {!aiEnabled ? (
