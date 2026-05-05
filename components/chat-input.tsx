@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
+import { EmojiPicker } from "./emoji-picker";
+
 type SpeechResultAlternative = { transcript: string };
 type SpeechResult = ArrayLike<SpeechResultAlternative> & {
   isFinal: boolean;
@@ -41,7 +43,10 @@ export function ChatInput({
   const [value, setValue] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [isListening, setIsListening] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textInputRef = useRef<HTMLInputElement>(null);
+  const emojiBtnRef = useRef<HTMLButtonElement>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   useEffect(() => {
@@ -69,6 +74,24 @@ export function ChatInput({
 
   function removeFile(index: number) {
     setFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function insertEmoji(emoji: string) {
+    const input = textInputRef.current;
+    if (!input) {
+      setValue((prev) => prev + emoji);
+      return;
+    }
+    const start = input.selectionStart ?? value.length;
+    const end = input.selectionEnd ?? value.length;
+    const next = value.slice(0, start) + emoji + value.slice(end);
+    setValue(next);
+    // Restore cursor position after React commits the new value.
+    requestAnimationFrame(() => {
+      input.focus();
+      const cursor = start + emoji.length;
+      input.setSelectionRange(cursor, cursor);
+    });
   }
 
   function toggleMic() {
@@ -133,10 +156,19 @@ export function ChatInput({
           ))}
         </div>
       ) : null}
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center gap-1 rounded-full border border-[var(--border-soft)] bg-[var(--input-surface)] px-2 py-1.5 shadow-2xl backdrop-blur-xl"
-      >
+      <div className="relative">
+        <EmojiPicker
+          open={showEmoji}
+          anchorRef={emojiBtnRef}
+          onClose={() => setShowEmoji(false)}
+          onSelect={(emoji) => {
+            insertEmoji(emoji);
+          }}
+        />
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center gap-1 rounded-full border border-[var(--border-soft)] bg-[var(--input-surface)] px-2 py-1.5 shadow-2xl backdrop-blur-xl"
+        >
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -154,7 +186,19 @@ export function ChatInput({
           onChange={onFileChange}
           className="hidden"
         />
+        <button
+          ref={emojiBtnRef}
+          type="button"
+          onClick={() => setShowEmoji((v) => !v)}
+          aria-label="Insérer un emoji"
+          aria-expanded={showEmoji}
+          title="Emojis"
+          className="rounded-full p-2 text-[var(--accent)] transition hover:bg-[var(--soft-surface)] hover:opacity-90"
+        >
+          <SmileyIcon />
+        </button>
         <input
+          ref={textInputRef}
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder={
@@ -196,8 +240,29 @@ export function ChatInput({
             Envoyer
           </button>
         )}
-      </form>
+        </form>
+      </div>
     </div>
+  );
+}
+
+function SmileyIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+      <line x1="9" y1="9" x2="9.01" y2="9" />
+      <line x1="15" y1="9" x2="15.01" y2="9" />
+    </svg>
   );
 }
 
