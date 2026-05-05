@@ -1,8 +1,20 @@
+"use client";
+
+import { useTypewriter } from "@/lib/chat/typewriter";
+
 import type { Message } from "./chat-interface";
 
 export function ChatBubble({ message }: { message: Message }) {
   const isUser = message.role === "user";
-  const showCursor = message.streaming && !message.error;
+  const isStreaming = !!message.streaming;
+  const showCursor = isStreaming && !message.error;
+
+  // Smooth letter-by-letter reveal for assistant messages while streaming.
+  // User messages and final assistant content render immediately.
+  const displayed = useTypewriter(
+    message.content,
+    isUser || !isStreaming,
+  );
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -30,9 +42,9 @@ export function ChatBubble({ message }: { message: Message }) {
           </div>
         ) : null}
 
-        {message.content ? (
+        {displayed ? (
           <p className="whitespace-pre-wrap">
-            {message.content}
+            {displayed}
             {showCursor ? <Cursor /> : null}
           </p>
         ) : showCursor ? (
@@ -47,8 +59,46 @@ export function ChatBubble({ message }: { message: Message }) {
             {message.error}
           </p>
         ) : null}
+
+        {message.commit ? <CommitBanner commit={message.commit} /> : null}
       </div>
     </div>
+  );
+}
+
+function CommitBanner({
+  commit,
+}: {
+  commit: { status: "pending" | "ok" | "error"; message?: string; url?: string; files?: number };
+}) {
+  if (commit.status === "pending") {
+    return (
+      <p className="rounded-xl border border-[var(--border-soft)] bg-[var(--soft-surface)] px-3 py-2 text-xs text-[var(--fg-70)]">
+        Push vers GitHub en cours…
+      </p>
+    );
+  }
+  if (commit.status === "error") {
+    return (
+      <p className="rounded-xl bg-red-500/10 px-3 py-2 text-xs text-red-400">
+        Push échoué : {commit.message ?? "erreur inconnue"}
+      </p>
+    );
+  }
+  return (
+    <p className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-400">
+      ✓ {commit.files ?? 0} fichier{(commit.files ?? 0) > 1 ? "s" : ""} poussé(s).{" "}
+      {commit.url ? (
+        <a
+          href={commit.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2"
+        >
+          Voir le commit
+        </a>
+      ) : null}
+    </p>
   );
 }
 

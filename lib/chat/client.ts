@@ -9,6 +9,13 @@ export type ClientAttachment = {
   size: number;
 };
 
+export type CommitState = {
+  status: "pending" | "ok" | "error";
+  message?: string;
+  url?: string;
+  files?: number;
+};
+
 export type ClientMessage = {
   id: string;
   role: ChatRole;
@@ -17,6 +24,7 @@ export type ClientMessage = {
   streaming?: boolean;
   error?: string;
   model?: ModelId;
+  commit?: CommitState;
 };
 
 export type ChatStreamEvent =

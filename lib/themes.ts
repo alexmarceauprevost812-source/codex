@@ -27,6 +27,10 @@ export const STORAGE_KEY_ACCENT = "codex-accent";
 export const STORAGE_KEY_BG_MODE = "codex-bg-mode";
 export const STORAGE_KEY_BG_OPACITY = "codex-bg-opacity";
 export const STORAGE_KEY_API_KEY = "codex-anthropic-api-key";
+export const STORAGE_KEY_GITHUB_TOKEN = "codex-github-token";
+export const STORAGE_KEY_GITHUB_REPO = "codex-github-repo";
+export const STORAGE_KEY_GITHUB_BRANCH = "codex-github-branch";
+export const STORAGE_KEY_AUTO_COMMIT = "codex-auto-commit";
 
 // Kept for backwards-compatibility with any older imports.
 export const STORAGE_KEY = STORAGE_KEY_ACCENT;

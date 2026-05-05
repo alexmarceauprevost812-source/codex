@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { streamChat, type ClientMessage } from "@/lib/chat/client";
+import { useTypewriter } from "@/lib/chat/typewriter";
 
 import { useTheme } from "./theme-provider";
 
@@ -225,7 +226,12 @@ export function GhostChat() {
 
 function GhostBubble({ message }: { message: ClientMessage }) {
   const isUser = message.role === "user";
-  const showCursor = message.streaming && !message.error;
+  const isStreaming = !!message.streaming;
+  const showCursor = isStreaming && !message.error;
+  const displayed = useTypewriter(
+    message.content,
+    isUser || !isStreaming,
+  );
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
@@ -235,9 +241,9 @@ function GhostBubble({ message }: { message: ClientMessage }) {
             : "border border-[var(--border-soft)] bg-[var(--assist-bubble)]"
         }`}
       >
-        {message.content ? (
+        {displayed ? (
           <p className="whitespace-pre-wrap">
-            {message.content}
+            {displayed}
             {showCursor ? <Cursor /> : null}
           </p>
         ) : showCursor ? (
