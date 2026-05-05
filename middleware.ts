@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabaseEnv } from "@/lib/supabase/env";
@@ -11,7 +12,7 @@ export async function middleware(request: NextRequest) {
   const env = getSupabaseEnv();
   if (!env) return response;
 
-  const supabase = createServerClient(env.url, env.anonKey, {
+  const supabase: SupabaseClient = createServerClient(env.url, env.anonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
