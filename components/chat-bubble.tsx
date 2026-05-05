@@ -3,6 +3,7 @@
 import { useTypewriter } from "@/lib/chat/typewriter";
 
 import type { Message } from "./chat-interface";
+import { MarkdownContent } from "./markdown-content";
 
 export function ChatBubble({ message }: { message: Message }) {
   const isUser = message.role === "user";
@@ -19,9 +20,9 @@ export function ChatBubble({ message }: { message: Message }) {
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[80%] space-y-2 rounded-3xl px-5 py-3 text-sm leading-relaxed text-[var(--fg)] shadow-sm backdrop-blur-md ${
+        className={`max-w-[80%] space-y-2 rounded-3xl px-5 py-3 text-sm text-[var(--fg)] shadow-sm backdrop-blur-md ${
           isUser
-            ? "bg-[var(--user-bubble)]"
+            ? "bg-[var(--user-bubble)] leading-relaxed"
             : "border border-[var(--border-soft)] bg-[var(--assist-bubble)]"
         }`}
       >
@@ -43,10 +44,14 @@ export function ChatBubble({ message }: { message: Message }) {
         ) : null}
 
         {displayed ? (
-          <p className="whitespace-pre-wrap">
-            {displayed}
-            {showCursor ? <Cursor /> : null}
-          </p>
+          isUser ? (
+            <p className="whitespace-pre-wrap leading-relaxed">{displayed}</p>
+          ) : (
+            <div className="relative">
+              <MarkdownContent text={displayed} />
+              {showCursor ? <Cursor /> : null}
+            </div>
+          )
         ) : showCursor ? (
           <p className="text-[var(--fg-60)]">
             Codex réfléchit

@@ -11,6 +11,7 @@ import {
 import { streamChat, type ClientMessage } from "@/lib/chat/client";
 import { useTypewriter } from "@/lib/chat/typewriter";
 
+import { MarkdownContent } from "./markdown-content";
 import { useTheme } from "./theme-provider";
 
 const GHOST_MODEL = "claude-haiku-4-5"; // fast + cheap for casual chat
@@ -242,10 +243,14 @@ function GhostBubble({ message }: { message: ClientMessage }) {
         }`}
       >
         {displayed ? (
-          <p className="whitespace-pre-wrap">
-            {displayed}
-            {showCursor ? <Cursor /> : null}
-          </p>
+          isUser ? (
+            <p className="whitespace-pre-wrap">{displayed}</p>
+          ) : (
+            <div className="relative text-[13px]">
+              <MarkdownContent text={displayed} />
+              {showCursor ? <Cursor /> : null}
+            </div>
+          )
         ) : showCursor ? (
           <p className="text-[var(--fg-60)]">
             <Cursor />
