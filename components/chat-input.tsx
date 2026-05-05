@@ -140,7 +140,7 @@ export function ChatInput({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="rounded-full p-2 text-[var(--fg-70)] transition hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
+          className="rounded-full p-2 text-[var(--accent)] transition hover:bg-[var(--soft-surface)] hover:opacity-90"
           aria-label="Ajouter un fichier"
           title="Ajouter un fichier (incluant .zip)"
         >
@@ -169,7 +169,7 @@ export function ChatInput({
           className={`rounded-full p-2 transition ${
             isListening
               ? "animate-pulse bg-red-500 text-white"
-              : "text-[var(--fg-70)] hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
+              : "text-[var(--accent)] hover:bg-[var(--soft-surface)] hover:opacity-90"
           }`}
           aria-label={
             isListening ? "Arrêter la dictée" : "Dicter un message"

@@ -37,7 +37,7 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1.5 text-[var(--fg-60)] transition hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
+            className="rounded-full p-1.5 text-[var(--accent)] transition hover:bg-[var(--soft-surface)] hover:opacity-90"
             aria-label="Fermer"
           >
             <CloseIcon />

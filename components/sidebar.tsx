@@ -13,7 +13,7 @@ export function Sidebar() {
         <div className="flex flex-col items-center gap-2">
           <button
             type="button"
-            className="rounded-full p-2 text-[var(--fg-70)] transition hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
+            className="rounded-full p-2 text-[var(--accent)] transition hover:bg-[var(--soft-surface)] hover:opacity-90"
             aria-label="Nouvelle conversation"
             title="Nouvelle conversation"
           >
@@ -24,7 +24,7 @@ export function Sidebar() {
           <button
             type="button"
             onClick={() => setShowSettings(true)}
-            className="rounded-full p-2 text-[var(--fg-70)] transition hover:bg-[var(--soft-surface)] hover:text-[var(--fg)]"
+            className="rounded-full p-2 text-[var(--accent)] transition hover:bg-[var(--soft-surface)] hover:opacity-90"
             aria-label="Paramètres"
             title="Paramètres"
           >
