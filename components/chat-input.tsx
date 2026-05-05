@@ -232,17 +232,43 @@ export function ChatInput({
             Arrêter
           </button>
         ) : (
-          <button
-            type="submit"
-            disabled={(!value.trim() && files.length === 0) || isStreaming}
-            className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-text)] shadow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Envoyer
-          </button>
+          (() => {
+            const disabled =
+              (!value.trim() && files.length === 0) || isStreaming;
+            return (
+              <button
+                type="submit"
+                disabled={disabled}
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--accent-text)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 ${
+                  disabled ? "" : "codex-bolt-active"
+                }`}
+                aria-label="Envoyer"
+                title="Envoyer"
+              >
+                <BoltIcon />
+              </button>
+            );
+          })()
         )}
         </form>
       </div>
     </div>
+  );
+}
+
+function BoltIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        d="M13.5 1.5L4 13.5h6.5L9 22.5l9.5-12H12l1.5-9z"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 

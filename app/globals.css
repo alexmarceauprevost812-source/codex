@@ -108,3 +108,48 @@ body {
     animation: none;
   }
 }
+
+/* Send button "lightning" animations.
+   - codex-bolt-breathe: gentle scale pulse so the eye follows the
+     button even at rest.
+   - codex-bolt-glow:    accent-colored halo that rises and falls,
+     giving an "electric / loading" sensation. */
+@keyframes codex-bolt-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+
+@keyframes codex-bolt-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent),
+      0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent),
+      0 0 22px 4px color-mix(in srgb, var(--accent) 65%, transparent),
+      0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.codex-bolt-active {
+  animation:
+    codex-bolt-breathe 2.6s ease-in-out infinite,
+    codex-bolt-glow 1.8s ease-in-out infinite;
+}
+
+.codex-bolt-active svg {
+  filter: drop-shadow(
+    0 0 4px color-mix(in srgb, var(--accent-text) 40%, transparent)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .codex-bolt-active {
+    animation: none;
+  }
+  .codex-bolt-active svg {
+    filter: none;
+  }
+}
